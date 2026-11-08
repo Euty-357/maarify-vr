@@ -10,5 +10,9 @@
   "m2-cosmos": {
     "triangles": 7520,
     "drawCalls": 75
+  },
+  "m3-quantum": {
+    "triangles": 7220,
+    "drawCalls": 82
   }
 }

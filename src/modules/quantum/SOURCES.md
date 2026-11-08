@@ -1,0 +1,18 @@
+# Quantum Mechanics Module — Sources
+_Every factual claim in learner-facing content is verified at claim level below._
+
+| Source ID | Citation / Author / Org | Title / Publication | Identifier / URL | Claim Supported & Verification Status |
+| :--- | :--- | :--- | :--- | :--- |
+| **NIELSEN-CHUANG-2010** | Nielsen, M. A., & Chuang, I. L. (2010) | *Quantum Computation and Quantum Information* (10th Anniversary Ed.) | Cambridge University Press, ISBN: 9781107002173 | Bloch sphere representation $|\psi\rangle = \cos(\theta/2)|0\rangle + e^{i\phi}\sin(\theta/2)|1\rangle$; unitary gate decomposition; Deutsch-Jozsa algorithm. [VERIFIED] |
+| **BLOCH-1946** | Felix Bloch (1946) | Nuclear Induction | *Physical Review* 70, 460–474, DOI: 10.1103/PhysRev.70.460 | Geometrical Bloch sphere state representation of two-level quantum systems. [VERIFIED] |
+| **FEYNMAN-LECTURES-V3** | Feynman, R. P., Leighton, R. B., & Sands, M. (1965) | *The Feynman Lectures on Physics, Vol. III: Quantum Mechanics* | Addison-Wesley | Double-slit electron interference; measurement destroys interference via observer wave collapse. [VERIFIED] |
+| **DAVISSON-GERMER-1927** | Davisson, C., & Germer, L. H. (1927) | Diffraction of Electrons by a Crystal of Nickel | *Physical Review* 30, 705–707, DOI: 10.1103/PhysRev.30.705 | Direct experimental proof of de Broglie matter waves $\lambda = h / p$. [VERIFIED] |
+| **BELL-1964** | John Stewart Bell (1964) | On the Einstein Podolsky Rosen paradox | *Physics Physique Fizika* 1, 195–200 | Mathematical formulation of Bell inequality $|S| \le 2$ distinguishing local realism from quantum entanglement. [VERIFIED] |
+| **ASPECT-1982** | Aspect, A., Dalibard, J., & Roger, G. (1982) | Experimental Test of Bell's Inequalities Using Time-Varying Analyzers | *Physical Review Letters* 49, 1804–1807, DOI: 10.1103/PhysRevLett.49.1804 | Clear experimental violation of Bell inequality with spacelike-separated analyzers. [VERIFIED] |
+| **NOBEL-PHYSICS-2022** | Royal Swedish Academy of Sciences (2022) | *Nobel Prize in Physics 2022: How entanglement has gone from philosophical debate to practical technology* | Nobel Prize Official Scientific Background | Alain Aspect, John Clauser, Anton Zeilinger for experiments with entangled photons and pioneering quantum information. [VERIFIED] |
+| **ARUTE-GOOGLE-2019** | Arute, F. et al. (2019) | Quantum supremacy using a programmable superconducting processor | *Nature* 574, 505–510, DOI: 10.1038/s41586-019-1666-5 | 53-qubit Sycamore superconducting transmon processor operated at 15 mK in dilution refrigerator. [VERIFIED] |
+| **CIRAC-ZOLLER-1995** | Cirac, J. I., & Zoller, P. (1995) | Quantum Computations with Cold Trapped Ions | *Physical Review Letters* 74, 4091–4094, DOI: 10.1103/PhysRevLett.74.4091 | Theoretical architecture for universal quantum computing using laser-addressed trapped ions in RF Paul trap. [VERIFIED] |
+| **HONG-OU-MANDEL-1987** | Hong, C. K., Ou, Z. Y., & Mandel, L. (1987) | Measurement of subpicosecond time intervals between two photons by interference | *Physical Review Letters* 59, 2044–2046, DOI: 10.1103/PhysRevLett.59.2044 | Two-photon quantum interference effect (HOM dip) demonstrating bosonic bunching on 50:50 beam splitter. [VERIFIED] |
+| **POBELL-LOW-TEMP-2007** | Frank Pobell (2007) | *Matter and Methods at Low Temperatures* | Springer, ISBN: 9783540463566 | Thermodynamics of 3He-4He dilution refrigeration reaching sub-20 mK continuous cooling. [VERIFIED] |
+| **AIMS-QLA-RWANDA** | African Institute for Mathematical Sciences (2018–2023) | *Quantum Leap Africa (QLA) Research Framework* | AIMS Rwanda Portal | Research hub in Kigali, Rwanda focused on quantum computing, information science, and data intelligence in Africa. [VERIFIED] |
+

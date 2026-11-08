@@ -23,8 +23,8 @@ export const MODULE_FLAGS: Record<string, ModuleFeatureConfig> = {
   quantum: {
     id: 'quantum',
     name: 'Quantum Mechanics',
-    readiness: 'experimental',
-    enabled: false,
+    readiness: 'ready',
+    enabled: true,
   },
   'human-body': {
     id: 'human-body',

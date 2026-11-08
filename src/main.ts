@@ -112,11 +112,20 @@ function initApp() {
 }
 
 export async function loadModule(id: string): Promise<THREE.Object3D | null> {
+  if (activeModuleDef) {
+    activeModuleDef.unload();
+  }
+
   if (id === 'cosmos') {
-    if (activeModuleDef) {
-      activeModuleDef.unload();
-    }
     const mod = (await import('./modules/cosmos/index')).default;
+    hubWorld.visible = false;
+    smokeTestZone.visible = false;
+    activeModuleDef = mod;
+    activeModuleRoot = await mod.load(scene);
+    currentModuleName = id;
+    return activeModuleRoot;
+  } else if (id === 'quantum') {
+    const mod = (await import('./modules/quantum/index')).default;
     hubWorld.visible = false;
     smokeTestZone.visible = false;
     activeModuleDef = mod;
@@ -164,6 +173,8 @@ function setupDesktopInteraction() {
       // 5. Hub Portal Click
       else if (hit.name.includes('cosmos') || hit.parent?.name.includes('cosmos')) {
         loadModule('cosmos');
+      } else if (hit.name.includes('quantum') || hit.parent?.name.includes('quantum')) {
+        loadModule('quantum');
       }
     }
   });

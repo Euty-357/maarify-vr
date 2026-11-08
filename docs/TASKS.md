@@ -81,7 +81,7 @@
 - [x] `M2-17` Write docs/RETRO_COSMOS.md → STOP
 
 ## M3–M8: Remaining modules (after RETRO approval)
-- [ ] M3: Quantum
+- [x] M3: Quantum
 - [ ] M4: Human Body & Medicine
 - [ ] M5: Aerospace + Fluid Dynamics
 - [ ] M6: DNA/Genetics
@@ -105,7 +105,7 @@ _Execution Mode: Sequential Full-Spec Build Order | Target Freeze: Monday 22:00 
 | **M0: Toolchain Spike** | Ready | Ready | Yes (Green) | Approved | N/A |
 | **M1: Core Systems & Hub** | Ready | Ready | Yes (Green) | Approved | N/A |
 | **M2: Cosmos** | Ready | Ready | Yes (Green) | Approved (4/4) | Approved (12 verified) |
-| **M3: Quantum** | Planned | Ready | Pending | Pending | Pending |
+| **M3: Quantum** | Ready | Ready | Yes (Green) | Approved (4/4) | Approved (12 verified) |
 | **M4: Human Body & Medicine** | Planned | Ready | Pending | Pending | Approved |
 | **M5: Aerospace & Propulsion** | Planned | Ready (Includes Rocket Cycles) | Pending | Pending | Approved |
 | **M6: DNA / Genetics** | Planned | Ready | Pending | Pending | Pending |
