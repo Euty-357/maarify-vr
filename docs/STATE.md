@@ -26,7 +26,7 @@ _This file is the single source of truth for resuming any session. Update it aft
 - None. Quality tiers, hardware updates, rocket propulsion scope, and sequential full-spec delivery rules are fully embedded.
 
 ## Last Green Commit
-- `0c13267` — `feat(m1): core systems, spatial hub with 7 portals, and device smoke-test zone`
+- `4144db0` — `feat(m1): core systems, spatial hub with 7 portals, and device smoke-test zone` (Author: `Euty-357`)
 
 ## Which Tool/Session Last Worked
 - Antigravity, 2026-11-08T18:15 EAT
