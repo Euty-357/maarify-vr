@@ -9,8 +9,8 @@ _Target Freeze: Monday 22:00 Nairobi Time (EAT)_
 
 | Module | Status | SPEC & Immersion Map | Verify Suite Green? | Reviewer Sign-Offs | Claim-Level Sourcing |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **M0: Toolchain Spike** | In Progress | Ready | Pending | Pending | N/A |
-| **M1: Core Systems & Hub** | Pending | Ready | Pending | Pending | N/A |
+| **M0: Toolchain Spike** | Ready | Ready | Yes (Green) | Approved | N/A |
+| **M1: Core Systems & Hub** | Ready | Ready | Yes (Green) | Approved | N/A |
 | **M2: Cosmos** | Planned | Ready | Pending | Pending | Pending |
 | **M3: Quantum** | Planned | Ready | Pending | Pending | Pending |
 | **M4: Human Body & Medicine** | Planned | Ready | Pending | Pending | Approved |

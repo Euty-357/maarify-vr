@@ -32,3 +32,20 @@ _Never delete entries. Append only._
 - **P3-IMMERSION-06** DONE: Performed live HTTP/DOI automated verification of all citations in `docs/research/curriculum-strategy.md`, generating `docs/research/citation-audit.md` (24 verified, 2 updated with canonical DOIs, 0 ungrounded claims).
 - **P3-IMMERSION-07** DONE: Formally reviewed Pumwani Sex Worker Cohort and oncology curriculum with `science-medical-reviewer`, generating `docs/research/medical-sensitivity-justification.md` approving inclusion under destigmatizing and U=U clinical framing.
 - **P3-IMMERSION-GATE** AT STOP GATE: Immersion audit complete across all documentation. Awaiting user review and approval to proceed to M0.
+
+---
+## 2026-11-08T17:30 EAT | Session 3 | Target Hardware Update, M0 & M1 Completion
+- **HARDWARE UPDATE:** Meta Quest 3 designated as primary test headset. Quest 3S and Quest 2 (baseline floor) fully supported. Quality Tiers defined: Tier A (Quest 2 baseline, 72 fps, <100k tris) and Tier B (Quest 3 provisional, 90/120 fps, <250k tris).
+- **M0 DONE:** Toolchain initialized with Vite, TypeScript strict, Three.js, Vitest, Playwright, and IWER. Fixed-timestep physics accumulator unit tests passing (deterministic across 72/90/120 Hz). Grabbable hello-cube implemented with desktop fallback. Pre-commit hygiene check passing with zero secrets. Commit `b77ff9e`.
+- **M1 DONE:**
+  - Implemented `src/core/spatial-anchors/diegetic-anchor.ts` (3D tags, leader lines, state machine).
+  - Implemented `src/core/haptics/haptics.ts` (`triggerHapticPulse` for Touch Plus actuators).
+  - Implemented `src/core/comfort/comfort.ts` (dynamic radial vignette).
+  - Implemented `src/core/audio/spatial-audio.ts` (Web Audio HRTF spatialization).
+  - Implemented `src/core/store/progress-store.ts` with 5 Vitest unit tests passing.
+  - Implemented `src/hub/hub-world.ts` with 7 physical portals and depth-tier selector plinth.
+  - Implemented `src/hub/smoke-test-zone.ts` for Tuesday Quest 3 device smoke testing.
+  - Added Playwright e2e test `tests/e2e/m1-hub-smoke-test.spec.ts` capturing multi-pose screenshot matrix.
+  - Budget verified: 5,816 triangles (well under 100k budget) and 19 draw calls (well under 100).
+  - `npm run verify` 100% green. Commit `0c13267`.
+- **M1 STOP GATE REACHED:** Halting per user instructions for Tuesday Quest 3 hardware testing and review before building Cosmos.

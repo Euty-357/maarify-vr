@@ -2,31 +2,31 @@
 _This file is the single source of truth for resuming any session. Update it after every task._
 
 ## Current Phase / Milestone
-- **Phase:** 3 — Immersion Audit Complete (STOP Gate)
-- **Milestone:** Pre-M0 (Immersion Audit Sign-Off)
+- **Phase:** Implementation Active — Reached **M1 STOP GATE**
+- **Milestone:** M1 Core Systems & Spatial Hub Complete (Awaiting Tuesday Quest 3 device smoke-test)
 
 ## Last Completed Task
-- `P3-IMMERSION-07`: Full Immersion Audit completed across all 7 module specs, architecture, plan, and governance.
-- Binding `docs/IMMERSION_CHARTER.md` established.
-- Spatial interaction skill and `immersion-reviewer` role created and synced.
-- Citation audit and medical sensitivity justification signed off.
+- `M1-11`: Milestone M1 committed (`0c13267`) with verify pipeline 100% green.
+  - Core subsystems implemented: Fixed-timestep physics, WebXR Touch Plus haptics, Web Audio HRTF spatialization, dynamic comfort vignette, Diegetic Spatial Anchor kit, in-memory store.
+  - Spatial Hub World with 7 physical portals and depth tier plinth.
+  - Hub Device Smoke-Test Zone ready for Tuesday testing.
+  - Automated verify passing (hygiene, typecheck, lint, 6 unit tests, 2 Playwright e2e tests, Tier A budget check: 5,816 tris / 19 draw calls).
 
 ## In Progress
-- Presenting Phase 3 Immersion Audit changes, module diffs, citation audit results, and open decisions for user review and approval.
+- Stopped at M1 Gate per instructions. Ready for Quest 3 device testing of M0/M1 interactions on Tuesday before Cosmos full-spec development commences.
 
 ## Next Action
-1. User reviews the Immersion Audit results and approves proceeding.
-2. Once approved, initiate Milestone M0: Install dependencies (`vite`, `three`, `typescript`, `vitest`, `@playwright/test`, `iwer`), configure Vite + TS, implement spatial WebXR hello-cube with flat fallback, verify pipeline green, and make initial git commit.
+1. User tests M0/M1 on physical Meta Quest 3 using the Tuesday Smoke-Test Procedure in `docs/HEADSET_TEST.md`.
+2. Upon user review/approval, proceed with full sequential build: **M2 Cosmos (Vertical Slice, 100% SPEC)**.
 
 ## Blockers
-- None. Physical headset testing scheduled for Tuesday; all device tests cataloged in `docs/DEVICE_TEST_BACKLOG.md`.
+- None. All emulator and automated tests green. Physical headset tests scheduled for Tuesday.
 
 ## Open Questions
-- Confirmation of Immersion Audit redesign (Diegetic Spatial Anchors + 3D Micro-Simulations across all modules).
-- Approval to start M0 toolchain installation.
+- None. Quality tiers, hardware updates, rocket propulsion scope, and sequential full-spec delivery rules are fully embedded.
 
 ## Last Green Commit
-- None yet (no commits prior to M0 verify pipeline green)
+- `0c13267` — `feat(m1): core systems, spatial hub with 7 portals, and device smoke-test zone`
 
 ## Which Tool/Session Last Worked
-- Antigravity, 2026-11-08T07:25 EAT
+- Antigravity, 2026-11-08T18:15 EAT

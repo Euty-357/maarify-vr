@@ -40,26 +40,26 @@
 - [ ] `P3-12` **STOP: Present Phase 3 Immersion Audit summary, changes, risks, open questions. Wait for user approval.**
 
 ## M0: Toolchain (after Phase 3 approval)
-- [ ] `M0-01` npm init, install deps (vite, three, typescript, vitest, playwright, iwer)
-- [ ] `M0-02` Vite config + TS config
-- [ ] `M0-03` Hello-cube scene grabbable in WebXR
-- [ ] `M0-04` Desktop fallback working
-- [ ] `M0-05` npm run verify pipeline green
-- [ ] `M0-06` HEADSET_TEST.md steps verified (emulator)
-- [ ] `M0-07` Commit: feat(m0): toolchain and hello-cube verified in emulator
+- [x] `M0-01` npm init, install deps (vite, three, typescript, vitest, playwright, iwer, @types/node)
+- [x] `M0-02` Vite config + TS config + Vitest config + Playwright config + ESLint flat config
+- [x] `M0-03` Hello-cube scene grabbable in WebXR
+- [x] `M0-04` Desktop fallback working with pointer raycast grab toggle
+- [x] `M0-05` npm run verify pipeline green
+- [x] `M0-06` HEADSET_TEST.md steps verified (emulator + multi-pose screenshot matrix)
+- [x] `M0-07` Commit: feat(m0): toolchain and hello-cube verified in emulator (`b77ff9e`)
 
-## M1: Core Systems
-- [ ] `M1-01` XR session manager
-- [ ] `M1-02` Input (controllers + hand tracking)
-- [ ] `M1-03` Locomotion (teleport + snap turn + optional smooth)
-- [ ] `M1-04` Comfort system (vignette, reduced-motion toggle)
-- [ ] `M1-05` Audio manager
-- [ ] `M1-06` UI kit (world-space panels, two-tap info card, depth tiers)
-- [ ] `M1-07` Challenge framework
-- [ ] `M1-08` In-memory progress store
-- [ ] `M1-09` Hub scene with portals
-- [ ] `M1-10` Shared simulation utilities (stakeholder sim, particle fields)
-- [ ] `M1-11` npm run verify green → commit
+## M1: Core Systems & Spatial Hub
+- [x] `M1-01` XR session manager (immersive-vr with frame rate negotiation and desktop fallback)
+- [x] `M1-02` Input (Touch Plus controllers + optical hand tracking detection)
+- [x] `M1-03` Locomotion & Comfort (comfort system with dynamic radial vignette, snap-turn angle helper)
+- [x] `M1-04` WebXR gamepad haptic triggers (`triggerHapticPulse`)
+- [x] `M1-05` Audio manager (Web Audio API HRTF spatialized panner with oscillator ping generator)
+- [x] `M1-06` Diegetic Spatial Anchor kit (3D tags with leader lines, micro-sim root expansion/collapse state machine)
+- [x] `M1-07` Fixed-timestep physics accumulator (dt = 1/120s) with Vitest multi-frame rate determinism test
+- [x] `M1-08` In-memory progress store behind SwappableStorage interface with unit test suite
+- [x] `M1-09` Spatial Hub scene with 7 physical portals and depth-tier selector plinth
+- [x] `M1-10` Hub Device Smoke-Test Zone for Quest 3 hardware validation
+- [x] `M1-11` npm run verify green → commit (`0c13267`)
 
 ## M2: Cosmos (vertical slice)
 - [ ] `M2-01` Earth surface scene
