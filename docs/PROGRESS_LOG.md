@@ -49,3 +49,16 @@ _Never delete entries. Append only._
   - Budget verified: 5,816 triangles (well under 100k budget) and 19 draw calls (well under 100).
   - `npm run verify` 100% green. Commit `0c13267`.
 - **M1 STOP GATE REACHED:** Halting per user instructions for Tuesday Quest 3 hardware testing and review before building Cosmos.
+
+---
+## 2026-11-08T20:50 EAT | Session 4 | Consolidated Instructions & Documentation Convergence
+- **DOCS-INVENTORY DONE:** Completed Step 0 inventory of all markdown files.
+- **MERGE COMPLETED:**
+  - Merged hard "Ready" criteria into `docs/MODULE_TEMPLATE.md`.
+  - Merged module status matrix into `docs/TASKS.md`.
+  - Deleted redundant `docs/BUILD_STATUS.md`.
+  - Created canonical single-line index `docs/INDEX.md`.
+  - Expanded `docs/DECISIONS.md` with full Architectural Decisions Register (D-001 through D-013) and Standing Decisions (Sections A through G).
+  - Cross-linked `docs/HEADSET_TEST.md` and `docs/DEVICE_TEST_BACKLOG.md`.
+- **VERIFY PIPELINE GREEN:** `npm run verify` passed completely (hygiene, typecheck, lint, 6 unit tests, 2 e2e Playwright tests, Tier A budget check: 5,816 tris / 19 draw calls).
+

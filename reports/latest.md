@@ -1,6 +1,6 @@
 # Maarify — Latest Verify Report
-_Generated: 2026-11-08T14:39:38.309Z_
-_Commit: b77ff9e_
+_Generated: 2026-11-08T17:54:30.901Z_
+_Commit: 6312251_
 
 ## Verification Labels
 - Unit tests: **verified by unit test**
@@ -17,4 +17,4 @@ _No test result data yet._
 - All emulator measurements are NOT verified on headset.
 - See [docs/DEVICE_TEST_BACKLOG.md](../docs/DEVICE_TEST_BACKLOG.md) for headset-only test cases.
 
-_History entry: C:\maarify\reports\history\2026-11-08T14-39-38-309Z.json_
+_History entry: C:\maarify\reports\history\2026-11-08T17-54-30-901Z.json_

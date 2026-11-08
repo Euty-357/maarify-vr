@@ -2,22 +2,22 @@
 _This file is the single source of truth for resuming any session. Update it after every task._
 
 ## Current Phase / Milestone
-- **Phase:** Implementation Active — Reached **M1 STOP GATE**
-- **Milestone:** M1 Core Systems & Spatial Hub Complete (Awaiting Tuesday Quest 3 device smoke-test)
+- **Phase:** Implementation Active — Gap Closure & Phase B Primitives
+- **Milestone:** M1 Polish & Shared Interaction Primitives (Pre-M2 Cosmos)
 
 ## Last Completed Task
-- `M1-11`: Milestone M1 committed (`0c13267`) with verify pipeline 100% green.
-  - Core subsystems implemented: Fixed-timestep physics, WebXR Touch Plus haptics, Web Audio HRTF spatialization, dynamic comfort vignette, Diegetic Spatial Anchor kit, in-memory store.
-  - Spatial Hub World with 7 physical portals and depth tier plinth.
-  - Hub Device Smoke-Test Zone ready for Tuesday testing.
-  - Automated verify passing (hygiene, typecheck, lint, 6 unit tests, 2 Playwright e2e tests, Tier A budget check: 5,816 tris / 19 draw calls).
+- `DOCS-CONVERGENCE`: Merged `BUILD_STATUS.md` into `TASKS.md` & `MODULE_TEMPLATE.md`, created `INDEX.md`, expanded `DECISIONS.md` with standing decisions A–G, cross-linked device docs, and verified verify pipeline green.
 
 ## In Progress
-- Stopped at M1 Gate per instructions. Ready for Quest 3 device testing of M0/M1 interactions on Tuesday before Cosmos full-spec development commences.
+- Phase B: Creating centralized `src/config/tuning.ts`, shared interaction primitives (`src/core/input/primitives/`), raw XR lint check, module feature flags, and unit tests.
 
 ## Next Action
-1. User tests M0/M1 on physical Meta Quest 3 using the Tuesday Smoke-Test Procedure in `docs/HEADSET_TEST.md`.
-2. Upon user review/approval, proceed with full sequential build: **M2 Cosmos (Vertical Slice, 100% SPEC)**.
+1. Implement `src/config/tuning.ts` and interaction primitives (`grab`, `poke`, `slider`, `lever`, `rotator`, `scalePinch`, `anchor`, `teleport`, `snapTurn`).
+2. Add ESLint check enforcing modules import only from primitives (no raw XR device APIs).
+3. Add module feature flag system (`src/config/feature-flags.ts`).
+4. Implement runtime tuning panel.
+5. Hub visual pass (lighting, portal text/glow, text rendering on spatial anchor tags).
+6. Proceed to M2 Cosmos full-spec implementation.
 
 ## Blockers
 - None. All emulator and automated tests green. Physical headset tests scheduled for Tuesday.

@@ -82,7 +82,17 @@ export function getSpatialAnchors(): SpatialAnchorDefinition[] {
 
 ---
 
-## 5. Definition of Done Checklist (per module)
+## 5. Definition of Done & "Ready" Criteria (per module)
+A module is tagged as "Ready" and the next module started only when **ALL** seven criteria hold:
+1. **Full Spec Complete:** 100% of parts, interactive 3D anchors (Level 1 + Level 2 micro-sims), challenges, capstone, "Where this is going", Immersion Map, and Dr. Amani audio guidance implemented. Meets all 10 principles of `docs/IMMERSION_CHARTER.md`.
+2. **Verify Suite Green:** `npm run verify` passes with zero type, lint, unit, e2e, budget, or hygiene errors. Zero console errors.
+3. **Four Sign-Offs Obtained:** `immersion-reviewer`, `science-medical-reviewer`, `comfort-accessibility-reviewer`, and `performance-reviewer`.
+4. **Claim-Level Sourcing Complete:** Every factual claim verified and cited at claim level in `SOURCES.md`. Unverified items marked.
+5. **Zero Regression:** All previous ready modules remain 100% green in the automated verify suite.
+6. **Automation Scout Run:** Repeated patterns extracted to `scripts/` or `src/core/`.
+7. **Tracking Synchronized:** `docs/STATE.md`, `docs/TASKS.md`, `docs/PROGRESS_LOG.md` updated, device test cases logged in `docs/DEVICE_TEST_BACKLOG.md`, git tag created.
+
+### Verification Checklist
 - [ ] Meets all 10 principles of `docs/IMMERSION_CHARTER.md`
 - [ ] Complete **Immersion Map** in `docs/modules/<id>/SPEC.md`
 - [ ] Spatial Anchors implemented with spatial leader lines and 3D micro-simulations (no 2D flat cards)
@@ -95,4 +105,5 @@ export function getSpatialAnchors(): SpatialAnchorDefinition[] {
 - [ ] Sign-off obtained: `science-medical-reviewer`
 - [ ] Sign-off obtained: `comfort-accessibility-reviewer`
 - [ ] Sign-off obtained: `immersion-reviewer`
+- [ ] Sign-off obtained: `performance-reviewer`
 - [ ] Device test cases logged in `docs/DEVICE_TEST_BACKLOG.md`

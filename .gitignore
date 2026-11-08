@@ -10,7 +10,8 @@ coverage/
 playwright-report/
 test-results/
 blob-report/
-reports/history/screenshots/
+reports/history/
+
 
 # Environment and secrets
 .env

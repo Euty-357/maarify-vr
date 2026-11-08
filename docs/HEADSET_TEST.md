@@ -2,6 +2,7 @@
 _Primary Test Device: Meta Quest 3 (Quest 3S & Quest 2 supported)_
 _Last Updated: 2026-11-08_
 _Status: Pre-device instructions. All headset metrics marked NOT verified on headset until Tuesday test run._
+> **Companion Backlog:** See [DEVICE_TEST_BACKLOG.md](file:///c:/maarify/docs/DEVICE_TEST_BACKLOG.md) for the active list of headset-only test cases (DT-001+).
 
 ## 1. Prerequisites & Host Machine Setup
 1. **Developer Mode:** Enabled on Meta Quest 3 via the Meta Horizon companion app (Settings $\to$ Devices $\to$ Developer Mode).

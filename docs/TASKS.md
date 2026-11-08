@@ -94,3 +94,21 @@
 - [ ] Pilot-ready build
 - [ ] Deployment guide
 - [ ] Consolidated headset test session plan
+
+---
+
+## Module Pipeline Status Matrix
+_Execution Mode: Sequential Full-Spec Build Order | Target Freeze: Monday 22:00 Nairobi Time (EAT)_
+
+| Module | Status | SPEC & Immersion Map | Verify Suite Green? | Reviewer Sign-Offs | Claim-Level Sourcing |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **M0: Toolchain Spike** | Ready | Ready | Yes (Green) | Approved | N/A |
+| **M1: Core Systems & Hub** | Ready | Ready | Yes (Green) | Approved | N/A |
+| **M2: Cosmos** | Planned | Ready | Pending | Pending | Pending |
+| **M3: Quantum** | Planned | Ready | Pending | Pending | Pending |
+| **M4: Human Body & Medicine** | Planned | Ready | Pending | Pending | Approved |
+| **M5: Aerospace & Propulsion** | Planned | Ready (Includes Rocket Cycles) | Pending | Pending | Approved |
+| **M6: DNA / Genetics** | Planned | Ready | Pending | Pending | Pending |
+| **M7: Environment** | Planned | Ready | Pending | Pending | Pending |
+| **M8: Urban Development** | Planned | Ready | Pending | Pending | Pending |
+| **M9: Integration & Polish** | Planned | Ready | Pending | Pending | Pending |

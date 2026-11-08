@@ -2,6 +2,7 @@
 _Target Device: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
 _Last Updated: 2026-11-08_
 _All items here cannot be verified in headless CI or emulator and are strictly labelled **NOT verified on headset**._
+> **Companion Procedure:** See [HEADSET_TEST.md](file:///c:/maarify/docs/HEADSET_TEST.md) for ADB reverse setup, MQDH profiling, and smoke-test protocols.
 
 ---
 
