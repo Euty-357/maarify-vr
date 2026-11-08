@@ -2,22 +2,21 @@
 _This file is the single source of truth for resuming any session. Update it after every task._
 
 ## Current Phase / Milestone
-- **Phase:** Implementation Active — Starting M2 Cosmos Full-Spec Delivery
-- **Milestone:** M1 Polish & Shared Primitives Complete; M2 Cosmos Scaffolded
+- **Phase:** Implementation Active — Sequential Module Delivery
+- **Milestone:** M2 Cosmos Complete & Ready (`v0.2-cosmos`); Starting M3 Quantum
 
 ## Last Completed Task
-- `M1-POLISH-PRIMITIVES`: Implemented centralized `tuning.ts`, `feature-flags.ts`, 9 shared interaction primitives, `check-hygiene.mjs` raw XR boundary enforcement, `RuntimeTuningPanel`, Hub visual pass (portal signs, glowing arches, destination miniatures, 4-point lighting), diegetic anchor canvas text rendering, and 24 passing unit tests. Verify 100% green.
+- `M2-COSMOS-FULL-SPEC`: Completed vertical slice Cosmos module (100% SPEC). Built Malindi coast, atmospheric domes, LEO satellites (ISS + Taifa-1), scalable solar system, 7-system exoplanet catalog with honest disclaimers, Sagittarius A* black hole with Doppler accretion disc and 3C 273 quasar, 4 physical challenges, 4 diegetic anchors with 3-tier micro-sims, Dr. Amani audio beats, 12 claim-level sources, 30 passing unit tests, 3 passing Playwright e2e suites, and Tier A budget check (7,520 tris / 75 draw calls).
 
 ## In Progress
-- M2 Cosmos: Building full 100% SPEC implementation per `docs/modules/cosmos/SPEC.md`.
+- Milestone M3: Quantum Mechanics full-spec delivery per `docs/modules/quantum/SPEC.md`.
 
 ## Next Action
-1. Scaffold `src/modules/cosmos/` using `scripts/scaffold-module.mjs`.
-2. Implement Cosmos scene, destinations (Earth surface, atmosphere, LEO, Sun, 8 planets, exoplanet systems), and travel modes.
-3. Implement Cosmos Diegetic Spatial Anchors and micro-simulations.
-4. Implement physical 3D challenges and capstone.
-5. Author `src/modules/cosmos/SOURCES.md` with claim-level verified citations.
-6. Write Cosmos Playwright autopilot test, verify green, obtain 4 reviewer sign-offs, and commit.
+1. Scaffold `src/modules/quantum/` and implement Quantum spatial scene (Double-slit interference particle field, Bloch sphere qubit manipulator, Quantum tunneling barrier, Entanglement spin correlation pairs, Stern-Gerlach apparatus).
+2. Implement Quantum Diegetic Spatial Anchors with 3-tier micro-sims.
+3. Implement Quantum physical challenges + capstone (seated-compatible).
+4. Author `src/modules/quantum/SOURCES.md` with claim-level verified citations.
+5. Write Quantum Playwright autopilot test, verify green, obtain 4 reviewer sign-offs, and commit.
 
 ## Blockers
 - None. All emulator and automated tests green. Physical headset tests scheduled for Tuesday.

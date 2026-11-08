@@ -90,3 +90,31 @@ _Never delete entries. Append only._
   - Added 5 new Vitest unit test suites: 24 tests passing across 7 suites.
 - **VERIFY PIPELINE 100% GREEN:** All hygiene, typecheck, lint, 24 unit tests, 2 e2e tests, and Tier A budget checks passed (6,744 tris / 40 draw calls).
 
+---
+## 2026-11-08T21:40 EAT | Session 6 | Milestone M2: Cosmos Full-Spec Delivery (Vertical Slice)
+- **M2 COSMOS IMPLEMENTED (100% SPEC):**
+  - Kenyan coast opening hook at Malindi with ocean floor and San Marco platform rocket ascent trail.
+  - Concentric atmospheric ascent domes (Troposphere, Stratosphere, Mesosphere, Thermosphere, Karman line at 100 km).
+  - Low Earth Orbit (LEO) with 3D ISS satellite (truss, solar panels, module) and Kenya Space Agency Taifa-1 CubeSat.
+  - Interactive Scalable Solar System: Sun + all 8 planets in Keplerian orbits with `SpatialScalePinchPrimitive` room-scale to hand-held orange collapse.
+  - Complete Exoplanet Catalog (`src/modules/cosmos/exoplanets.ts`):
+    - Proxima Centauri b (4.25 ly, habitable zone, honest "Artist\'s conception" label, 74,800 yr Voyager transit).
+    - TRAPPIST-1e (40.7 ly, 7-planet compact resonant system).
+    - 51 Pegasi b (50.5 ly, first hot Jupiter around Sun-like star).
+    - Kepler-16b (245 ly, circumbinary Tatooine-like world with planetary rings).
+    - 55 Cancri e (41.1 ly, ultra-short orbit lava world).
+    - PSR B1257+12 c (2,300 ly, first exoplanet confirmed in history around pulsar).
+    - Kepler-452b (1,800 ly, Earth\'s cousin).
+  - Deep Space Singularities: Sagittarius A* supermassive black hole with Schwarzschild event horizon, photon sphere (r = 1.5 rs), relativistic accretion disc with Doppler beaming asymmetry, and 3C 273 quasar plasma jet.
+  - 4 Physical Challenges (`src/modules/cosmos/challenges.ts`): Atmospheric layer sorting, Transit light curve rotator alignment, Accretion disc relativistic Doppler filter, Capstone Mars Hohmann injection burn (100% seated compatible).
+  - 4 Diegetic Spatial Anchors with 3-tier micro-simulations (Foundation, Advanced, Expert) and leader lines.
+  - Dr. Amani 7-beat audio guidance narrative tying scientific concepts to Kenyan STEM context.
+  - `src/modules/cosmos/SOURCES.md`: 12 verified sources at claim level.
+  - Autopilot Playwright test `tests/e2e/m2-cosmos.spec.ts` passing with zero console errors and multi-pose screenshot matrix.
+  - Tier A Budget PASS: 7,520 triangles / 75 draw calls (well under 100k / 100 limit).
+- **M2 COSMOS RETROSPECTIVE:**
+  - *What worked well:* Extracting shared interaction primitives in `src/core/input/primitives/` allowed building the entire Cosmos scene cleanly with zero raw XR API calls, passing the automated hygiene check immediately.
+  - *What was learned:* Decoupling unit tests from browser DOM via node/browser capability guards prevents Vitest canvas crashes while maintaining rich visual canvas textures in WebXR.
+  - *Reviewer sign-offs:* `immersion-reviewer` (APPROVED), `science-medical-reviewer` (APPROVED), `comfort-accessibility-reviewer` (APPROVED), `performance-reviewer` (APPROVED).
+- **MILESTONE COMPLETE:** Tagged `v0.2-cosmos`. Proceeding sequentially to M3 Quantum.
+

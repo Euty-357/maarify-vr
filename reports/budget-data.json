@@ -1,6 +1,14 @@
 {
+  "m0-spatial-spike": {
+    "triangles": 6744,
+    "drawCalls": 40
+  },
   "m1-hub-and-smoke-test": {
     "triangles": 6744,
     "drawCalls": 40
+  },
+  "m2-cosmos": {
+    "triangles": 7520,
+    "drawCalls": 75
   }
 }

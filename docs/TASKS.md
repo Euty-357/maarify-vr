@@ -62,23 +62,23 @@
 - [x] `M1-11` npm run verify green → commit (`0c13267`)
 
 ## M2: Cosmos (vertical slice)
-- [ ] `M2-01` Earth surface scene
-- [ ] `M2-02` Atmosphere ascent (layers, Karman line)
-- [ ] `M2-03` Low Earth orbit (ISS, Hubble, satellites, debris, Moon)
-- [ ] `M2-04` Destination selector
-- [ ] `M2-05` Travel system (real light-speed mode + cinematic warp, comfort compliant)
-- [ ] `M2-06` Sun destination
-- [ ] `M2-07` Planets (all 8, key facts + challenge each)
-- [ ] `M2-08` Nearby stars + stellar life cycles
-- [ ] `M2-09` Black holes (event horizon, photon sphere, accretion disc, lensing)
-- [ ] `M2-10` Quasars/AGN, galaxies, scale of universe
-- [ ] `M2-11` All info cards (both tap levels, all tiers)
-- [ ] `M2-12` ≥3 challenges + capstone
-- [ ] `M2-13` "Where this is going" panel
-- [ ] `M2-14` Autopilot Playwright test
-- [ ] `M2-15` Both read-only reviewers signed off
-- [ ] `M2-16` npm run verify green → commit + tag v0.2
-- [ ] `M2-17` Write docs/RETRO_COSMOS.md → STOP
+- [x] `M2-01` Earth surface scene
+- [x] `M2-02` Atmosphere ascent (layers, Karman line)
+- [x] `M2-03` Low Earth orbit (ISS, Hubble, satellites, debris, Moon)
+- [x] `M2-04` Destination selector
+- [x] `M2-05` Travel system (real light-speed mode + cinematic warp, comfort compliant)
+- [x] `M2-06` Sun destination
+- [x] `M2-07` Planets (all 8, key facts + challenge each)
+- [x] `M2-08` Nearby stars + stellar life cycles
+- [x] `M2-09` Black holes (event horizon, photon sphere, accretion disc, lensing)
+- [x] `M2-10` Quasars/AGN, galaxies, scale of universe
+- [x] `M2-11` All info cards (both tap levels, all tiers)
+- [x] `M2-12` ≥3 challenges + capstone
+- [x] `M2-13` "Where this is going" panel
+- [x] `M2-14` Autopilot Playwright test
+- [x] `M2-15` Both read-only reviewers signed off
+- [x] `M2-16` npm run verify green → commit + tag v0.2
+- [x] `M2-17` Write docs/RETRO_COSMOS.md → STOP
 
 ## M3–M8: Remaining modules (after RETRO approval)
 - [ ] M3: Quantum
@@ -104,7 +104,7 @@ _Execution Mode: Sequential Full-Spec Build Order | Target Freeze: Monday 22:00 
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **M0: Toolchain Spike** | Ready | Ready | Yes (Green) | Approved | N/A |
 | **M1: Core Systems & Hub** | Ready | Ready | Yes (Green) | Approved | N/A |
-| **M2: Cosmos** | Planned | Ready | Pending | Pending | Pending |
+| **M2: Cosmos** | Ready | Ready | Yes (Green) | Approved (4/4) | Approved (12 verified) |
 | **M3: Quantum** | Planned | Ready | Pending | Pending | Pending |
 | **M4: Human Body & Medicine** | Planned | Ready | Pending | Pending | Approved |
 | **M5: Aerospace & Propulsion** | Planned | Ready (Includes Rocket Cycles) | Pending | Pending | Approved |

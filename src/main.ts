@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { ModuleDefinition } from './core/types';
 import { FixedTimestepAccumulator } from './core/physics/fixed-timestep';
 import { SpatialAudioManager } from './core/audio/spatial-audio';
 import { ComfortSystem } from './core/comfort/comfort';
@@ -16,6 +17,9 @@ export let comfortSystem: ComfortSystem;
 let hubWorld: HubWorld;
 let smokeTestZone: SmokeTestZone;
 let tuningPanel: RuntimeTuningPanel;
+let activeModuleDef: ModuleDefinition | null = null;
+let activeModuleRoot: THREE.Object3D | null = null;
+let currentModuleName = 'hub';
 const progressStore = new InMemoryProgressStore();
 const physicsAccumulator = new FixedTimestepAccumulator(120);
 
@@ -89,6 +93,15 @@ function initApp() {
     container.appendChild(renderer.domElement);
   }
 
+  // Check URL query for direct module launch (e.g. ?module=cosmos)
+  if (typeof window !== 'undefined') {
+    const params = new URLSearchParams(window.location.search);
+    const modParam = params.get('module');
+    if (modParam) {
+      loadModule(modParam);
+    }
+  }
+
   // Setup desktop interaction fallback
   setupDesktopInteraction();
 
@@ -96,6 +109,22 @@ function initApp() {
   setupWebXR();
 
   window.addEventListener('resize', onWindowResize);
+}
+
+export async function loadModule(id: string): Promise<THREE.Object3D | null> {
+  if (id === 'cosmos') {
+    if (activeModuleDef) {
+      activeModuleDef.unload();
+    }
+    const mod = (await import('./modules/cosmos/index')).default;
+    hubWorld.visible = false;
+    smokeTestZone.visible = false;
+    activeModuleDef = mod;
+    activeModuleRoot = await mod.load(scene);
+    currentModuleName = id;
+    return activeModuleRoot;
+  }
+  return null;
 }
 
 function setupDesktopInteraction() {
@@ -131,6 +160,10 @@ function setupDesktopInteraction() {
         const tier = hit.name.replace('tier-btn-', '') as 'foundation' | 'advanced' | 'expert';
         hubWorld.setTier(tier);
         progressStore.setDepthTier(tier);
+      }
+      // 5. Hub Portal Click
+      else if (hit.name.includes('cosmos') || hit.parent?.name.includes('cosmos')) {
+        loadModule('cosmos');
       }
     }
   });
@@ -263,6 +296,7 @@ function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
   };
 
   // Global test hook for automated verification
+  (window as any).__MAARIFY_LOAD_MODULE__ = loadModule;
   (window as any).__MAARIFY_METRICS__ = {
     fps: currentFps,
     frameTimeMs: Number(frameTimeMs.toFixed(2)),
@@ -271,6 +305,7 @@ function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
     inputMode,
     activeTier,
     selectedTier: hubWorld.selectedTier,
+    currentModule: currentModuleName,
     anchorExpanded: smokeTestZone.testAnchor.isExpanded,
     smokeTestEvents: smokeTestZone.eventLog.length,
   };
