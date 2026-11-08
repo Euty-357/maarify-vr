@@ -1,0 +1,48 @@
+{
+  "name": "maarify",
+  "version": "0.0.1",
+  "description": "Gamified WebXR learning app — Meta Quest 3 primary (Quest 3S & Quest 2 supported)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src tests --ext .ts",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:budget": "node scripts/check-budgets.mjs --tier A",
+    "test:budget:tier-b": "node scripts/check-budgets.mjs --tier B",
+    "check:hygiene": "node scripts/check-hygiene.mjs",
+    "sync:agents": "node scripts/sync-agent-configs.mjs",
+    "verify": "npm run sync:agents && npm run check:hygiene && npm run typecheck && npm run lint && npm run test:unit && npm run test:e2e && npm run test:budget && node scripts/generate-report.mjs",
+    "scaffold-module": "node scripts/scaffold-module.mjs"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "keywords": [
+    "webxr",
+    "vr",
+    "education",
+    "three.js",
+    "meta-quest-3",
+    "meta-quest-2"
+  ],
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@playwright/test": "^1.48.0",
+    "@types/three": "^0.169.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "iwer": "^1.0.0",
+    "typescript": "^5.6.0",
+    "vite": "^6.0.0",
+    "vitest": "^2.0.0"
+  },
+  "dependencies": {
+    "three": "^0.169.0"
+  }
+}

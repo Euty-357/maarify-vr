@@ -1,0 +1,49 @@
+# Dependencies and build outputs
+node_modules/
+dist/
+build/
+.vite/
+*.local
+
+# Test and coverage artifacts
+coverage/
+playwright-report/
+test-results/
+blob-report/
+reports/history/screenshots/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Operating System junk
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Editor personal settings
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Raw / heavy unoptimized assets
+assets/raw/
+assets/temp/
+
+# Generated agent tool mirrors (canonical files live in .agents/)
+.claude/
+.cursor/
+.windsurf/
