@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-11-08T14:39:38.309Z",
+  "commitHash": "b77ff9e",
+  "budgetData": {
+    "m1-hub-and-smoke-test": {
+      "triangles": 5816,
+      "drawCalls": 19
+    }
+  },
+  "testResults": "not generated",
+  "verificationLabels": {
+    "unit": "verified by unit test",
+    "e2e": "verified in Playwright/emulator",
+    "headset": "NOT verified on headset — see docs/DEVICE_TEST_BACKLOG.md"
+  },
+  "notes": [
+    "All performance metrics are from emulator — NOT verified on headset.",
+    "See docs/DEVICE_TEST_BACKLOG.md for headset-only test cases."
+  ]
+}

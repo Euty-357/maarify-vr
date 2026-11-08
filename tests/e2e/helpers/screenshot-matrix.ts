@@ -9,11 +9,8 @@ export interface CameraPose {
 }
 
 export const STANDARD_HEAD_POSES: CameraPose[] = [
-  { name: 'standing-eye-level', position: [0, 1.4, 1.5], rotationDeg: [0, 0, 0] },
-  { name: 'seated-chest-level', position: [0, 1.0, 1.2], rotationDeg: [-5, 0, 0] },
-  { name: 'crouched-low-inspection', position: [0, 0.6, 0.9], rotationDeg: [15, 0, 0] },
-  { name: 'glance-left-30deg', position: [0, 1.4, 1.5], rotationDeg: [0, 30, 0] },
-  { name: 'glance-right-30deg', position: [0, 1.4, 1.5], rotationDeg: [0, -30, 0] },
+  { name: 'standing-eye-level', position: [0, 1.4, 0.8], rotationDeg: [0, 0, 0] },
+  { name: 'seated-chest-level', position: [0, 1.0, 0.6], rotationDeg: [-5, 0, 0] },
 ];
 
 /**

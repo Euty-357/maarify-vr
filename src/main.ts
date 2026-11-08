@@ -1,19 +1,25 @@
 import * as THREE from 'three';
 import { FixedTimestepAccumulator } from './core/physics/fixed-timestep';
+import { SpatialAudioManager } from './core/audio/spatial-audio';
+import { ComfortSystem } from './core/comfort/comfort';
+import { HubWorld } from './hub/hub-world';
+import { SmokeTestZone } from './hub/smoke-test-zone';
+import { InMemoryProgressStore } from './core/store/progress-store';
 
-// App state
+// Core State
 let renderer: THREE.WebGLRenderer;
 let scene: THREE.Scene;
 let camera: THREE.PerspectiveCamera;
-let cube: THREE.Mesh;
-let isGrabbed = false;
-let inputMode = 'Desktop Fallback';
-let activeTier = 'Tier A (Quest 2 Baseline)';
-
-// Fixed timestep accumulator for deterministic physics
+let soundManager: SpatialAudioManager;
+export let comfortSystem: ComfortSystem;
+let hubWorld: HubWorld;
+let smokeTestZone: SmokeTestZone;
+const progressStore = new InMemoryProgressStore();
 const physicsAccumulator = new FixedTimestepAccumulator(120);
 
-// Metrics
+// Interaction & Metrics
+let inputMode = 'Desktop Fallback';
+let activeTier = 'Tier A (Quest 2 Baseline)';
 let lastTime = performance.now();
 let frameCount = 0;
 let lastFpsUpdate = performance.now();
@@ -30,53 +36,34 @@ const inputElem = document.getElementById('metric-input');
 const cubeStateElem = document.getElementById('metric-cube-state');
 const enterXrBtn = document.getElementById('enter-xr-btn');
 
-function initScene() {
+function initApp() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0b0d13);
 
   camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.position.set(0, 1.4, 1.5);
+  camera.position.set(0, 1.4, 0.5);
 
-  // Lighting (Simple directional + ambient - no heavy realtime shadow maps)
-  const ambient = new THREE.AmbientLight(0xffffff, 0.8);
+  // Lighting (Simple directional + ambient - zero realtime shadow passes)
+  const ambient = new THREE.AmbientLight(0xffffff, 0.85);
   scene.add(ambient);
 
-  const dirLight = new THREE.DirectionalLight(0x60a5fa, 1.2);
-  dirLight.position.set(2, 4, 3);
+  const dirLight = new THREE.DirectionalLight(0x60a5fa, 1.0);
+  dirLight.position.set(3, 5, 2);
   scene.add(dirLight);
 
-  // Floor grid for spatial orientation
-  const grid = new THREE.GridHelper(10, 20, 0x3b82f6, 0x1e293b);
-  grid.position.y = 0;
-  scene.add(grid);
+  // Initialize Core Subsystems
+  soundManager = new SpatialAudioManager(camera);
+  comfortSystem = new ComfortSystem(camera);
 
-  // Hello-Cube (Grabbable WebXR spatial element)
-  const cubeGeo = new THREE.BoxGeometry(0.3, 0.3, 0.3);
-  const cubeMat = new THREE.MeshStandardMaterial({
-    color: 0x3b82f6,
-    metalness: 0.2,
-    roughness: 0.4,
-    wireframe: false,
-  });
-  cube = new THREE.Mesh(cubeGeo, cubeMat);
-  cube.position.set(0, 1.3, -0.8);
-  cube.name = 'grabbable-hello-cube';
-  scene.add(cube);
+  // Initialize Hub World with 7 Physical Portals
+  hubWorld = new HubWorld();
+  scene.add(hubWorld);
 
-  // Contact shadow disk beneath cube
-  const shadowGeo = new THREE.RingGeometry(0.01, 0.25, 32);
-  const shadowMat = new THREE.MeshBasicMaterial({
-    color: 0x000000,
-    opacity: 0.4,
-    transparent: true,
-    side: THREE.DoubleSide,
-  });
-  const shadowMesh = new THREE.Mesh(shadowGeo, shadowMat);
-  shadowMesh.rotation.x = -Math.PI / 2;
-  shadowMesh.position.set(0, 0.005, -0.8);
-  scene.add(shadowMesh);
+  // Initialize Hub Device Smoke-Test Zone
+  smokeTestZone = new SmokeTestZone(soundManager);
+  scene.add(smokeTestZone);
 
-  // Renderer
+  // Renderer setup
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -87,10 +74,10 @@ function initScene() {
     container.appendChild(renderer.domElement);
   }
 
-  // Setup desktop pointer fallback interaction
+  // Setup desktop interaction fallback
   setupDesktopInteraction();
 
-  // Setup WebXR Controllers & Session
+  // Setup WebXR & Touch Plus controllers
   setupWebXR();
 
   window.addEventListener('resize', onWindowResize);
@@ -101,16 +88,35 @@ function setupDesktopInteraction() {
   const mouse = new THREE.Vector2();
 
   window.addEventListener('pointerdown', (e) => {
+    soundManager.initContext();
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObject(cube);
+    const intersects = raycaster.intersectObjects(scene.children, true);
 
     if (intersects.length > 0) {
-      isGrabbed = !isGrabbed;
-      const mat = cube.material as THREE.MeshStandardMaterial;
-      mat.color.setHex(isGrabbed ? 0x10b981 : 0x3b82f6); // Green on grab, blue on release
+      const hit = intersects[0].object;
+
+      // 1. Chime Sphere Poke
+      if (hit === smokeTestZone.chimeSphere) {
+        smokeTestZone.pokeChime();
+      }
+      // 2. Calibration Cube Grab Toggle
+      else if (hit === smokeTestZone.grabBlock) {
+        smokeTestZone.grabCalibrationBlock();
+        setTimeout(() => smokeTestZone.releaseCalibrationBlock(), 400);
+      }
+      // 3. Spatial Anchor Toggle
+      else if (hit.name.includes('anchor-tag-smoke-test-anchor')) {
+        smokeTestZone.testAnchor.toggleExpansion();
+      }
+      // 4. Depth Tier Buttons
+      else if (hit.name.startsWith('tier-btn-')) {
+        const tier = hit.name.replace('tier-btn-', '') as 'foundation' | 'advanced' | 'expert';
+        hubWorld.setTier(tier);
+        progressStore.setDepthTier(tier);
+      }
     }
   });
 }
@@ -127,34 +133,32 @@ function setupWebXR() {
     });
   }
 
-  // Setup Controller 0 and 1
-  const controller0 = renderer.xr.getController(0);
-  controller0.addEventListener('selectstart', () => onControllerSelect(controller0));
-  controller0.addEventListener('selectend', () => onControllerRelease(controller0));
-  scene.add(controller0);
+  // Setup WebXR Controllers
+  const c0 = renderer.xr.getController(0);
+  c0.addEventListener('selectstart', () => onControllerTrigger(c0));
+  scene.add(c0);
 
-  const controller1 = renderer.xr.getController(1);
-  controller1.addEventListener('selectstart', () => onControllerSelect(controller1));
-  controller1.addEventListener('selectend', () => onControllerRelease(controller1));
-  scene.add(controller1);
+  const c1 = renderer.xr.getController(1);
+  c1.addEventListener('selectstart', () => onControllerTrigger(c1));
+  scene.add(c1);
 }
 
-function onControllerSelect(controller: THREE.XRTargetRaySpace) {
-  inputMode = 'Touch Plus Controller / Hand';
+function onControllerTrigger(controller: THREE.XRTargetRaySpace) {
+  inputMode = 'Touch Plus / Optical Hand Tracking';
+  soundManager.initContext();
+
   const pos = controller.position;
-  // If close enough to cube, grab
-  if (pos.distanceTo(cube.position) < 0.6) {
-    isGrabbed = true;
-    const mat = cube.material as THREE.MeshStandardMaterial;
-    mat.color.setHex(0x10b981);
+  // If close to chime sphere, poke
+  if (pos.distanceTo(smokeTestZone.chimeSphere.position) < 0.3) {
+    smokeTestZone.pokeChime();
   }
-}
-
-function onControllerRelease(_controller: THREE.XRTargetRaySpace) {
-  if (isGrabbed) {
-    isGrabbed = false;
-    const mat = cube.material as THREE.MeshStandardMaterial;
-    mat.color.setHex(0x3b82f6);
+  // If close to grab block, grab
+  else if (pos.distanceTo(smokeTestZone.grabBlock.position) < 0.3) {
+    smokeTestZone.grabCalibrationBlock();
+  }
+  // Spatial anchor toggle
+  else if (pos.distanceTo(smokeTestZone.testAnchor.position) < 0.4) {
+    smokeTestZone.testAnchor.toggleExpansion();
   }
 }
 
@@ -174,7 +178,6 @@ async function onEnterVR() {
       inputMode = 'WebXR Immersive Session';
       activeTier = 'Tier B (Quest 3 / 3S Detected)';
 
-      // Check supported frame rates
       if (session.supportedFrameRates && session.updateTargetFrameRate) {
         const rates = session.supportedFrameRates;
         if (rates.includes(90)) {
@@ -217,21 +220,24 @@ function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
     lastFpsUpdate = now;
   }
 
-  // Deterministic physics step decoupled from render frame rate
+  // Physics update decoupled from refresh rate
   physicsAccumulator.step(deltaSec, (dt) => {
-    if (!isGrabbed) {
-      cube.rotation.x += 0.5 * dt;
-      cube.rotation.y += 0.8 * dt;
+    // Rotate micro-sim torus when expanded
+    if (smokeTestZone.testAnchor.isExpanded) {
+      const sim = smokeTestZone.testAnchor.getObjectByName('micro-sim-root-smoke-test-anchor');
+      if (sim) {
+        sim.rotation.y += 1.2 * dt;
+      }
     }
   });
 
-  // Render scene
+  // Render scene graph
   renderer.render(scene, camera);
 
   // Update dev overlay metrics
   updateMetricsOverlay();
 
-  // Expose camera manipulation helper for Playwright multi-pose testing
+  // Expose camera pose manipulation helper for Playwright matrix screenshots
   (window as any).__MAARIFY_SET_CAMERA__ = (pos: [number, number, number], rotDeg: [number, number, number]) => {
     camera.position.set(pos[0], pos[1], pos[2]);
     camera.rotation.set(
@@ -241,15 +247,17 @@ function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
     );
   };
 
-  // Expose global metrics for Playwright automated verification
+  // Global test hook for automated verification
   (window as any).__MAARIFY_METRICS__ = {
     fps: currentFps,
     frameTimeMs: Number(frameTimeMs.toFixed(2)),
     triangles: renderer.info.render.triangles,
     drawCalls: renderer.info.render.calls,
-    isGrabbed,
     inputMode,
     activeTier,
+    selectedTier: hubWorld.selectedTier,
+    anchorExpanded: smokeTestZone.testAnchor.isExpanded,
+    smokeTestEvents: smokeTestZone.eventLog.length,
   };
 }
 
@@ -260,9 +268,11 @@ function updateMetricsOverlay() {
   if (dcElem) dcElem.textContent = `Draw Calls: ${renderer.info.render.calls}`;
   if (tierElem) tierElem.textContent = `Quality Tier: ${activeTier}`;
   if (inputElem) inputElem.textContent = `Input Mode: ${inputMode}`;
-  if (cubeStateElem) cubeStateElem.textContent = `Cube State: ${isGrabbed ? 'Grabbed (Green)' : 'Resting (Blue)'}`;
+  if (cubeStateElem) {
+    cubeStateElem.textContent = `Hub Plinth: Tier=${hubWorld.selectedTier.toUpperCase()} | Anchor=${smokeTestZone.testAnchor.isExpanded ? 'EXPANDED' : 'CLOSED'}`;
+  }
 }
 
 // Start application
-initScene();
+initApp();
 animate();
