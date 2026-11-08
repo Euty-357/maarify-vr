@@ -2,22 +2,22 @@
 _This file is the single source of truth for resuming any session. Update it after every task._
 
 ## Current Phase / Milestone
-- **Phase:** Implementation Active — Gap Closure & Phase B Primitives
-- **Milestone:** M1 Polish & Shared Interaction Primitives (Pre-M2 Cosmos)
+- **Phase:** Implementation Active — Starting M2 Cosmos Full-Spec Delivery
+- **Milestone:** M1 Polish & Shared Primitives Complete; M2 Cosmos Scaffolded
 
 ## Last Completed Task
-- `DOCS-CONVERGENCE`: Merged `BUILD_STATUS.md` into `TASKS.md` & `MODULE_TEMPLATE.md`, created `INDEX.md`, expanded `DECISIONS.md` with standing decisions A–G, cross-linked device docs, and verified verify pipeline green.
+- `M1-POLISH-PRIMITIVES`: Implemented centralized `tuning.ts`, `feature-flags.ts`, 9 shared interaction primitives, `check-hygiene.mjs` raw XR boundary enforcement, `RuntimeTuningPanel`, Hub visual pass (portal signs, glowing arches, destination miniatures, 4-point lighting), diegetic anchor canvas text rendering, and 24 passing unit tests. Verify 100% green.
 
 ## In Progress
-- Phase B: Creating centralized `src/config/tuning.ts`, shared interaction primitives (`src/core/input/primitives/`), raw XR lint check, module feature flags, and unit tests.
+- M2 Cosmos: Building full 100% SPEC implementation per `docs/modules/cosmos/SPEC.md`.
 
 ## Next Action
-1. Implement `src/config/tuning.ts` and interaction primitives (`grab`, `poke`, `slider`, `lever`, `rotator`, `scalePinch`, `anchor`, `teleport`, `snapTurn`).
-2. Add ESLint check enforcing modules import only from primitives (no raw XR device APIs).
-3. Add module feature flag system (`src/config/feature-flags.ts`).
-4. Implement runtime tuning panel.
-5. Hub visual pass (lighting, portal text/glow, text rendering on spatial anchor tags).
-6. Proceed to M2 Cosmos full-spec implementation.
+1. Scaffold `src/modules/cosmos/` using `scripts/scaffold-module.mjs`.
+2. Implement Cosmos scene, destinations (Earth surface, atmosphere, LEO, Sun, 8 planets, exoplanet systems), and travel modes.
+3. Implement Cosmos Diegetic Spatial Anchors and micro-simulations.
+4. Implement physical 3D challenges and capstone.
+5. Author `src/modules/cosmos/SOURCES.md` with claim-level verified citations.
+6. Write Cosmos Playwright autopilot test, verify green, obtain 4 reviewer sign-offs, and commit.
 
 ## Blockers
 - None. All emulator and automated tests green. Physical headset tests scheduled for Tuesday.

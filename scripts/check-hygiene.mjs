@@ -40,6 +40,43 @@ const IGNORED_DIRS = new Set([
   'test-results'
 ]);
 
+// Forbidden raw WebXR APIs in src/modules (modules must use src/core/input/primitives instead)
+const RAW_XR_INPUT_PATTERNS = [
+  /session\.inputSources/,
+  /navigator\.xr/,
+  /XRInputSource/,
+  /xr-standard/,
+  /getController\(/,
+  /getControllerGrip\(/,
+  /getHand\(/,
+];
+
+async function checkModuleRawXRImports(dir, issues = []) {
+  if (!existsSync(dir)) return issues;
+  const entries = await readdir(dir, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    const relPath = fullPath.replace(ROOT, '').replace(/^[\\/]/, '');
+
+    if (entry.isDirectory()) {
+      await checkModuleRawXRImports(fullPath, issues);
+    } else if (entry.name.endsWith('.ts') && !entry.name.endsWith('.d.ts')) {
+      const content = await readFile(fullPath, 'utf-8');
+      for (const pattern of RAW_XR_INPUT_PATTERNS) {
+        if (pattern.test(content)) {
+          issues.push(
+            `[RAW XR VIOLATION] ${relPath} uses raw XR input pattern (${pattern.toString()}). Modules MUST use src/core/input/primitives/ instead.`
+          );
+          break;
+        }
+      }
+    }
+  }
+
+  return issues;
+}
+
 async function scanDirectory(dir, issues = []) {
   const entries = await readdir(dir, { withFileTypes: true });
 
@@ -84,12 +121,16 @@ async function main() {
   console.log('Running pre-commit hygiene & secret check...');
   const issues = await scanDirectory(ROOT);
 
+  // Check module architectural boundary: no raw XR device APIs in src/modules/
+  const modulesDir = join(ROOT, 'src', 'modules');
+  await checkModuleRawXRImports(modulesDir, issues);
+
   if (issues.length > 0) {
     console.error('\n❌ Hygiene check FAILED with issues:');
     issues.forEach(i => console.error('  ' + i));
     process.exit(1);
   } else {
-    console.log('✓ Hygiene check PASSED: No secrets or oversized files detected.');
+    console.log('✓ Hygiene check PASSED: No secrets, oversized files, or raw XR violations detected.');
   }
 }
 

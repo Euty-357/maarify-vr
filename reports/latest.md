@@ -1,6 +1,6 @@
 # Maarify — Latest Verify Report
-_Generated: 2026-11-08T17:54:30.901Z_
-_Commit: 6312251_
+_Generated: 2026-11-08T18:23:41.287Z_
+_Commit: 9f53f84_
 
 ## Verification Labels
 - Unit tests: **verified by unit test**
@@ -8,7 +8,7 @@ _Commit: 6312251_
 - Headset: **NOT verified on headset** — see [DEVICE_TEST_BACKLOG.md](../docs/DEVICE_TEST_BACKLOG.md)
 
 ## Budget Results
-- **m1-hub-and-smoke-test:** triangles=5816, drawCalls=19
+- **m1-hub-and-smoke-test:** triangles=6744, drawCalls=40
 
 ## Test Results
 _No test result data yet._
@@ -17,4 +17,4 @@ _No test result data yet._
 - All emulator measurements are NOT verified on headset.
 - See [docs/DEVICE_TEST_BACKLOG.md](../docs/DEVICE_TEST_BACKLOG.md) for headset-only test cases.
 
-_History entry: C:\maarify\reports\history\2026-11-08T17-54-30-901Z.json_
+_History entry: C:\maarify\reports\history\2026-11-08T18-23-41-287Z.json_

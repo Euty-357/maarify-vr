@@ -62,3 +62,31 @@ _Never delete entries. Append only._
   - Cross-linked `docs/HEADSET_TEST.md` and `docs/DEVICE_TEST_BACKLOG.md`.
 - **VERIFY PIPELINE GREEN:** `npm run verify` passed completely (hygiene, typecheck, lint, 6 unit tests, 2 e2e Playwright tests, Tier A budget check: 5,816 tris / 19 draw calls).
 
+---
+## 2026-11-08T21:20 EAT | Session 5 | Shared Interaction Primitives & Hub Polish Complete
+- **SHARED PRIMITIVES IMPLEMENTED (`src/core/input/primitives/`):**
+  - `SpatialGrabPrimitive`: controller ray/grip and optical pinch with relative orientation tracking and haptic grab/release pulses.
+  - `SpatialPokePrimitive`: spring-damped button depression on physical penetration with snap pulse.
+  - `SpatialSliderPrimitive`: 1D linear spatial slider with magnetic detents (`ActiveTuning.input.sliderSnapSteps`).
+  - `SpatialLeverPrimitive`: angular pivot lever with snap extremes.
+  - `SpatialRotatorPrimitive`: circular dial/knob with angular detent ticks.
+  - `SpatialScalePinchPrimitive`: two-handed scale/expansion controller with explodeFraction output.
+  - `SpatialAnchorPrimitive`: container manager for Diegetic Spatial Anchors.
+  - `SpatialTeleportPrimitive`: parabolic arc locomotion with ground plane hit detection and comfort vignette flash.
+  - `SpatialSnapTurnPrimitive`: angular camera snap-turn with comfort vignette pulse.
+- **CENTRALIZED CONFIG & FEATURE FLAGS:**
+  - `src/config/tuning.ts`: All feel-related constants (haptics, input thresholds, comfort, tiers, audio, anchors).
+  - `src/config/feature-flags.ts`: Module readiness flags (`ready` vs `experimental`).
+- **RUNTIME TUNING PANEL:**
+  - Implemented `RuntimeTuningPanel` in `src/core/tuning-panel/tuning-panel.ts` (spatial canvas panel in VR, desktop shortcut `[T]`, JSON export to clipboard/logcat).
+- **ARCHITECTURAL BOUNDARY LINT:**
+  - Extended `scripts/check-hygiene.mjs` to block raw WebXR controller/hand API imports inside `src/modules/`.
+- **HUB POLISH & DIEGETIC TEXT:**
+  - Upgraded `DiegeticSpatialAnchor` with HTML CanvasTexture rendering for crisp offline 3D labels and Level 1 subtext.
+  - Upgraded Hub portals with 3D title signs, emissive neon arches, status badges, and miniature 3D destination previews (Saturn, Bloch sphere, heart, rocket, helix, globe, towers).
+  - Re-positioned "Enter WebXR" button to bottom-right to eliminate overlap with depth-tier plinth.
+  - Balanced 4-point studio lighting (ambient + key + fill + rim).
+- **TEST SUITE STRENGTHENED:**
+  - Added 5 new Vitest unit test suites: 24 tests passing across 7 suites.
+- **VERIFY PIPELINE 100% GREEN:** All hygiene, typecheck, lint, 24 unit tests, 2 e2e tests, and Tier A budget checks passed (6,744 tris / 40 draw calls).
+

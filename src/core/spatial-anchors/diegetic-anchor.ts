@@ -15,9 +15,12 @@ export class DiegeticSpatialAnchor extends THREE.Group {
   public anchorId: string;
   public anchorLabel: string;
   public isExpanded = false;
+  public activeTier: 'foundation' | 'advanced' | 'expert' = 'foundation';
   private lineMesh: THREE.Line;
   private tagMesh: THREE.Mesh;
   private microSimRoot: THREE.Group;
+  private tagCanvas: HTMLCanvasElement;
+  private tagTexture: THREE.CanvasTexture | THREE.Texture;
 
   constructor(
     id: string,
@@ -42,19 +45,39 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     const lineMat = new THREE.LineBasicMaterial({
       color: 0x60a5fa,
       transparent: true,
-      opacity: 0.8,
+      opacity: 0.85,
     });
     this.lineMesh = new THREE.Line(lineGeo, lineMat);
     this.add(this.lineMesh);
 
-    // 2. Spatial Anchor Tag (3D pill badge)
-    const tagGeo = new THREE.BoxGeometry(0.28, 0.08, 0.02);
-    const tagMat = new THREE.MeshStandardMaterial({
+    // 2. Spatial Anchor Tag with HTML Canvas Texture (offline, zero network calls)
+    const isBrowser = typeof document !== 'undefined';
+    if (isBrowser) {
+      this.tagCanvas = document.createElement('canvas');
+      this.tagCanvas.width = 256;
+      this.tagCanvas.height = 64;
+      this.tagTexture = new THREE.CanvasTexture(this.tagCanvas);
+      this.tagTexture.minFilter = THREE.LinearFilter;
+      this.renderTagCanvas(false);
+    } else {
+      this.tagCanvas = null as any;
+      this.tagTexture = new THREE.Texture();
+    }
+
+    const tagGeo = new THREE.BoxGeometry(0.32, 0.08, 0.02);
+    // Multi-material box: face 4 (+Z front) has the canvas texture
+    const sideMat = new THREE.MeshStandardMaterial({
       color: 0x1e293b,
-      roughness: 0.3,
-      metalness: 0.8,
+      roughness: 0.4,
+      metalness: 0.7,
     });
-    this.tagMesh = new THREE.Mesh(tagGeo, tagMat);
+    const frontMat = new THREE.MeshBasicMaterial({
+      map: this.tagTexture,
+      transparent: false,
+    });
+    const materials = [sideMat, sideMat, sideMat, sideMat, frontMat, sideMat];
+
+    this.tagMesh = new THREE.Mesh(tagGeo, materials);
     this.tagMesh.position.set(0.15, 0.2, 0);
     this.tagMesh.name = `anchor-tag-${id}`;
     this.add(this.tagMesh);
@@ -69,16 +92,48 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     this.position.copy(targetPosition);
   }
 
+  private renderTagCanvas(highlighted: boolean): void {
+    if (!this.tagCanvas) return;
+    const ctx = this.tagCanvas.getContext('2d');
+    if (!ctx) return;
+
+    // Background
+    ctx.fillStyle = highlighted ? '#1d4ed8' : '#0f172a';
+    ctx.fillRect(0, 0, 256, 64);
+
+    // Cyan accent left pill bar
+    ctx.fillStyle = '#38bdf8';
+    ctx.fillRect(0, 0, 8, 64);
+
+    // Text rendering: label & Level 1 subtext
+    ctx.fillStyle = '#f8fafc';
+    ctx.font = 'bold 20px sans-serif';
+    ctx.fillText(this.anchorLabel.slice(0, 22), 16, 28);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '13px sans-serif';
+    ctx.fillText(this.level1Note.slice(0, 32), 16, 50);
+
+    this.tagTexture.needsUpdate = true;
+  }
+
   /**
    * Toggles between State 1 (Spatial Tag) and State 2 (Exploded Micro-Sim)
    */
   public toggleExpansion(): boolean {
     this.isExpanded = !this.isExpanded;
     this.microSimRoot.visible = this.isExpanded;
-    (this.tagMesh.material as THREE.MeshStandardMaterial).color.setHex(
-      this.isExpanded ? 0x2563eb : 0x1e293b
-    );
+    this.renderTagCanvas(this.isExpanded);
     return this.isExpanded;
+  }
+
+  /** Alias for toggleExpansion */
+  public toggleExpanded(): boolean {
+    return this.toggleExpansion();
+  }
+
+  public setTier(tier: 'foundation' | 'advanced' | 'expert'): void {
+    this.activeTier = tier;
   }
 
   public setMicroSimContent(mesh: THREE.Object3D): void {
@@ -88,14 +143,14 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     this.microSimRoot.add(mesh);
   }
 
-  public getState(activeTier: 'foundation' | 'advanced' | 'expert' = 'foundation'): SpatialAnchorState {
+  public getState(): SpatialAnchorState {
     return {
       id: this.anchorId,
       position: this.position.clone(),
       label: this.name,
       level1Note: this.level1Note,
       isExpanded: this.isExpanded,
-      activeTier,
+      activeTier: this.activeTier,
       simulationType: this.simulationData.type,
       simulationCaption: this.simulationData.caption,
     };

@@ -5,6 +5,7 @@ import { ComfortSystem } from './core/comfort/comfort';
 import { HubWorld } from './hub/hub-world';
 import { SmokeTestZone } from './hub/smoke-test-zone';
 import { InMemoryProgressStore } from './core/store/progress-store';
+import { RuntimeTuningPanel } from './core/tuning-panel/tuning-panel';
 
 // Core State
 let renderer: THREE.WebGLRenderer;
@@ -14,11 +15,12 @@ let soundManager: SpatialAudioManager;
 export let comfortSystem: ComfortSystem;
 let hubWorld: HubWorld;
 let smokeTestZone: SmokeTestZone;
+let tuningPanel: RuntimeTuningPanel;
 const progressStore = new InMemoryProgressStore();
 const physicsAccumulator = new FixedTimestepAccumulator(120);
 
 // Interaction & Metrics
-let inputMode = 'Desktop Fallback';
+let inputMode = 'Desktop (using Tier A budgets)';
 let activeTier = 'Tier A (Quest 2 Baseline)';
 let lastTime = performance.now();
 let frameCount = 0;
@@ -41,15 +43,24 @@ function initApp() {
   scene.background = new THREE.Color(0x0b0d13);
 
   camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 100);
-  camera.position.set(0, 1.4, 0.5);
+  camera.position.set(0, 1.4, 0.8);
+  camera.lookAt(0, 1.1, -1.2);
 
-  // Lighting (Simple directional + ambient - zero realtime shadow passes)
-  const ambient = new THREE.AmbientLight(0xffffff, 0.85);
+  // Lighting: High-clarity ambient + key + fill + rim lights (no runtime shadow passes)
+  const ambient = new THREE.AmbientLight(0xffffff, 0.95);
   scene.add(ambient);
 
-  const dirLight = new THREE.DirectionalLight(0x60a5fa, 1.0);
-  dirLight.position.set(3, 5, 2);
-  scene.add(dirLight);
+  const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+  keyLight.position.set(3, 6, 4);
+  scene.add(keyLight);
+
+  const fillLight = new THREE.DirectionalLight(0x60a5fa, 0.6);
+  fillLight.position.set(-4, 3, -2);
+  scene.add(fillLight);
+
+  const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.5);
+  rimLight.position.set(0, 4, -5);
+  scene.add(rimLight);
 
   // Initialize Core Subsystems
   soundManager = new SpatialAudioManager(camera);
@@ -62,6 +73,10 @@ function initApp() {
   // Initialize Hub Device Smoke-Test Zone
   smokeTestZone = new SmokeTestZone(soundManager);
   scene.add(smokeTestZone);
+
+  // Initialize Runtime Tuning Panel
+  tuningPanel = new RuntimeTuningPanel(camera);
+  scene.add(tuningPanel.panelGroup);
 
   // Renderer setup
   renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
