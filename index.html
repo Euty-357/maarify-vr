@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Maarify — WebXR Learning App</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #0b0d13;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        color: #ffffff;
+      }
+      #canvas-container {
+        width: 100vw;
+        height: 100vh;
+        display: block;
+      }
+      #debug-overlay {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        background: rgba(11, 13, 19, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 13px;
+        line-height: 1.5;
+        font-family: monospace;
+        pointer-events: none;
+        z-index: 100;
+      }
+      #enter-xr-btn {
+        position: absolute;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #2563eb;
+        color: white;
+        border: none;
+        border-radius: 30px;
+        padding: 14px 28px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+        transition: background 0.2s, transform 0.1s;
+        z-index: 100;
+      }
+      #enter-xr-btn:hover {
+        background: #1d4ed8;
+      }
+      #enter-xr-btn:active {
+        transform: translateX(-50%) scale(0.98);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="debug-overlay">
+      <div><strong>MAARIFY DEV OVERLAY</strong></div>
+      <div id="metric-fps">FPS: --</div>
+      <div id="metric-frame-time">Frame Time: -- ms</div>
+      <div id="metric-triangles">Triangles: 0</div>
+      <div id="metric-draw-calls">Draw Calls: 0</div>
+      <div id="metric-tier">Quality Tier: Tier A</div>
+      <div id="metric-input">Input Mode: Desktop Fallback</div>
+      <div id="metric-cube-state">Cube State: Resting</div>
+    </div>
+
+    <button id="enter-xr-btn">Enter WebXR</button>
+    <div id="canvas-container"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
+
