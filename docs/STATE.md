@@ -3,30 +3,29 @@ _This file is the single source of truth for resuming any session. Update it aft
 
 ## Current Phase / Milestone
 - **Phase:** Implementation Active — Sequential Module Delivery
-- **Milestone:** M4 Human Body Complete & Ready (`v0.4-human-body`); Starting M5 Aerospace & Propulsion
+- **Milestone:** M5 Aerospace Complete & Ready (`v0.5-aerospace`); Starting M6 DNA & Genetics
 
 ## Last Completed Task
-- `M4-HUMAN-BODY-FULL-SPEC`: Completed Human Body & Medicine module (100% SPEC). Built pulsating 4-chamber heart with mechanical valves and ventricular pressure slider (10–120 mmHg), rotary pacemaker AV timing dial (120 ms), microcirculation capillary RBC ride with gas exchange, synaptic junction with acetylcholine vesicle manipulation, exploded HIV virion with pinch scale and viral enzyme inspection, CAR-T immunotherapy cell-tumor interface, 4 physical challenges, 4 diegetic anchors with 3-tier micro-sims, Dr. Amani audio narrative (Pumwani cohort, U=U destigmatization), 10 claim-level verified sources, 42 passing unit tests, 5 passing Playwright e2e suites, and Tier A budget check (5,318 tris / 48 draw calls).
+- `M5-AEROSPACE-FULL-SPEC`: Completed Aerospace & Rocket Propulsion module (100% SPEC). Built NACA aerofoil wing spar with high-altitude (1,680m Nairobi) angle of attack pitch slider (-5° to 25°) and laminar-to-turbulent stall buffeting visualization (>15°); 3D exploded staged liquid rocket engine with grab-and-pull disassembly; cycle rotator plinth dynamically simulating 8 thermodynamic cycles (FFSC, Gas-generator, Expander, ORSC, FRSC, Electric-pump); supersonic de Laval nozzle with backpressure slider producing dynamic oblique shock diamonds; 3U Taifa-1 CubeSat model with deployed solar panels; 4 physical challenges (all seated-compatible); 4 diegetic anchors with 3-tier micro-sims; Dr. Amani audio narrative (Wilson Airport, Malindi, Taifa-1); 10 claim-level verified sources; 50 passing unit tests (11 suites); 6 passing Playwright e2e suites; and Tier A budget check (1,932 tris / 63 draw calls).
 
 ## In Progress
-- Milestone M5: Aerospace & Rocket Propulsion full-spec delivery per `docs/modules/aerospace/SPEC.md`.
+- Milestone M6: DNA & Genetics full-spec delivery per `docs/modules/dna-genetics/SPEC.md`.
 
 ## Next Action
-1. Scaffold `src/modules/aerospace/` and implement rocket propulsion and aerodynamics spatial scene (grab-and-pull exploded rocket engine, turbopump cycle swapper, 7 propulsion cycles, fuel/oxidizer propellant flow tracing, de Laval nozzle throat/expansion ratio contour, supersonic wind tunnel with shock diamonds, orbital transfer Hohmann maneuver).
-2. Adhere strictly to the safety scope: system-level educational principles only (no propellant formulations, mixing, ignition, or fabrication).
-3. Implement Aerospace Diegetic Spatial Anchors with 3-tier micro-simulations.
-4. Implement 4 physical challenges (seated-compatible).
-5. Author `src/modules/aerospace/SOURCES.md` with claim-level verified citations.
-6. Write Aerospace Playwright autopilot e2e test, run `npm run verify` (100% green), obtain 4 reviewer sign-offs, and commit.
+1. Scaffold `src/modules/dna-genetics/` and implement molecular spatial scene (Double helix unzipping with scale-shift to ride polymerase, base-pair hydrogen bonding manipulation, CRISPR-Cas9 guide RNA targeting and double-strand break repair, African genomics diversity & sickle cell malaria protective trait).
+2. Implement DNA/Genetics Diegetic Spatial Anchors with 3-tier micro-simulations.
+3. Implement 4 physical challenges (seated-compatible).
+4. Author `src/modules/dna-genetics/SOURCES.md` with claim-level verified citations.
+5. Write DNA/Genetics Playwright autopilot e2e test, run `npm run verify` (100% green), obtain 4 reviewer sign-offs, commit, and tag.
 
 ## Blockers
 - None. All emulator and automated tests green. Physical headset tests scheduled for Tuesday.
 
 ## Open Questions
-- None. Rocket safety scope confirmed. Quality tiers (Tier A baseline, Tier B provisional) and hardware specs active.
+- None. Quality tiers (Tier A baseline, Tier B provisional) and hardware specs active.
 
 ## Last Green Commit
-- `c3acb51` — `feat(human-body): implement full Human Body & Medicine module with HIV virology, CAR-T, and cardiac mechanics (M4 full spec)` (Author: `Euty-357`)
+- `cf46f3a` — `docs(state): update last green commit to c3acb51 for M4` (Author: `Euty-357`)
 
 ## Which Tool/Session Last Worked
-- Antigravity, 2026-11-09T09:05 EAT
+- Antigravity, 2026-11-09T09:33 EAT

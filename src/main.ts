@@ -140,6 +140,14 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
     activeModuleRoot = await mod.load(scene);
     currentModuleName = id;
     return activeModuleRoot;
+  } else if (id === 'aerospace') {
+    const mod = (await import('./modules/aerospace/index')).default;
+    hubWorld.visible = false;
+    smokeTestZone.visible = false;
+    activeModuleDef = mod;
+    activeModuleRoot = await mod.load(scene);
+    currentModuleName = id;
+    return activeModuleRoot;
   }
   return null;
 }
@@ -185,6 +193,8 @@ function setupDesktopInteraction() {
         loadModule('quantum');
       } else if (hit.name.includes('human-body') || hit.parent?.name.includes('human-body')) {
         loadModule('human-body');
+      } else if (hit.name.includes('aerospace') || hit.parent?.name.includes('aerospace')) {
+        loadModule('aerospace');
       }
     }
   });

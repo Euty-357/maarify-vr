@@ -35,8 +35,8 @@ export const MODULE_FLAGS: Record<string, ModuleFeatureConfig> = {
   aerospace: {
     id: 'aerospace',
     name: 'Aerospace & Rocket Propulsion',
-    readiness: 'experimental',
-    enabled: false,
+    readiness: 'ready',
+    enabled: true,
   },
   'dna-genetics': {
     id: 'dna-genetics',

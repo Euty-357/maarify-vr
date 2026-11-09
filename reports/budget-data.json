@@ -18,5 +18,9 @@
   "m4-human-body": {
     "triangles": 5318,
     "drawCalls": 48
+  },
+  "m5-aerospace": {
+    "triangles": 1932,
+    "drawCalls": 63
   }
 }

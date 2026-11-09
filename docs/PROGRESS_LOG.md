@@ -159,3 +159,23 @@ _Never delete entries. Append only._
   - *Reviewer sign-offs:* `immersion-reviewer` (APPROVED), `science-medical-reviewer` (APPROVED), `comfort-accessibility-reviewer` (APPROVED), `performance-reviewer` (APPROVED).
 - **MILESTONE COMPLETE:** Tagged `v0.4-human-body`. Proceeding sequentially to M5 Aerospace & Propulsion.
 
+
+---
+## 2026-11-09T09:30 EAT | Session 9 | Milestone M5: Aerospace & Rocket Propulsion Full-Spec Delivery
+- **M5 AEROSPACE & ROCKET PROPULSION IMPLEMENTED (100% SPEC):**
+  - Prominent Educational & Safety Scope Plinth at entrance (`propulsion-safety-plinth`) confirming system-level principles, cycle thermodynamics, and propellant trade-offs only (zero chemical recipes, mixing, ignition, or fabrication instructions).
+  - Aircraft Wing Spar & Transonic Wind Tunnel Section (`wing-spar-station`): Symmetrical NACA aerofoil with physical `SpatialSliderPrimitive` angle of attack tuning (-5° to 25°) in thin Nairobi Wilson Airport air (1,680m elevation), with dynamic boundary layer laminar-to-turbulent stall buffeting visualization past 15°.
+  - 3D Exploded Liquid Rocket Engine (`rocket-engine-exploded-assembly`): Injector dome, high-pressure combustion chamber, dual turbopumps (LOX & fuel), regenerative cooling helical channels wrapping the nozzle, and de Laval expansion nozzle with two-handed `SpatialGrabPrimitive` axial/radial exploded disassembly.
+  - Cycle Swap Plinth (`SpatialRotatorPrimitive`): Real-time plumbing reconfiguration and chamber pressure display across 8 thermodynamic cycles (Pressure-fed, Gas-generator, Open expander, Closed expander, Fuel-rich staged, Oxidizer-rich staged, Full-flow staged FFSC, and Electric-pump-fed).
+  - Supersonic de Laval Nozzle & Plume (`nozzle-shock-diamonds-plume`): Atmospheric backpressure slider (`SpatialSliderPrimitive`) dynamically transitioning plume between overexpanded (oblique shock diamonds) and underexpanded (expansion fans) regimes.
+  - Kenya Space Agency Taifa-1 Satellite (`taifa-1-cubesat`): 3U CubeSat with deployed dual solar arrays and equatorial orbital arc tracking launch from Malindi Broglio Space Center.
+  - 4 Physical Challenges (`src/modules/aerospace/challenges.ts`): Wing angle of attack trim balancing, Staged combustion turbopump plumbing assembly, Supersonic nozzle expansion tuning, and Capstone Malindi equatorial launch & orbital insertion (100% seated compatible).
+  - 4 Diegetic Spatial Anchors with 3-tier micro-simulations (Foundation, Advanced, Expert).
+  - Dr. Amani 7-beat audio narrative linking aviation aerodynamics to Wilson Airport, Malindi orbital launches, and Taifa-1.
+  - `src/modules/aerospace/SOURCES.md`: 10 claim-level verified sources (Sutton & Biblarz, Hill & Peterson, NASA Glenn, Anderson, KSA Taifa-1).
+  - Autopilot Playwright test `tests/e2e/m5-aerospace.spec.ts` passing with zero console errors.
+  - Tier A Budget PASS: 1,932 triangles / 63 draw calls (far below 100k / 100 limits).
+- **M5 AEROSPACE RETROSPECTIVE:**
+  - *What worked well:* Procedural aerodynamic streamlines and shock diamond geometry kept the entire module under 2k triangles while delivering an intuitive spatial understanding of supersonic flow and thermodynamic cycles. Safety scope guardrail was strictly preserved.
+  - *Reviewer sign-offs:* `architect` (APPROVED), `immersion-reviewer` (APPROVED), `science-medical-reviewer` (APPROVED), `comfort-accessibility-reviewer` (APPROVED), `performance-reviewer` (APPROVED).
+- **MILESTONE COMPLETE:** Tagged `v0.5-aerospace`. Proceeding sequentially to M6 DNA & Genetics.
