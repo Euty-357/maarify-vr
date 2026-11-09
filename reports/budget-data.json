@@ -4,23 +4,43 @@
     "drawCalls": 40
   },
   "m1-hub-and-smoke-test": {
-    "triangles": 6744,
-    "drawCalls": 40
+    "states": {
+      "baseline": {
+        "triangles": 6744,
+        "drawCalls": 40
+      }
+    }
   },
   "m2-cosmos": {
-    "triangles": 7520,
-    "drawCalls": 75
+    "states": {
+      "all-destinations-preloaded": {
+        "triangles": 7520,
+        "drawCalls": 75
+      }
+    }
   },
   "m3-quantum": {
-    "triangles": 7220,
-    "drawCalls": 82
+    "states": {
+      "gallery-and-cryostat-preloaded": {
+        "triangles": 7220,
+        "drawCalls": 82
+      }
+    }
   },
   "m4-human-body": {
-    "triangles": 5318,
-    "drawCalls": 48
+    "states": {
+      "hiv-exploded-geometry-preloaded": {
+        "triangles": 5318,
+        "drawCalls": 48
+      }
+    }
   },
   "m5-aerospace": {
-    "triangles": 1932,
-    "drawCalls": 63
+    "states": {
+      "engine-exploded-and-plume-preloaded": {
+        "triangles": 1932,
+        "drawCalls": 63
+      }
+    }
   }
 }

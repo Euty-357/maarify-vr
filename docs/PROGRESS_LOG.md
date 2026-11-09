@@ -179,3 +179,18 @@ _Never delete entries. Append only._
   - *What worked well:* Procedural aerodynamic streamlines and shock diamond geometry kept the entire module under 2k triangles while delivering an intuitive spatial understanding of supersonic flow and thermodynamic cycles. Safety scope guardrail was strictly preserved.
   - *Reviewer sign-offs:* `architect` (APPROVED), `immersion-reviewer` (APPROVED), `science-medical-reviewer` (APPROVED), `comfort-accessibility-reviewer` (APPROVED), `performance-reviewer` (APPROVED).
 - **MILESTONE COMPLETE:** Tagged `v0.5-aerospace`. Proceeding sequentially to M6 DNA & Genetics.
+
+---
+## 2026-11-09T10:45 EAT | Session 10 | M5-to-M6 Audit Resumption
+- Read the full resume context, synchronized canonical agent configuration, and inventoried 139 tracked project files.
+- Corrected the Taifa-1 learning content: launch geography is now Vandenberg Space Force Base, California; Transporter-7 / Sun-Synchronous Orbit context is separated from the historic Malindi Broglio range; the source matrix cites KSA and the University of Nairobi launch report.
+- Added a Kenya-context audit record at `docs/AUDIT_M5_TO_M6.md`, including the Playwright coverage matrix and ten high-risk Human Body/Aerospace claims with authoritative support links.
+- Added active-module anchor desktop interaction, Playwright anchor state-transition coverage, and challenge metadata coverage for M2–M5. Verification remains pending because the local Playwright worker did not return a final summary during this session.
+- Updated budget parsing/reporting to use worst-case captured-state records. All results remain **NOT verified on headset**.
+
+---
+## 2026-11-09T11:30 EAT | Session 11 | Codex | M5-to-M6 Audit Verification
+- Full `npm run verify` completed with exit code 0 (persisted in `reports/verify-latest.log`): hygiene, typecheck, lint, 50 unit tests, six Playwright scenarios, Tier A worst-case budget check, and report generation passed.
+- Playwright flake gate passed three consecutive runs: `reports/e2e-flake-run-{1,2,3}.log`, each 6/6 and exit code 0. The module-load readiness poll fixes are therefore **verified in Playwright/emulator**.
+- Re-verified Kenya-related learner claims in Cosmos, Human Body, and Aerospace. `docs/AUDIT_M5_TO_M6.md` now records the exact supporting sentences and corrections, including the Taifa-1/Vandenberg distinction.
+- M6 remains experimental and hidden by `src/config/feature-flags.ts`; its incomplete scaffold is intentionally excluded from the audit commit. Last tool: Codex. Next action: commit and push audit-only paths, then implement M6 to full Ready criteria.

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { auditModuleInteractions } from './helpers/module-interaction-audit.js';
 
 test.describe('M5 Aerospace & Rocket Propulsion Full Spec Playthrough', () => {
   test('renders full Aerospace scene within Tier A budgets, passes screenshot matrix, and has zero console errors', async ({
@@ -16,12 +17,13 @@ test.describe('M5 Aerospace & Rocket Propulsion Full Spec Playthrough', () => {
     const canvas = page.locator('#canvas-container canvas');
     await expect(canvas).toBeVisible();
 
-    await page.waitForTimeout(1500);
+    await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_METRICS__?.currentModule)).toBe('aerospace');
 
     // 1. Verify global metrics reported by Aerospace spatial scene
     const metrics = await page.evaluate(() => (window as any).__MAARIFY_METRICS__);
     expect(metrics).toBeDefined();
     expect(metrics.currentModule).toBe('aerospace');
+    await auditModuleInteractions(page);
 
     // 2. Verify Tier A performance budgets (< 100k triangles, < 100 draw calls)
     expect(metrics.triangles).toBeGreaterThan(500);
@@ -35,16 +37,13 @@ test.describe('M5 Aerospace & Rocket Propulsion Full Spec Playthrough', () => {
 
     // 4. Update reports/budget-data.json with per-scene metrics
     const fs = await import('fs/promises');
-    let budgetData: Record<string, { triangles: number; drawCalls: number }> = {};
+    let budgetData: Record<string, unknown> = {};
     try {
       const existing = await fs.readFile('reports/budget-data.json', 'utf-8');
       budgetData = JSON.parse(existing);
     } catch {}
 
-    budgetData['m5-aerospace'] = {
-      triangles: metrics.triangles,
-      drawCalls: metrics.drawCalls,
-    };
+    budgetData['m5-aerospace'] = { states: { 'engine-exploded-and-plume-preloaded': { triangles: metrics.triangles, drawCalls: metrics.drawCalls } } };
 
     await fs.mkdir('reports', { recursive: true });
     await fs.writeFile('reports/budget-data.json', JSON.stringify(budgetData, null, 2), 'utf-8');

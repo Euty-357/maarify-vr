@@ -3,7 +3,7 @@
  * 
  * Culturally grounded in Kenyan aviation and space milestones:
  * - Nairobi Wilson Airport (1,680m high-altitude density altitude challenge)
- * - Malindi Broglio Space Center (equatorial orbital launches)
+ * - Historic Malindi Broglio Space Centre (separate from Taifa-1's Vandenberg launch)
  * - Taifa-1 Kenya Space Agency Earth observation mission
  * - Rigorous physics: debunking equal-transit-time myth, Newton's 3rd law, de Laval supersonic nozzle flow.
  */
@@ -25,7 +25,7 @@ export const DR_AMANI_AEROSPACE_BEATS: NarrativeBeat[] = [
     speaker: 'Dr. Amani',
     title: 'High-Altitude Tarmac: Wilson & Malindi Horizons',
     transcript:
-      'Welcome to Aerospace. Look around you — we stand between two worlds. Here at Nairobi’s Wilson Airport, at sixteen hundred and eighty meters elevation, thin air alters aircraft performance before your wheels even leave the ground. Across the tarmac sits an orbital rocket test stand, pointing toward our equatorial launch horizon in Malindi. Let us master the forces that conquer both skies and space.',
+      'Welcome to Aerospace. Look around you — we stand between two worlds. Here at Nairobi’s Wilson Airport, roughly sixteen hundred and eighty meters above sea level, thin air alters aircraft performance before your wheels even leave the ground. Across the tarmac is an orbital rocket test stand. Malindi’s historic Broglio range is part of Kenya’s space history; it is not the launch site of Taifa-1. Let us master the forces that conquer both skies and space.',
     durationEstimateSec: 22,
     triggerEvent: 'module-start',
   },
@@ -85,7 +85,7 @@ export const DR_AMANI_AEROSPACE_BEATS: NarrativeBeat[] = [
     speaker: 'Dr. Amani',
     title: 'Orbital Horizon: Taifa-1 & African Aerospace Leadership',
     transcript:
-      'You have balanced wing aerodynamics, routed high-pressure turbopump loops, and shaped supersonic nozzle flows. In April 2023, the Kenya Space Agency launched Taifa-1 into low Earth orbit. The principles you manipulated here guide the satellites monitoring our droughts, crops, and coastlines today. Well done, Flight Director.',
+      'You have balanced wing aerodynamics, routed high-pressure turbopump loops, and shaped supersonic nozzle flows. In April 2023, Taifa-1 launched aboard SpaceX Transporter-7 from Vandenberg Space Force Base in California into a Sun-Synchronous Orbit. It supports Earth observation for agriculture, environment, and disaster-management uses. Well done, Flight Director.',
     durationEstimateSec: 24,
     triggerEvent: 'capstone-complete',
   },

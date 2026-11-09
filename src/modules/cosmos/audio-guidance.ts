@@ -46,7 +46,7 @@ export const DR_AMANI_COSMOS_BEATS: NarrativeBeat[] = [
     guidanceText:
       'Look at the International Space Station and Kenya\'s Taifa-1 satellite orbiting above the continent. Now, use both hands to grab space and pinch: collapse the entire solar system into your grasp until the Sun is an orange in your hands.',
     stemContext:
-      'Taifa-1, Kenya\'s first operational earth observation satellite, launched to monitor agriculture and environmental change in 2023.',
+      'Taifa-1, Kenya\'s first operational Earth-observation satellite, launched from Vandenberg, California in 2023 to support agriculture and environmental monitoring.',
   },
   {
     beatNumber: 5,

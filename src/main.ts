@@ -7,6 +7,7 @@ import { HubWorld } from './hub/hub-world';
 import { SmokeTestZone } from './hub/smoke-test-zone';
 import { InMemoryProgressStore } from './core/store/progress-store';
 import { RuntimeTuningPanel } from './core/tuning-panel/tuning-panel';
+import { DiegeticSpatialAnchor } from './core/spatial-anchors/diegetic-anchor';
 
 // Core State
 let renderer: THREE.WebGLRenderer;
@@ -166,9 +167,12 @@ function setupDesktopInteraction() {
 
     if (intersects.length > 0) {
       const hit = intersects[0].object;
+      const anchor = findDiegeticAnchor(hit);
 
       // 1. Chime Sphere Poke
-      if (hit === smokeTestZone.chimeSphere) {
+      if (anchor) {
+        anchor.toggleExpansion();
+      } else if (hit === smokeTestZone.chimeSphere) {
         smokeTestZone.pokeChime();
       }
       // 2. Calibration Cube Grab Toggle
@@ -198,6 +202,15 @@ function setupDesktopInteraction() {
       }
     }
   });
+}
+
+function findDiegeticAnchor(object: THREE.Object3D): DiegeticSpatialAnchor | null {
+  let candidate: THREE.Object3D | null = object;
+  while (candidate) {
+    if (candidate instanceof DiegeticSpatialAnchor) return candidate;
+    candidate = candidate.parent;
+  }
+  return null;
 }
 
 function setupWebXR() {
@@ -328,6 +341,20 @@ function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
 
   // Global test hook for automated verification
   (window as any).__MAARIFY_LOAD_MODULE__ = loadModule;
+  (window as any).__MAARIFY_AUDIT__ = {
+    anchors: activeModuleDef?.getSpatialAnchors().map((anchor) => anchor.id) ?? [],
+    challenges: activeModuleDef?.getChallenges().map((challenge) => ({
+      id: challenge.id,
+      seatedCompatible: challenge.seatedCompatible,
+      xpReward: challenge.xpReward,
+    })) ?? [],
+  };
+  (window as any).__MAARIFY_TOGGLE_ANCHOR__ = (id: string) => {
+    const anchor = activeModuleRoot?.getObjectByName(`diegetic-anchor-${id}`);
+    if (!(anchor instanceof DiegeticSpatialAnchor)) return false;
+    anchor.toggleExpansion();
+    return anchor.isExpanded;
+  };
   (window as any).__MAARIFY_METRICS__ = {
     fps: currentFps,
     frameTimeMs: Number(frameTimeMs.toFixed(2)),

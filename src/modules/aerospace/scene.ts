@@ -31,7 +31,7 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   const root = new THREE.Group();
   root.name = 'aerospace-module-root';
 
-  // 1. Aerodrome & Spaceport Tarmac Floor (Wilson Airport / Malindi Launch Site)
+  // 1. Aerodrome & space-history tarmac (Wilson Airport / historic Malindi range)
   const floorGroup = new THREE.Group();
   floorGroup.name = 'aerospace-tarmac-floor';
 
@@ -97,7 +97,7 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
 
       ctx.fillStyle = '#38bdf8';
       ctx.font = 'italic 13px sans-serif';
-      ctx.fillText('Kenya Space Agency • Malindi Broglio Space Center', 256, 215);
+      ctx.fillText('Kenya Space Agency • historic Malindi range', 256, 215);
 
       safetyTexture = new THREE.CanvasTexture(canvas);
     }
@@ -375,7 +375,7 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
     },
   });
 
-  // 7. Kenya Space Agency Taifa-1 Satellite Model & Orbital Arc
+  // 7. Kenya Space Agency Taifa-1 Satellite Model & Sun-Synchronous orbital arc
   const taifaCubeSatRoot = new THREE.Group();
   taifaCubeSatRoot.name = 'taifa-1-cubesat';
   taifaCubeSatRoot.position.set(0.0, 1.8, -0.6);

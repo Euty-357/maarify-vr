@@ -3,7 +3,7 @@ _This file is the single source of truth for resuming any session. Update it aft
 
 ## Current Phase / Milestone
 - **Phase:** Implementation Active — Sequential Full-Spec Module Delivery
-- **Milestone:** M5 Aerospace & Propulsion Complete & Ready (`v0.5-aerospace`); Audit & Scoping for M6 DNA / Genetics
+- **Milestone:** M5 Aerospace & Propulsion Complete & Ready (`v0.5-aerospace`); M5-to-M6 Audit Verified; M6 DNA / Genetics Experimental Build
 
 ## Where We Are & What We Have Done
 1. **Toolchain & Spike (M0):** Complete & green (`b1ec4d3`). Three.js, WebXR Device API, Vitest, Playwright with IWER emulator, multi-pose screenshot matrix, budget checkers, and hygiene checks.
@@ -15,25 +15,22 @@ _This file is the single source of truth for resuming any session. Update it aft
 7. **Git Source Control & GitHub Remote Sync:** Both `master` (GitHub default branch) and `main` are fully synchronized on [`https://github.com/Euty-357/maarify-vr`](https://github.com/Euty-357/maarify-vr) with dual-push refspecs active.
 
 ## In Progress
-- Audit of Taifa-1 launch facts, worst-case budget reporting, test coverage matrix, and claim sentence audits ahead of M6 DNA / Genetics.
+- M6 DNA / Genetics started 2026-11-09T10:45 EAT; experimental and hidden by `MODULE_FLAGS` until it meets every Ready criterion. Planned files: `src/modules/dna-genetics/{index.ts,scene.ts,anchors.ts,challenges.ts,audio-guidance.ts,SOURCES.md}`, `tests/{unit/modules/dna-genetics.test.ts,e2e/m6-dna-genetics.spec.ts}`, `docs/{STATE.md,PROGRESS_LOG.md,DEVICE_TEST_BACKLOG.md}`.
 
 ## What Is Next
-1. **Audit Actions (Immediate):**
-   - Correct Taifa-1 orbital parameters in Aerospace module and `SOURCES.md`: clarify launch took place from Vandenberg Space Force Base, California on SpaceX Falcon 9 Transporter-7 into a Sun-Synchronous Orbit (~508 km, ~95 min period), completely distinct from the historic Malindi Broglio Space Centre. Note accurately that satellite development was a collaboration between Kenya Space Agency / SayariLabs and EnduroSat (Bulgaria).
-   - Re-verify all Kenya-related claims across all modules (Wilson Airport, Pumwani Cohort, KEMRI, Malindi Broglio Centre).
-   - Update `check-budgets.mjs` to measure and enforce WORST-CASE triangles and draw calls across all dynamic module states (exploded engine, all cycles, wind tunnel stall, exoplanet destinations).
-   - Report table of Playwright autopilot anchor/challenge coverage vs SPEC totals for each module and close any gaps.
-   - List the 10 highest-risk factual claims in Human Body and Aerospace modules with exact supporting sentences from primary sources.
+1. **M5-to-M6 Audit (complete, uncommitted):**
+   - `npm run verify` passed at 2026-11-09T11:23 EAT (exit 0); Playwright completed three consecutive 6/6 runs (exit 0 each).
+   - Commit and push only audit paths; leave all `src/modules/dna-genetics/` scaffold files unstaged.
 2. **M6 DNA / Genetics Full-Spec Delivery:**
    - Scaffold `src/modules/dna-genetics/` (double helix unzipping, base pair matching, CRISPR-Cas9 guide RNA targeting, African genomic diversity & sickle-cell protective trait).
    - Author `SOURCES.md`, anchors, challenges, audio guidance, unit tests, and Playwright e2e test.
    - Run `npm run verify` (100% green), obtain 4 reviewer sign-offs, commit, and tag `v0.6-dna-genetics`.
 
 ## Blockers
-- None. Working tree is clean. 50 unit tests across 11 suites and 6 Playwright e2e suites are 100% green.
+- None. Audit verification is green: 50 unit tests across 11 suites and 6 Playwright e2e suites, with three clean consecutive Playwright runs. All performance/feel findings remain NOT verified on headset.
 
 ## Last Green Commit
 - `aeac210` — `docs(state): update last green commit to 889180b for M5` (Author: `Euty-357`)
 
 ## Which Tool/Session Last Worked
-- Antigravity, 2026-11-09T10:20 EAT
+- Codex, 2026-11-09T11:30 EAT. Exact next action: commit and push the verified audit-only paths, then complete M6 while it remains experimental until Ready.

@@ -62,18 +62,32 @@ async function main() {
   const data = JSON.parse(raw);
   let failed = false;
 
-  for (const [scene, metrics] of Object.entries(data)) {
-    const { triangles, drawCalls } = metrics;
+  for (const [scene, record] of Object.entries(data)) {
+    const states = record.states ?? { baseline: record };
+    const samples = Object.entries(states);
+    if (samples.length === 0) {
+      console.error(`  ❌ No captured render states for scene: ${scene}`);
+      failed = true;
+      continue;
+    }
+    const worstCase = samples.reduce((worst, [state, metrics]) => ({
+      state: metrics.triangles >= worst.metrics.triangles || metrics.drawCalls >= worst.metrics.drawCalls ? state : worst.state,
+      metrics: {
+        triangles: Math.max(worst.metrics.triangles, metrics.triangles),
+        drawCalls: Math.max(worst.metrics.drawCalls, metrics.drawCalls),
+      },
+    }), { state: samples[0][0], metrics: samples[0][1] });
+    const { triangles, drawCalls } = worstCase.metrics;
     const tOk = triangles < activeBudget.triangles;
     const dOk = drawCalls < activeBudget.drawCalls;
 
-    console.log(`\nScene: ${scene}`);
+    console.log(`\nScene: ${scene} (worst case across ${samples.length} captured state${samples.length === 1 ? '' : 's'})`);
     console.log(`  Triangles: ${triangles.toLocaleString()} / ${activeBudget.triangles.toLocaleString()} — ${tOk ? 'PASS' : 'OVER BUDGET'}`);
     console.log(`  Draw calls: ${drawCalls} / ${activeBudget.drawCalls} — ${dOk ? 'PASS' : 'OVER BUDGET'}`);
 
     if (!tOk || !dOk) {
       failed = true;
-      console.error(`  ❌ Budget exceeded in scene: ${scene}`);
+      console.error(`  ❌ Budget exceeded in scene: ${scene} (state: ${worstCase.state})`);
     }
   }
 

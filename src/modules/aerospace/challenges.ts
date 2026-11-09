@@ -35,9 +35,9 @@ export const AEROSPACE_CHALLENGES: ChallengeDefinition[] = [
   },
   {
     id: 'aero-ch-4-orbital-injection',
-    title: 'Capstone: Malindi Equatorial Launch & Orbital Insertion',
+    title: 'Capstone: Historical Malindi Range & Orbital Insertion',
     description:
-      'Execute a multi-stage launch profile from Kenya’s Malindi latitude: throttle through Max-Q, time MECO staging separation, and steer upper stage burn to circularize at 7.8 km/s orbital velocity.',
+      'Use a simplified historical Malindi launch-range scenario: throttle through Max-Q, time MECO staging separation, and steer an upper-stage burn to circularize. This classroom scenario does not depict Taifa-1, which launched from Vandenberg.',
     type: 'steer',
     xpReward: 350,
     seatedCompatible: true,

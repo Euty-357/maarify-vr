@@ -36,7 +36,7 @@ export function getSpatialAnchors(): SpatialAnchorDefinition[] {
       anchorPosition: new THREE.Vector3(0.8, 1.4, -1.0),
       label: 'Low Earth Orbit (LEO)',
       level1Note:
-        'Satellites in LEO (including Kenya\'s Taifa-1) orbit at ~7.8 km/s, in perpetual freefall around Earth\'s gravitational curvature.',
+        'Satellites in low Earth orbit, including Kenya\'s Taifa-1, remain in continuous freefall while moving sideways fast enough to follow Earth\'s curvature.',
       level2Simulation: {
         foundation: {
           type: 'exploded-view',

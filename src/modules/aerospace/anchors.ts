@@ -90,15 +90,15 @@ export function getSpatialAnchors(): SpatialAnchorDefinition[] {
     {
       id: 'aerospace-anchor-taifa-mission',
       anchorPosition: new THREE.Vector3(0.0, 1.8, -0.6),
-      label: 'Kenya Space Agency Taifa-1 & Orbital Dynamics',
+      label: 'Taifa-1: Vandenberg Launch & Sun-Synchronous Orbit',
       level1Note:
-        'Taifa-1, launched in April 2023, is Kenya’s first operational 3U Earth observation satellite, providing hyperspectral imaging for agriculture.',
+        'Taifa-1 is Kenya’s first operational 3U Earth-observation satellite. It launched from Vandenberg, California in April 2023 into a Sun-Synchronous Orbit.',
       level2Simulation: {
         foundation: {
           type: 'exploded-view',
           description:
             'Inspect the 3U CubeSat bus: deploy solar arrays, optical telescope payload, reaction wheels, and magnetorquer attitude coils.',
-          caption: 'Taifa-1 orbits in a 500 km Sun-Synchronous Orbit (SSO) inclined at 97.4 degrees.',
+          caption: 'Taifa-1 was deployed to a Sun-Synchronous Orbit at about 508 km, completing an orbit in about 95 minutes.',
         },
         advanced: {
           type: 'scrubbable-mechanism',
@@ -109,11 +109,11 @@ export function getSpatialAnchors(): SpatialAnchorDefinition[] {
         expert: {
           type: 'cross-section-flux',
           description:
-            'Equatorial launch geometry from Kenya’s Malindi coast: calculate Earth rotation velocity bonus (v_rot = 465 m/s * cos(latitude)).',
-          caption: 'Malindi’s near-equatorial latitude (3.2° S) maximizes launch payload mass into geosynchronous and low-inclination orbits.',
+            'Compare launch geometry: the historic Malindi range favored low-inclination trajectories, while Vandenberg provides polar access for Sun-Synchronous Orbits.',
+          caption: 'This comparison is a simplified model — not engineering grade. Taifa-1 launched from Vandenberg, not Malindi.',
         },
       },
-      sourceRefs: ['KENYA-SPACE-AGENCY-TAIFA1', 'BATE-MUELLER-WHITE-ASTRODYNAMICS'],
+      sourceRefs: ['KSA-TAIFA1-LAUNCH-2023', 'UON-TAIFA1-LAUNCH-2023', 'BATE-MUELLER-WHITE-ASTRODYNAMICS'],
     },
   ];
 }

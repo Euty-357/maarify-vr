@@ -35,6 +35,7 @@ describe('Aerospace & Rocket Propulsion Module Architecture & Safety Scope Compl
     const capstone = challenges.find((c) => c.id.includes('orbital-injection'));
     expect(capstone).toBeDefined();
     expect(capstone?.title).toContain('Malindi');
+    expect(capstone?.description).toContain('does not depict Taifa-1');
   });
 
   it('provides Diegetic Spatial Anchors with 3-tier micro-simulations and valid source citations', () => {
@@ -99,6 +100,7 @@ describe('Aerospace & Rocket Propulsion Module Architecture & Safety Scope Compl
 
     const beat7 = DR_AMANI_AEROSPACE_BEATS[6];
     expect(beat7.transcript).toContain('Taifa-1');
+    expect(beat7.transcript).toContain('Vandenberg');
   });
 
   it('loads spatial scene into container and unloads cleanly without memory leaks', async () => {

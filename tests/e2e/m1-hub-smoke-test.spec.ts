@@ -32,16 +32,13 @@ test.describe('M1 Core Systems, Spatial Hub & Smoke-Test Zone', () => {
 
     // 3. Record budget metrics for check-budgets script
     const fs = await import('fs/promises');
-    let budgetData: Record<string, { triangles: number; drawCalls: number }> = {};
+    let budgetData: Record<string, unknown> = {};
     try {
       const existing = await fs.readFile('reports/budget-data.json', 'utf-8');
       budgetData = JSON.parse(existing);
     } catch {}
 
-    budgetData['m1-hub-and-smoke-test'] = {
-      triangles: metrics.triangles,
-      drawCalls: metrics.drawCalls,
-    };
+    budgetData['m1-hub-and-smoke-test'] = { states: { baseline: { triangles: metrics.triangles, drawCalls: metrics.drawCalls } } };
 
     await fs.mkdir('reports', { recursive: true });
     await fs.writeFile('reports/budget-data.json', JSON.stringify(budgetData, null, 2), 'utf-8');

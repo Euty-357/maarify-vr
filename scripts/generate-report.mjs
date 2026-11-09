@@ -71,9 +71,13 @@ _Commit: ${commitHash}_
 
 ## Budget Results
 ${budgetData
-  ? Object.entries(budgetData).map(([scene, m]) =>
-      `- **${scene}:** triangles=${m.triangles}, drawCalls=${m.drawCalls}`
-    ).join('\n')
+  ? Object.entries(budgetData).map(([scene, record]) => {
+      const states = record.states ?? { baseline: record };
+      const values = Object.values(states);
+      const triangles = Math.max(...values.map((m) => m.triangles));
+      const drawCalls = Math.max(...values.map((m) => m.drawCalls));
+      return `- **${scene}:** worst-case triangles=${triangles}, drawCalls=${drawCalls} (${Object.keys(states).length} captured state(s))`;
+    }).join('\n')
   : '_No budget data yet — run e2e tests to generate._'}
 
 ## Test Results
