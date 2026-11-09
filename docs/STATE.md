@@ -25,7 +25,7 @@ _This file is the single source of truth for resuming any session. Update it aft
 - None. Quality tiers (Tier A baseline, Tier B provisional) and hardware specs active.
 
 ## Last Green Commit
-- `cf46f3a` — `docs(state): update last green commit to c3acb51 for M4` (Author: `Euty-357`)
+- `889180b` — `feat(aerospace): implement full Aerospace & Rocket Propulsion module with exploded engine, 8 thermodynamic cycles, shock diamonds, and Taifa-1 (M5 full spec)` (Author: `Euty-357`)
 
 ## Which Tool/Session Last Worked
 - Antigravity, 2026-11-09T09:33 EAT
