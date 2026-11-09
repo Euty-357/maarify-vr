@@ -14,5 +14,9 @@
   "m3-quantum": {
     "triangles": 7220,
     "drawCalls": 82
+  },
+  "m4-human-body": {
+    "triangles": 5318,
+    "drawCalls": 48
   }
 }

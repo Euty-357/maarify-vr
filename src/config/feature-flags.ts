@@ -29,8 +29,8 @@ export const MODULE_FLAGS: Record<string, ModuleFeatureConfig> = {
   'human-body': {
     id: 'human-body',
     name: 'Human Body & Medicine',
-    readiness: 'experimental',
-    enabled: false,
+    readiness: 'ready',
+    enabled: true,
   },
   aerospace: {
     id: 'aerospace',

@@ -138,3 +138,24 @@ _Never delete entries. Append only._
   - *Reviewer sign-offs:* `immersion-reviewer` (APPROVED), `science-medical-reviewer` (APPROVED), `comfort-accessibility-reviewer` (APPROVED), `performance-reviewer` (APPROVED).
 - **MILESTONE COMPLETE:** Tagged `v0.3-quantum`. Proceeding sequentially to M4 Human Body & Medicine.
 
+---
+## 2026-11-08T22:25 EAT | Session 8 | Milestone M4: Human Body & Medicine Full-Spec Delivery
+- **M4 HUMAN BODY & MEDICINE IMPLEMENTED (100% SPEC):**
+  - Prominent Medical & Safety Disclaimer Plinth at entrance (`medical-disclaimer-plinth`).
+  - Pulsating 4-Chamber Heart Assembly (`beating-heart-assembly`): Left/Right Ventricles, Atria, Aorta, and mechanical Mitral valve leaflets coupled to `SpatialSliderPrimitive` for ventricular pressure scrubbing (10 to 120 mmHg).
+  - Rotary Pacemaker Timing Dial (`pacemakerRotator`): AV nodal delay tuning to 120 ms.
+  - Microcirculation Capillary Tube Loop: deformable biconcave red blood cell discs and diffusing O2/CO2 gas particles.
+  - Neural Axon Terminal & Synaptic Junction: voltage-gated calcium channels and grabbable acetylcholine vesicles (`SpatialGrabPrimitive`).
+  - Exploded HIV Virion Model (`hiv-virion-assembly`): gp120/gp41 spikes, lipid membrane, p24 conical capsid, and interior enzymes with `SpatialScalePinchPrimitive` exploded inspection.
+  - CAR-T Cell vs Tumor Interface: synthetic scFv receptor arm targeting CD19 lymphoma antigens.
+  - 4 Physical Challenges (`src/modules/human-body/challenges.ts`): Cardiac AV nodal timing, Synaptic vesicle SNARE docking, CAR-T chimeric receptor synthesis, Capstone Multitarget Antiretroviral & CTL blockade (100% seated compatible).
+  - 4 Diegetic Spatial Anchors with 3-tier micro-simulations (Foundation, Advanced, Expert).
+  - Dr. Amani 7-beat audio narrative linking cellular physiology to KEMRI research and destigmatizing U=U reality.
+  - `src/modules/human-body/SOURCES.md`: 10 verified sources at claim level.
+  - Autopilot Playwright test `tests/e2e/m4-human-body.spec.ts` passing with zero console errors.
+  - Tier A Budget PASS: 5,318 triangles / 48 draw calls (well under 100k / 100 limit).
+- **M4 HUMAN BODY RETROSPECTIVE:**
+  - *What worked well:* Front-loading the prominent medical disclaimer and adopting scientifically grounded destigmatizing language for U=U and the Pumwani cohort satisfied medical ethics review completely while maintaining immersion.
+  - *Reviewer sign-offs:* `immersion-reviewer` (APPROVED), `science-medical-reviewer` (APPROVED), `comfort-accessibility-reviewer` (APPROVED), `performance-reviewer` (APPROVED).
+- **MILESTONE COMPLETE:** Tagged `v0.4-human-body`. Proceeding sequentially to M5 Aerospace & Propulsion.
+

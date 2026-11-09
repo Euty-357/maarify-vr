@@ -82,7 +82,7 @@
 
 ## M3–M8: Remaining modules (after RETRO approval)
 - [x] M3: Quantum
-- [ ] M4: Human Body & Medicine
+- [x] M4: Human Body & Medicine
 - [ ] M5: Aerospace + Fluid Dynamics
 - [ ] M6: DNA/Genetics
 - [ ] M7: Environment
@@ -106,7 +106,7 @@ _Execution Mode: Sequential Full-Spec Build Order | Target Freeze: Monday 22:00 
 | **M1: Core Systems & Hub** | Ready | Ready | Yes (Green) | Approved | N/A |
 | **M2: Cosmos** | Ready | Ready | Yes (Green) | Approved (4/4) | Approved (12 verified) |
 | **M3: Quantum** | Ready | Ready | Yes (Green) | Approved (4/4) | Approved (12 verified) |
-| **M4: Human Body & Medicine** | Planned | Ready | Pending | Pending | Approved |
+| **M4: Human Body & Medicine** | Ready | Ready | Yes (Green) | Approved (4/4) | Approved (10 verified) |
 | **M5: Aerospace & Propulsion** | Planned | Ready (Includes Rocket Cycles) | Pending | Pending | Approved |
 | **M6: DNA / Genetics** | Planned | Ready | Pending | Pending | Pending |
 | **M7: Environment** | Planned | Ready | Pending | Pending | Pending |
