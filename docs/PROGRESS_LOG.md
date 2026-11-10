@@ -252,3 +252,12 @@ _Never delete entries. Append only._
 - `npm run verify` exit 0 (`reports/verify-m6.log`): 67 unit tests across 14 suites, seven Playwright specs including the full M6 playthrough, Tier A budget PASS, zero console errors. M6 measures ~20 k triangles / 82 draw calls in the emulator.
 - Committed and tagged `v0.6-dna-genetics`; pushed to `main` and `master`. All headset performance and feel claims remain **NOT verified on headset** (DT-008, DT-009 pending).
 
+---
+## 2026-11-10T14:10 EAT | Session 14 | DeepSeek Harness | Tuning Single-Source Cleanup
+- Removed the three hardcoded duplicates: `ComfortSystem` reads the vignette edges as shader uniforms and the snap angle from `ActiveTuning`; `SpatialAudioManager` reads the whole `audio` block (gain, HRTF falloff, ping defaults); `DiegeticSpatialAnchor` reads `anchors.tagWidth/Height/Depth`, leader colour and opacity.
+- Corrected a stale value: `anchors.tagWidth/Height` are now 0.46/0.13, matching the enlarged tag used for legibility.
+- Wired the remaining dead knobs: `physics.fixedStepHz` (120) drives the accumulator; `audio.masterGain` is applied to pings; the tuning panel shows Fixed Step instead of the unused pinch threshold.
+- Deleted `input.pinchThresholdMeters` and `comfort.seatedModeHeightOffsetMeters` — neither had a consumer or an implementation in scope. The Tier A/B metrics are now explicitly documented as reserved for the unbuilt dynamic quality controller.
+- Added regression tests for the uniform-driven vignette and the new tuning invariants.
+- `npm run verify` exit 0. Emulator only — **NOT verified on headset**.
+

@@ -1,16 +1,19 @@
 import * as THREE from 'three';
+import { ActiveTuning } from '../../config/tuning.js';
 
 export interface ComfortSettings {
   vignetteEnabled: boolean;
-  snapTurnAngleDeg: number;
-  seatedModeOffsetMeters: number;
 }
 
+/**
+ * Dynamic radial comfort vignette.
+ *
+ * All radii and darkening come from `ActiveTuning.comfort`; nothing here hardcodes a
+ * feel value, so edits in the runtime tuning panel take effect immediately.
+ */
 export class ComfortSystem {
   public settings: ComfortSettings = {
     vignetteEnabled: true,
-    snapTurnAngleDeg: 30,
-    seatedModeOffsetMeters: 0.0,
   };
 
   private vignetteMesh: THREE.Mesh;
@@ -25,6 +28,8 @@ export class ComfortSystem {
       depthWrite: false,
       uniforms: {
         uIntensity: { value: 0.0 },
+        uMinEdge: { value: ActiveTuning.comfort.vignetteMinEdge },
+        uMaxEdge: { value: ActiveTuning.comfort.vignetteMaxEdge },
       },
       vertexShader: `
         varying vec2 vUv;
@@ -35,12 +40,14 @@ export class ComfortSystem {
       `,
       fragmentShader: `
         uniform float uIntensity;
+        uniform float uMinEdge;
+        uniform float uMaxEdge;
         varying vec2 vUv;
         void main() {
           vec2 center = vUv - 0.5;
           float dist = length(center);
-          // Darken edges starting from radius 0.35 to 0.70
-          float edge = smoothstep(0.35, 0.70, dist);
+          // Darken edges between the tuned inner and outer radii.
+          float edge = smoothstep(uMinEdge, uMaxEdge, dist);
           gl_FragColor = vec4(0.0, 0.0, 0.0, edge * uIntensity);
         }
       `,
@@ -60,10 +67,12 @@ export class ComfortSystem {
     }
     const mat = this.vignetteMesh.material as THREE.ShaderMaterial;
     mat.uniforms.uIntensity.value = this.vignetteOpacity;
+    // Re-read the edges so live tuning changes are respected.
+    mat.uniforms.uMinEdge.value = ActiveTuning.comfort.vignetteMinEdge;
+    mat.uniforms.uMaxEdge.value = ActiveTuning.comfort.vignetteMaxEdge;
   }
 
   public getSnapAngleRad(): number {
-    return (this.settings.snapTurnAngleDeg * Math.PI) / 180;
+    return (ActiveTuning.comfort.snapTurnAngleDeg * Math.PI) / 180;
   }
 }
-

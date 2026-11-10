@@ -17,12 +17,17 @@ describe('Tuning Configuration & Serialization', () => {
     // Input
     expect(DEFAULT_TUNING.input.grabThresholdMeters).toBeGreaterThan(0.05);
     expect(DEFAULT_TUNING.input.grabThresholdMeters).toBeLessThan(0.5);
-    expect(DEFAULT_TUNING.input.pinchThresholdMeters).toBeGreaterThan(0.01);
 
-    // Comfort
+    // Comfort + physics
     expect(DEFAULT_TUNING.comfort.snapTurnAngleDeg).toBeGreaterThanOrEqual(15);
     expect(DEFAULT_TUNING.comfort.teleportMaxDistanceMeters).toBeGreaterThan(2.0);
     expect(DEFAULT_TUNING.comfort.vignetteMaxDarkness).toBeLessThanOrEqual(1.0);
+    expect(DEFAULT_TUNING.physics.fixedStepHz).toBe(120);
+
+    // Anchors and audio are consumed by core, so their defaults must stay sane.
+    expect(DEFAULT_TUNING.anchors.tagWidth).toBeGreaterThan(0.3);
+    expect(DEFAULT_TUNING.audio.masterGain).toBeGreaterThan(0);
+    expect(DEFAULT_TUNING.audio.refDistance).toBeGreaterThan(0);
 
     // Tiers
     expect(DEFAULT_TUNING.tiers.tierA.targetFps).toBe(72);

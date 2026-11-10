@@ -32,7 +32,6 @@ export interface TuningConfig {
   input: {
     grabThresholdMeters: number;
     pokeThresholdMeters: number;
-    pinchThresholdMeters: number;
     handSmoothingAlpha: number;
     scalePinchMin: number;
     scalePinchMax: number;
@@ -47,7 +46,10 @@ export interface TuningConfig {
     vignetteMinEdge: number;
     vignetteMaxEdge: number;
     vignetteMaxDarkness: number;
-    seatedModeHeightOffsetMeters: number;
+  };
+  physics: {
+    /** Fixed simulation rate in Hz; the accumulator stays decoupled from display refresh. */
+    fixedStepHz: number;
   };
   anchors: {
     leaderLineColor: number;
@@ -86,7 +88,6 @@ export const DEFAULT_TUNING: TuningConfig = {
   input: {
     grabThresholdMeters: 0.14,
     pokeThresholdMeters: 0.045,
-    pinchThresholdMeters: 0.035,
     handSmoothingAlpha: 0.35,
     scalePinchMin: 0.2,
     scalePinchMax: 5.0,
@@ -101,19 +102,26 @@ export const DEFAULT_TUNING: TuningConfig = {
     vignetteMinEdge: 0.35,
     vignetteMaxEdge: 0.70,
     vignetteMaxDarkness: 0.85,
-    seatedModeHeightOffsetMeters: 0.45,
+  },
+  physics: {
+    fixedStepHz: 120,
   },
   anchors: {
     leaderLineColor: 0x60a5fa,
     leaderLineOpacity: 0.85,
-    tagWidth: 0.32,
-    tagHeight: 0.09,
+    tagWidth: 0.46,
+    tagHeight: 0.13,
     tagDepth: 0.02,
     minViewingDistanceMeters: 0.5,
     maxViewingDistanceMeters: 3.5,
     fontSizePtEquivalent: 24,
   },
   tiers: {
+    /**
+     * Tier budgets and quality knobs. Only the particle counts are consumed today;
+     * targetFps, maxTriangles, maxDrawCalls, fixedFoveation and framebufferScaleFactor
+     * are reserved for the dynamic quality controller, which is not built yet.
+     */
     tierA: {
       // Quest 2 baseline (guaranteed floor)
       targetFps: 72,
@@ -136,7 +144,8 @@ export const DEFAULT_TUNING: TuningConfig = {
     },
   },
   audio: {
-    masterGain: 0.8,
+    /** Output level applied to every synthesized spatial ping. */
+    masterGain: 0.3,
     spatialPingFreqHz: 880,
     spatialPingDurationMs: 120,
     rolloffFactor: 1.5,

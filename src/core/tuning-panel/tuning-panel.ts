@@ -143,7 +143,7 @@ export class RuntimeTuningPanel {
 
     const items = [
       `Grab Threshold: ${ActiveTuning.input.grabThresholdMeters.toFixed(2)} m`,
-      `Pinch Threshold: ${ActiveTuning.input.pinchThresholdMeters.toFixed(3)} m`,
+      `Fixed Step: ${ActiveTuning.physics.fixedStepHz} Hz`,
       `Snap Turn Angle: ${ActiveTuning.comfort.snapTurnAngleDeg}°`,
       `Grab Haptic: ${(ActiveTuning.haptics.grab.intensity * 100).toFixed(0)}%`,
       `Vignette Max: ${(ActiveTuning.comfort.vignetteMaxDarkness * 100).toFixed(0)}%`,

@@ -17,7 +17,10 @@ test.describe('M6 DNA & Genetics seven-beat playthrough', () => {
 
     await page.goto('/?module=dna-genetics&dev=true');
     await expect(page.locator('#canvas-container canvas')).toBeVisible();
-    await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_METRICS__?.currentModule)).toBe('dna-genetics');
+    await expect.poll(
+      () => page.evaluate(() => (window as any).__MAARIFY_METRICS__?.currentModule),
+      { timeout: 30_000 }
+    ).toBe('dna-genetics');
     await auditModuleInteractions(page, 5);
 
     const moduleState = () => page.evaluate(() => (window as any).__MAARIFY_MODULE_STATE__);

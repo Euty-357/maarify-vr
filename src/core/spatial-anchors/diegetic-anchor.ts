@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ActiveTuning } from '../../config/tuning.js';
 
 export interface SpatialAnchorState {
   id: string;
@@ -43,9 +44,9 @@ export class DiegeticSpatialAnchor extends THREE.Group {
       new THREE.Vector3(0.2, 0.24, 0),
     ]);
     const lineMat = new THREE.LineBasicMaterial({
-      color: 0x60a5fa,
+      color: ActiveTuning.anchors.leaderLineColor,
       transparent: true,
-      opacity: 0.85,
+      opacity: ActiveTuning.anchors.leaderLineOpacity,
     });
     this.lineMesh = new THREE.Line(lineGeo, lineMat);
     this.add(this.lineMesh);
@@ -64,7 +65,11 @@ export class DiegeticSpatialAnchor extends THREE.Group {
       this.tagTexture = new THREE.Texture();
     }
 
-    const tagGeo = new THREE.BoxGeometry(0.46, 0.13, 0.02);
+    const tagGeo = new THREE.BoxGeometry(
+      ActiveTuning.anchors.tagWidth,
+      ActiveTuning.anchors.tagHeight,
+      ActiveTuning.anchors.tagDepth
+    );
     // Multi-material box: face 4 (+Z front) has the canvas texture
     const sideMat = new THREE.MeshStandardMaterial({
       color: 0x1e293b,

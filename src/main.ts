@@ -36,7 +36,7 @@ let activeModuleDef: ModuleDefinition | null = null;
 let activeModuleRoot: THREE.Object3D | null = null;
 let currentModuleName = 'hub';
 const progressStore = new InMemoryProgressStore();
-const physicsAccumulator = new FixedTimestepAccumulator(120);
+const physicsAccumulator = new FixedTimestepAccumulator(ActiveTuning.physics.fixedStepHz);
 const activeGrabs = new Map<THREE.Object3D, SpatialGrabPrimitive>();
 const completedChallenges = new Set<string>();
 

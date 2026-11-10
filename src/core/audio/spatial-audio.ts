@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { ActiveTuning } from '../../config/tuning.js';
 
 export class SpatialAudioManager {
   private listener: THREE.AudioListener;
@@ -23,8 +24,8 @@ export class SpatialAudioManager {
    */
   public playSpatialPing(
     emitterMesh: THREE.Object3D,
-    freq = 880,
-    durationMs = 120
+    freq = ActiveTuning.audio.spatialPingFreqHz,
+    durationMs = ActiveTuning.audio.spatialPingDurationMs
   ): void {
     this.initContext();
     const ctx = this.listener.context;
@@ -35,9 +36,9 @@ export class SpatialAudioManager {
 
     panner.panningModel = 'HRTF';
     panner.distanceModel = 'inverse';
-    panner.refDistance = 1.0;
-    panner.maxDistance = 10.0;
-    panner.rolloffFactor = 1.5;
+    panner.refDistance = ActiveTuning.audio.refDistance;
+    panner.maxDistance = ActiveTuning.audio.maxDistance;
+    panner.rolloffFactor = ActiveTuning.audio.rolloffFactor;
 
     // Sync panner position to 3D object world coordinates
     const worldPos = new THREE.Vector3();
@@ -50,7 +51,7 @@ export class SpatialAudioManager {
     osc.frequency.setValueAtTime(freq, ctx.currentTime);
 
     // Natural decay envelope
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.setValueAtTime(ActiveTuning.audio.masterGain, ctx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + durationMs / 1000);
 
     osc.connect(gain);
