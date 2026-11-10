@@ -4,7 +4,7 @@ _Target Hardware: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
 
 ## 1. Milestone Overview & Sequential Order
 
-| Milestone | Focus | Key Deliverable | Gate & Freeze Policy |
+| Milestone | Focus | Key Deliverable | Gate Policy |
 | :--- | :--- | :--- | :--- |
 | **M0** | Toolchain & Spatial Spike | WebXR grabbable cube, flat desktop fallback, IWER emulator harness, verify pipeline | `npm run verify` green; baseline commit |
 | **M1** | Core Systems, Hub & Smoke-Test | Direct hands, teleport, vignette, positional audio, haptics, Diegetic Spatial Anchor kit, portal Hub, Hub Device Smoke-Test Zone | **STOP GATE:** Quest 3 Tuesday test rehearsal & review |
@@ -15,7 +15,7 @@ _Target Hardware: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
 | **M6** | DNA / Genetics (Full Spec) | Double helix unzipping, ribosome translation, CRISPR-Cas9 manual insertion | 100% SPEC complete; regression check |
 | **M7** | Environment (Full Spec) | Watershed time scrub, Mau Forest & Naivasha scenarios, shared stakeholder cause-and-effect sim | 100% SPEC complete; regression check |
 | **M8** | Urban Development (Full Spec) | Nairobi transit & land use, paratransit matatu routing, informal settlement upgrading | 100% SPEC complete; regression check |
-| **M9** | Integration & Headset Polish | Final polish pass, dynamic quality tuning on Quest 3, accessibility check, Tuesday deployment tag | Monday 22:00 Nairobi Freeze Tag |
+| **M9** | Integration & Headset Polish | Final polish pass, dynamic quality tuning on Quest 3, accessibility check, deployment tag | Ship gate: full Ready + sign-offs (freeze withdrawn 2026-11-10) |
 
 ---
 

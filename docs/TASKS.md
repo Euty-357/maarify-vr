@@ -98,7 +98,7 @@
 ---
 
 ## Module Pipeline Status Matrix
-_Execution Mode: Sequential Full-Spec Build Order | Target Freeze: Monday 22:00 Nairobi Time (EAT)_
+_Execution Mode: Sequential Full-Spec Build Order | Scope: complete M6 DNA/Genetics to Ready, then stop (freeze withdrawn 2026-11-10)_
 
 | Module | Status | SPEC & Immersion Map | Verify Suite Green? | Reviewer Sign-Offs | Claim-Level Sourcing |
 | :--- | :--- | :--- | :--- | :--- | :--- |

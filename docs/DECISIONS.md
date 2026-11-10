@@ -67,4 +67,4 @@ _Record all significant decisions with rationale and alternatives considered._
 
 ### Section G: Build Strategy & Milestones
 1. **Sequential Full-Spec Delivery:** M0 (Toolchain) → M1 (Core & Hub) → M2 (Cosmos) → M3 (Quantum) → M4 (Human Body) → M5 (Aerospace) → M6 (DNA) → M7 (Environment) → M8 (Urban Dev) → M9 (Integration & Polish).
-2. **Hard Freeze:** Monday 22:00 Nairobi time (EAT).
+2. **No Hard Freeze (withdrawn 2026-11-10 by user):** Delivery scope is M6 DNA/Genetics to full Ready, then stop for review. M7–M9 resume only on explicit instruction.

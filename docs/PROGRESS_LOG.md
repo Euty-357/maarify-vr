@@ -194,3 +194,51 @@ _Never delete entries. Append only._
 - Playwright flake gate passed three consecutive runs: `reports/e2e-flake-run-{1,2,3}.log`, each 6/6 and exit code 0. The module-load readiness poll fixes are therefore **verified in Playwright/emulator**.
 - Re-verified Kenya-related learner claims in Cosmos, Human Body, and Aerospace. `docs/AUDIT_M5_TO_M6.md` now records the exact supporting sentences and corrections, including the Taifa-1/Vandenberg distinction.
 - M6 remains experimental and hidden by `src/config/feature-flags.ts`; its incomplete scaffold is intentionally excluded from the audit commit. Last tool: Codex. Next action: commit and push audit-only paths, then implement M6 to full Ready criteria.
+
+---
+## 2026-11-09T11:33 EAT | Session 11 | Codex | Audit Published
+- Committed the verified audit-only paths as `ca3c926` (`fix(audit): verify Kenya claims and worst-case coverage`).
+- Pushed the same commit by normal fast-forward to both `origin/main` and `origin/master`; neither branch diverged. The first command named a nonexistent local `master` ref and made no remote changes; the corrected `main:main main:master` refspec succeeded.
+- M6 scaffold and its specification remain unstaged and experimental. Last tool: Codex. Next action: implement M6 full spec without exposing it in the hub.
+
+---
+## 2026-11-09T12:55 EAT | Session 12 | Codex | M6 DNA / Genetics Visual and Budget Pass
+- Replaced the repeated helix meshes with instanced geometry in `src/modules/dna-genetics/scene.ts`; M6 now records 7,504 triangles and 41 draw calls in Playwright/emulator, under the Tier A limits of 100,000 triangles and 100 draw calls.
+- Targeted typecheck and M6 Playwright now pass (`reports/m6-typecheck.log`, `reports/m6-e2e.log`); the e2e run produced and reviewed both `reports/history/screenshots/m6-dna-genetics-{standing-eye-level,seated-chest-level}.png`. These are emulator/layout evidence only, **NOT verified on headset**.
+- Corrected a screenshot-review finding: the CRISPR station and its anchor were behind/too near the initial viewer pose. All M6 work stations now sit in the forward 1–2 m interaction volume; the post-fix screenshot is legible and no longer occluded.
+- Added a visible “SIMPLIFIED MODEL — NOT ENGINEERING GRADE” scene label, per simulation governance, and M6 micro-sim geometry for each anchor.
+- Added DT-008 to the headset backlog. M6 remains experimental: the audit found that shared grab/slider/rotator primitives are not yet routed by the application’s controller/hand input and there is no real challenge completion/XP path. Last tool: Codex. Next action: implement those shared paths before any Ready claim.
+
+---
+## 2026-11-09T13:00 EAT | Session 12 | Codex | M6 Shared Interaction Wiring
+- Added shared controller/desktop dispatch in `src/main.ts` for existing spatial grab, slider, rotator, and diegetic-anchor primitives. It maintains active controller grabs and routes emitted challenge-completion events through the in-memory XP store.
+- Wired M6 physical actions to its four challenges: collect all base models, fully unzip the helix, grab the tRNA, and rotate the non-clinical Cas9 guide dial. The M6 e2e test now programmatically invokes those primitive callbacks and asserts four completions and 875 XP.
+- `tsc --noEmit` passed after the wiring (`reports/m6-typecheck.log`). Re-running the M6 Playwright test is pending because the terminal launcher began orphaning Playwright workers and omitted an exit marker; this is not treated as a pass. Last tool: Codex. Next action: clear only the identified stale test workers, obtain a conclusive M6 e2e result, then continue the remaining Ready gate.
+
+---
+## 2026-11-09T13:11 EAT | Session 12 | Codex | M6 Action-Completion Verification
+- Identified and stopped only the orphaned Playwright `test-server` process (PID 19672), then reran the M6 scenario from a clean local test state.
+- `reports/m6-e2e-action.log` records exit code 0: its four simulated shared-primitive actions completed the base-pair, replication, translation, and non-clinical guide-alignment challenges, awarding the expected 875 XP with zero console errors. This is **verified in Playwright/emulator**, not on headset.
+- Added Web Audio HRTF pings to the same M6 physical actions via a shared application event listener; controller haptic behavior remains **NOT verified on headset** under DT-008. Last tool: Codex. Next action: adversarially review M6 against every SPEC beat and the immersion charter before the full verification gate.
+
+---
+## 2026-11-09T13:12 EAT | Session 12 | Codex | M6 Immersion Review Finding
+- Same-model `immersion-reviewer` pass is **BLOCKED**, not signed off: the implemented scene does not yet realize three mandatory SPEC beats as spatial experiences—Beat 1’s cell/nucleus scale dive, Beat 6’s African genetic-diversity and sickle-trait/malaria context exhibit, and Beat 7’s reflection/exit horizon.
+- M6 remains hidden and uncommitted. No next module has started. Last tool: Codex. Next action: implement those three seated-completable spatial beats, then repeat the adversarial review.
+
+---
+## 2026-11-10T08:05 EAT | Session 13 | DeepSeek Harness | Freeze Withdrawn & M6 Scope Fixed
+- User withdrew the Monday 22:00 Nairobi hard freeze and fixed the delivery scope: finish M6 DNA/Genetics to full Ready, then stop. M7–M9 are out of scope until explicit instruction.
+- Removed the freeze language from `AGENTS.md`, `docs/DECISIONS.md`, `docs/PLAN.md`, and `docs/TASKS.md` so no tracker still claims a deadline.
+- `docs/M6_BUILD_PLAN.md` written for approval. No module code has been changed in this session yet; M6 remains experimental, hidden and uncommitted.
+
+---
+## 2026-11-10T08:42 EAT | Session 13 | DeepSeek Harness | Phase B — Headset Enablement Verified
+- Added an `xr-camera-rig`; teleport and snap turn now move the rig. WebXR ignores `camera.position`, so before this change no one could move in the headset at all, seated or standing.
+- Captured each controller's `XRInputSource` on `connected` and threaded it into grab/release/anchor/slider/rotator calls. Haptics previously always received `undefined` and never fired.
+- Controller raycast now activates hub portals, tier buttons and module anchors/sliders/rotators; a two-point pointer ray is rendered per controller and turns blue on a hit. `maarify:return-to-hub` restores the hub.
+- Added optional `ModuleDefinition.update(dt)` and exposed it from M2–M6, so scene animations (helix sway, plume pulse, heart beat) finally run. All five modules route through one importer map.
+- Studio image-based lighting (procedural PMREM, no assets), ACES tone mapping and a hemisphere fill replace the flat four-light setup; `setFoveation(0.4)` is applied on session start.
+- The full gate caught a real regression the previous session missed: M6's canvas label threw `document is not defined` in the Node unit run because it was added after the last unit test run. Guarded.
+- `npm run verify` exit 0 (`reports/phase-b-verify.log`): 12 unit suites / 55 tests, seven Playwright specs, Tier A budget PASS, zero console errors. Emulator only — **NOT verified on headset**.
+

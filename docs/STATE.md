@@ -3,7 +3,7 @@ _This file is the single source of truth for resuming any session. Update it aft
 
 ## Current Phase / Milestone
 - **Phase:** Implementation Active — Sequential Full-Spec Module Delivery
-- **Milestone:** M5 Aerospace & Propulsion Complete & Ready (`v0.5-aerospace`); M5-to-M6 Audit Verified; M6 DNA / Genetics Experimental Build
+- **Milestone:** M0–M5 Complete and tagged; Phase B headset enablement green; M6 DNA / Genetics experimental build in progress (scope ends at M6)
 
 ## Where We Are & What We Have Done
 1. **Toolchain & Spike (M0):** Complete & green (`b1ec4d3`). Three.js, WebXR Device API, Vitest, Playwright with IWER emulator, multi-pose screenshot matrix, budget checkers, and hygiene checks.
@@ -15,22 +15,20 @@ _This file is the single source of truth for resuming any session. Update it aft
 7. **Git Source Control & GitHub Remote Sync:** Both `master` (GitHub default branch) and `main` are fully synchronized on [`https://github.com/Euty-357/maarify-vr`](https://github.com/Euty-357/maarify-vr) with dual-push refspecs active.
 
 ## In Progress
-- M6 DNA / Genetics started 2026-11-09T10:45 EAT; experimental and hidden by `MODULE_FLAGS` until it meets every Ready criterion. Planned files: `src/modules/dna-genetics/{index.ts,scene.ts,anchors.ts,challenges.ts,audio-guidance.ts,SOURCES.md}`, `tests/{unit/modules/dna-genetics.test.ts,e2e/m6-dna-genetics.spec.ts}`, `docs/{STATE.md,PROGRESS_LOG.md,DEVICE_TEST_BACKLOG.md}`.
+- **Phase B (headset enablement) complete and verified in Playwright/emulator** at 2026-11-10T08:42 EAT: camera rig, teleport, snap turn, controller raycast + portal entry, real `XRInputSource` haptics, `ModuleDefinition.update(dt)` on all modules, studio IBL and ACES tone mapping. Full `npm run verify` exit 0.
+- **M6 DNA / Genetics is still experimental, hidden and uncommitted.** Its 74-line scene is being replaced per `docs/M6_BUILD_PLAN.md`. The four old challenges and 875 XP still pass in emulator, but the module is not Ready and must not be exposed in the hub.
 
 ## What Is Next
-1. **M5-to-M6 Audit (complete, uncommitted):**
-   - `npm run verify` passed at 2026-11-09T11:23 EAT (exit 0); Playwright completed three consecutive 6/6 runs (exit 0 each).
-   - Commit and push only audit paths; leave all `src/modules/dna-genetics/` scaffold files unstaged.
-2. **M6 DNA / Genetics Full-Spec Delivery:**
-   - Scaffold `src/modules/dna-genetics/` (double helix unzipping, base pair matching, CRISPR-Cas9 guide RNA targeting, African genomic diversity & sickle-cell protective trait).
-   - Author `SOURCES.md`, anchors, challenges, audio guidance, unit tests, and Playwright e2e test.
-   - Run `npm run verify` (100% green), obtain 4 reviewer sign-offs, commit, and tag `v0.6-dna-genetics`.
+1. **Phase C–F — realise the seven M6 beats:** cell/nucleus dive, 4 m helix with two-hand unzip, slot-based base snapping with rejection, room-scale ribosome with A/P/E translocation, CRISPR alignment/lock with NHEJ vs HDR outcomes, diversity + sickle-trait exhibit, badge plinth and exit portal.
+2. **Phase G — tests, sources, docs:** pure `genetics.ts` model with unit tests, 5 anchors / 5 challenges / 1,025 XP, e2e beat coverage and worst-case budget state, H3Africa/AGVP and KALRO/ILRI sources, and the Williams 2005 citation reconciliation.
+3. **Phase H — gate and stop:** second full `npm run verify`, four sign-offs, flag to `ready`, commit `feat(dna-genetics)`, tag `v0.6-dna-genetics`, push `main` and `master`. No M7 work.
 
 ## Blockers
-- None. Audit verification is green: 50 unit tests across 11 suites and 6 Playwright e2e suites, with three clean consecutive Playwright runs. All performance/feel findings remain NOT verified on headset.
+- M6 immersion review remains blocked until the three missing SPEC beats (opening scale dive, Beat 6 diversity/trait exhibit, Beat 7 reflection/exit) exist as spatial, seated-completable experiences.
+- The previous structural blockers are resolved: the headset can now move (teleport/snap turn), enter modules (controller raycast on portals) and receive haptics. All performance/feel findings remain **NOT verified on headset**.
 
 ## Last Green Commit
-- `aeac210` — `docs(state): update last green commit to 889180b for M5` (Author: `Euty-357`)
+- `ca3c926` — `fix(audit): verify Kenya claims and worst-case coverage`. Phase B verify green 2026-11-10T08:42 EAT (`reports/phase-b-verify.log`, exit 0), committed as this session's core-enablement commit.
 
 ## Which Tool/Session Last Worked
-- Codex, 2026-11-09T11:30 EAT. Exact next action: commit and push the verified audit-only paths, then complete M6 while it remains experimental until Ready.
+- DeepSeek Harness, 2026-11-10T08:42 EAT. Exact next action: Phase C of `docs/M6_BUILD_PLAN.md` — Beat 1 cell dive and Beat 2 helix walk-through.

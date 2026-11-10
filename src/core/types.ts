@@ -42,6 +42,8 @@ export interface ModuleDefinition {
   thumbnail: string;
   load(container: THREE.Scene): Promise<THREE.Object3D>;
   unload(): void;
+  /** Optional per-frame animation tick, driven by the application render loop. */
+  update?(deltaSeconds: number): void;
   getChallenges(): ChallengeDefinition[];
   getSpatialAnchors(): SpatialAnchorDefinition[];
 }

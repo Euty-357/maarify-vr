@@ -29,6 +29,10 @@ const moduleDef: ModuleDefinition = {
     }
   },
 
+  update(deltaSeconds: number) {
+    activeScene?.update(deltaSeconds);
+  },
+
   getChallenges,
   getSpatialAnchors,
 };

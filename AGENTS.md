@@ -72,7 +72,7 @@ Commit **only** when:
 ## Build Strategy: Full Sequential Delivery
 Modules built one by one to 100% full SPEC before starting the next:
 Order: M0, M1, M2 Cosmos, M3 Quantum, M4 Human Body & Medicine, M5 Aerospace, M6 DNA/Genetics, M7 Environment, M8 Urban Development, M9 Integration & Polish.
-Hard freeze at Monday 22:00 Nairobi time.
+No hard freeze (withdrawn 2026-11-10 by user). Current scope: complete M6 DNA/Genetics to full Ready, then stop for review; M7–M9 require explicit instruction.
 
 ## npm run verify
 Runs: `sync:agents` → `check:hygiene` → `typecheck` → `lint` → `test:unit` → `test:e2e` → `test:budget` → `generate-report`. Must be fully green before any code commit.
