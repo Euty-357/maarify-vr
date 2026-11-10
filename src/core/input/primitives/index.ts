@@ -11,6 +11,7 @@ export * from './lever.js';
 export * from './rotator.js';
 export * from './scalePinch.js';
 export * from './anchor.js';
+export * from './slot.js';
 export * from './teleport.js';
 export * from './snapTurn.js';
 

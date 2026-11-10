@@ -1,6 +1,20 @@
 # CHANGELOG.md
 _Follows Keep a Changelog format. Versions map to milestones._
 
+## [0.6.0] — 2026-11-10
+### Added
+- **M6 DNA / Genetics:** seven spatial beats — cell-interior dive, 4 m double helix with two-hand unzip, complementary base snapping with rejection, room-scale ribosome with A-site translocation, CRISPR guide alignment with NHEJ/HDR outcomes, diversity + sickle-trait exhibit, and a badge/exit horizon.
+- Five physical challenges worth **1,025 XP**, five sourced diegetic anchors, and claim-level sources including the African Genome Variation Project and H3Africa.
+- Shared `SpatialSlotPrimitive`, diegetic `createTextPanel`, and the `SpatialBadgePlinth` exit-horizon kit in `src/gamification/`.
+- XR camera rig with teleport and snap turn, controller-raycast portal entry, real `XRInputSource` haptics, per-frame module animation ticks, and procedural studio lighting.
+
+### Changed
+- Hard freeze withdrawn (2026-11-10); delivery scope fixed at M6, then stop.
+
+### Verified
+- `npm run verify` green: unit tests, seven Playwright specs, Tier A budget, zero console errors.
+- All hardware performance and feel findings remain **NOT verified on headset**.
+
 ## [Unreleased]
 ### Added
 - Project bootstrap: folder structure, governance files, tracking files

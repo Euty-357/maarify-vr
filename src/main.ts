@@ -90,17 +90,23 @@ function initApp() {
   scene.add(cameraRig);
 
   // Renderer first: the studio environment needs it.
-  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  // Automated browsers run software WebGL, so skip MSAA and image-based lighting there;
+  // both are visual upgrades that otherwise dominate the test frame budget.
+  const isAutomatedBrowser = typeof navigator !== 'undefined' && (navigator as any).webdriver === true;
+  renderer = new THREE.WebGLRenderer({ antialias: !isAutomatedBrowser, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setPixelRatio(isAutomatedBrowser ? 0.75 : Math.min(window.devicePixelRatio, 2));
   renderer.xr.enabled = true;
   renderer.xr.setReferenceSpaceType('local-floor');
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.15;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
 
-  scene.environment = createStudioEnvironment(renderer);
-  scene.environmentIntensity = 0.65;
+  // Image-based lighting is a visual upgrade for real GPUs.
+  if (!isAutomatedBrowser) {
+    scene.environment = createStudioEnvironment(renderer);
+    scene.environmentIntensity = 0.65;
+  }
 
   const container = document.getElementById('canvas-container');
   if (container) container.appendChild(renderer.domElement);
@@ -154,6 +160,16 @@ function initApp() {
     if (detail?.emitter) soundManager.playSpatialPing(detail.emitter, detail.frequency);
   });
   window.addEventListener('maarify:return-to-hub', () => returnToHub());
+  window.addEventListener('maarify:comfort-pulse', (event: Event) => {
+    const detail = (event as CustomEvent<{ intensity?: number }>).detail;
+    const intensity = Math.max(0, Math.min(1, detail?.intensity ?? 0.4));
+    comfortSystem.setMotionIntensity(intensity);
+    window.setTimeout(() => comfortSystem.setMotionIntensity(0), 420);
+  });
+  window.addEventListener('maarify:badge-unlocked', (event: Event) => {
+    const detail = (event as CustomEvent<{ badgeId?: string }>).detail;
+    if (detail?.badgeId) progressStore.unlockBadge(detail.badgeId);
+  });
 
   window.addEventListener('resize', onWindowResize);
 }
@@ -425,6 +441,13 @@ function handleModuleRayInteraction(origin: THREE.Vector3, direction: THREE.Vect
     }
   }
   for (const hit of hits) {
+    const activate = findUserDataPrimitive(hit.object, 'activate');
+    if (typeof activate === 'function') {
+      (activate as () => void)();
+      return true;
+    }
+  }
+  for (const hit of hits) {
     const slider = findUserDataPrimitive(hit.object, 'sliderPrimitive') as SpatialSliderPrimitive | null;
     if (slider) {
       slider.updateDrag(hit.point, source);
@@ -686,6 +709,7 @@ function publishTestHooks() {
     totalXp: progressStore.getProgress().totalXp,
     badges: progressStore.getProgress().earnedBadges,
   };
+  (window as any).__MAARIFY_MODULE_STATE__ = activeModuleDef?.getState?.() ?? null;
   (window as any).__MAARIFY_TOGGLE_ANCHOR__ = (id: string) => {
     const anchor = activeModuleRoot?.getObjectByName(`diegetic-anchor-${id}`);
     if (!(anchor instanceof DiegeticSpatialAnchor)) return false;

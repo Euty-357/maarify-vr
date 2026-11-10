@@ -1,6 +1,6 @@
 # Maarify — Latest Verify Report
-_Generated: 2026-11-10T05:42:18.837Z_
-_Commit: ca3c926_
+_Generated: 2026-11-10T07:07:24.150Z_
+_Commit: b55a76d_
 
 ## Verification Labels
 - Unit tests: **verified by unit test**
@@ -14,7 +14,7 @@ _Commit: ca3c926_
 - **m3-quantum:** worst-case triangles=7222, drawCalls=83 (1 captured state(s))
 - **m4-human-body:** worst-case triangles=5256, drawCalls=48 (1 captured state(s))
 - **m5-aerospace:** worst-case triangles=1934, drawCalls=64 (1 captured state(s))
-- **m6-dna-genetics:** worst-case triangles=7892, drawCalls=45 (1 captured state(s))
+- **m6-dna-genetics:** worst-case triangles=20374, drawCalls=82 (1 captured state(s))
 
 ## Test Results
 _No test result data yet._
@@ -23,4 +23,4 @@ _No test result data yet._
 - All emulator measurements are NOT verified on headset.
 - See [docs/DEVICE_TEST_BACKLOG.md](../docs/DEVICE_TEST_BACKLOG.md) for headset-only test cases.
 
-_History entry: C:\maarify\reports\history\2026-11-10T05-42-18-837Z.json_
+_History entry: C:\maarify\reports\history\2026-11-10T07-07-24-150Z.json_

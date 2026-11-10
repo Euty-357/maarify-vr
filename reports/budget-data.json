@@ -45,9 +45,9 @@
   },
   "m6-dna-genetics": {
     "states": {
-      "helix-and-crispr-preloaded": {
-        "triangles": 7892,
-        "drawCalls": 45
+      "all-beats-unlocked": {
+        "triangles": 20374,
+        "drawCalls": 82
       }
     }
   }

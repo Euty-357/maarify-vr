@@ -41,8 +41,8 @@ export const MODULE_FLAGS: Record<string, ModuleFeatureConfig> = {
   'dna-genetics': {
     id: 'dna-genetics',
     name: 'DNA & Genetics',
-    readiness: 'experimental',
-    enabled: false,
+    readiness: 'ready',
+    enabled: true,
   },
   environment: {
     id: 'environment',

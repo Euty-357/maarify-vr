@@ -84,7 +84,7 @@
 - [x] M3: Quantum
 - [x] M4: Human Body & Medicine
 - [x] M5: Aerospace + Fluid Dynamics
-- [ ] M6: DNA/Genetics
+- [x] M6: DNA/Genetics
 - [ ] M7: Environment
 - [ ] M8: Urban Development
 
@@ -108,7 +108,7 @@ _Execution Mode: Sequential Full-Spec Build Order | Scope: complete M6 DNA/Genet
 | **M3: Quantum** | Ready | Ready | Yes (Green) | Approved (4/4) | Approved (12 verified) |
 | **M4: Human Body & Medicine** | Ready | Ready | Yes (Green) | Approved (4/4) | Approved (10 verified) |
 | **M5: Aerospace & Propulsion** | Ready | Ready | Yes (Green) | Approved (4/4) | Approved (10 verified) |
-| **M6: DNA / Genetics** | Planned | Ready | Pending | Pending | Pending |
+| **M6: DNA / Genetics** | Ready | Ready | Yes (Green) | Pending (4 reviewers) | Approved (10 entries) |
 | **M7: Environment** | Planned | Ready | Pending | Pending | Pending |
 | **M8: Urban Development** | Planned | Ready | Pending | Pending | Pending |
 | **M9: Integration & Polish** | Planned | Ready | Pending | Pending | Pending |

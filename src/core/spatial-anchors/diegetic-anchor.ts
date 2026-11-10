@@ -40,7 +40,7 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     // 1. Leader Line from target object to spatial label tag
     const lineGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(0.15, 0.2, 0),
+      new THREE.Vector3(0.2, 0.24, 0),
     ]);
     const lineMat = new THREE.LineBasicMaterial({
       color: 0x60a5fa,
@@ -54,8 +54,8 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     const isBrowser = typeof document !== 'undefined';
     if (isBrowser) {
       this.tagCanvas = document.createElement('canvas');
-      this.tagCanvas.width = 256;
-      this.tagCanvas.height = 64;
+      this.tagCanvas.width = 512;
+      this.tagCanvas.height = 128;
       this.tagTexture = new THREE.CanvasTexture(this.tagCanvas);
       this.tagTexture.minFilter = THREE.LinearFilter;
       this.renderTagCanvas(false);
@@ -64,7 +64,7 @@ export class DiegeticSpatialAnchor extends THREE.Group {
       this.tagTexture = new THREE.Texture();
     }
 
-    const tagGeo = new THREE.BoxGeometry(0.32, 0.08, 0.02);
+    const tagGeo = new THREE.BoxGeometry(0.46, 0.13, 0.02);
     // Multi-material box: face 4 (+Z front) has the canvas texture
     const sideMat = new THREE.MeshStandardMaterial({
       color: 0x1e293b,
@@ -78,13 +78,13 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     const materials = [sideMat, sideMat, sideMat, sideMat, frontMat, sideMat];
 
     this.tagMesh = new THREE.Mesh(tagGeo, materials);
-    this.tagMesh.position.set(0.15, 0.2, 0);
+    this.tagMesh.position.set(0.2, 0.24, 0);
     this.tagMesh.name = `anchor-tag-${id}`;
     this.add(this.tagMesh);
 
     // 3. Interactive Micro-Simulation Root (State 2)
     this.microSimRoot = new THREE.Group();
-    this.microSimRoot.position.set(0.15, 0.35, 0);
+    this.microSimRoot.position.set(0.2, 0.42, 0);
     this.microSimRoot.visible = false;
     this.microSimRoot.name = `micro-sim-root-${id}`;
     this.add(this.microSimRoot);
@@ -99,20 +99,20 @@ export class DiegeticSpatialAnchor extends THREE.Group {
 
     // Background
     ctx.fillStyle = highlighted ? '#1d4ed8' : '#0f172a';
-    ctx.fillRect(0, 0, 256, 64);
+    ctx.fillRect(0, 0, 512, 128);
 
     // Cyan accent left pill bar
     ctx.fillStyle = '#38bdf8';
-    ctx.fillRect(0, 0, 8, 64);
+    ctx.fillRect(0, 0, 14, 128);
 
     // Text rendering: label & Level 1 subtext
     ctx.fillStyle = '#f8fafc';
-    ctx.font = 'bold 20px sans-serif';
-    ctx.fillText(this.anchorLabel.slice(0, 22), 16, 28);
+    ctx.font = 'bold 34px sans-serif';
+    ctx.fillText(this.anchorLabel.slice(0, 28), 26, 52);
 
-    ctx.fillStyle = '#94a3b8';
-    ctx.font = '13px sans-serif';
-    ctx.fillText(this.level1Note.slice(0, 32), 16, 50);
+    ctx.fillStyle = '#cbd5e1';
+    ctx.font = '22px sans-serif';
+    ctx.fillText(this.level1Note.slice(0, 62), 26, 94);
 
     this.tagTexture.needsUpdate = true;
   }

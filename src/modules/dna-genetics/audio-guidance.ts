@@ -1,0 +1,11 @@
+export interface DnaNarrativeBeat { beatNumber: number; timeRange: string; title: string; guidanceText: string; stemContext: string; }
+
+export const DR_AMANI_DNA_BEATS: DnaNarrativeBeat[] = [
+  { beatNumber: 1, timeRange: '0:00–2:00', title: 'Cell Nucleus Arrival', guidanceText: 'Welcome to DNA and Genetics. Enter the nucleus at your own pace. This is a simplified molecular model, not a diagnosis or medical treatment.', stemContext: 'DNA packages inherited information inside cells.' },
+  { beatNumber: 2, timeRange: '2:00–5:00', title: 'Walk the Double Helix', guidanceText: 'Walk around the two backbones. The rungs pair in predictable partners: A with T, and C with G.', stemContext: 'Complementary pairing lets each DNA strand guide a copy.' },
+  { beatNumber: 3, timeRange: '5:00–8:00', title: 'Build a Matching Strand', guidanceText: 'Pick up the loose bases and place their partners on the exposed template. This is matching by molecular shape, not a quiz.', stemContext: 'DNA copying uses template-directed base pairing.' },
+  { beatNumber: 4, timeRange: '8:00–12:00', title: 'From DNA to Protein', guidanceText: 'Open the fork, then guide the RNA message through the ribosome. Watch matching transfer RNAs help build a chain.', stemContext: 'Ribosomes read messenger RNA in codons to assemble proteins.' },
+  { beatNumber: 5, timeRange: '12:00–16:00', title: 'CRISPR Targeting', guidanceText: 'Align the guide beside a PAM marker. This model shows targeting and repair choices; it is not a clinical gene-editing procedure.', stemContext: 'Common SpCas9 systems require a nearby NGG PAM.' },
+  { beatNumber: 6, timeRange: '16:00–18:00', title: 'Genetics, Diversity and Health', guidanceText: 'Human genetic diversity is real and valuable. Sickle-cell trait and malaria are population-level evolutionary context, never a prediction about an individual.', stemContext: 'Sickle-cell disease is inherited; trait and disease are not the same.' },
+  { beatNumber: 7, timeRange: '18:00–20:00', title: 'Genomics Architect', guidanceText: 'You have followed information from DNA to protein and tested a model guide. Carry that care into questions about crops, health and biodiversity.', stemContext: 'Genomic tools require scientific, ethical and community safeguards.' },
+];

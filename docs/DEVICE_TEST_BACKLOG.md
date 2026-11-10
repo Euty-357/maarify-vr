@@ -61,3 +61,21 @@ _All items here cannot be verified in headless CI or emulator and are strictly l
 - **How to test:** Switch display refresh rate in Hub between 72Hz, 90Hz, and 120Hz; run Mars transfer challenge; verify orbit trajectory matches exactly across all rates.
 - **Pass criteria:** Trajectory delta $< 0.01\%$ across different display refresh rates.
 - **Status:** NOT verified on headset
+
+## DT-008 — M6 DNA / Genetics Reachability, Scale and Anchor Legibility
+- **What:** Verify that the helix slider, base pieces, tRNA loop and Cas9 alignment dial are naturally reachable while seated, that their scale conveys the intended molecular analogy, and that all four spatial anchor tags are readable without blocking the working volume.
+- **Why device needed:** Controller/hand reach envelopes, stereo depth, hand occlusion, haptic detents and perceived world scale cannot be assessed by desktop screenshots or the WebXR emulator.
+- **Module / System:** M6 DNA / Genetics (`src/modules/dna-genetics/scene.ts`, `src/modules/dna-genetics/anchors.ts`)
+- **How to test:** From the seated default pose, complete the four M6 interactions with Touch Plus controllers, then repeat the handle and scale-pinch interaction with hand tracking. Open each anchor at 1–2 m and check that it neither occludes the interaction nor requires leaning.
+- **Pass criteria:** Every control is reachable without standing or torso strain; tags are legible at normal viewing distance; haptic feedback is distinct; no forced camera motion, accidental grabs, or uncomfortable occlusion occur.
+- **First tuning target if failed:** `src/modules/dna-genetics/scene.ts` station positions and `src/config/tuning.ts` interaction/comfort constants.
+- **Status:** NOT verified on headset
+
+## DT-009 — XR Locomotion, Portal Entry and Haptic Confirmation
+- **What:** Verify that the left thumbstick aims and commits a teleport, the right thumbstick snaps the view in 30° detents with the vignette pulse, the controller ray activates hub portals and module anchors/sliders, and grab/release/snap haptics are felt on Touch Plus controllers.
+- **Why device needed:** The camera rig, input-source capture, haptic actuators and ray length were only exercised in the desktop fallback and Playwright/emulator. Comfort of the vignette and the feel of the detents cannot be assessed in a browser.
+- **Module / System:** Core (`src/main.ts`, `src/core/input/primitives/teleport.ts`, `snapTurn.ts`, `src/core/haptics/haptics.ts`)
+- **How to test:** Enter VR from the hub. Teleport to each of the seven portals, turn across a module, point at an anchor and a slider, grab a M6 nucleotide, and release it into a socket. Repeat seated, then standing with physical walking.
+- **Pass criteria:** Teleport lands where the arc shows; snap turn never overshoots; the ray visibly changes colour on a hit; haptics fire distinctly on grab, snap, detent and error; no nausea or unintended movement; every control is reachable seated.
+- **First tuning target if failed:** `src/config/tuning.ts` (`comfort.*`, `haptics.*`, `input.rotatorDetentStepDeg`) and `src/main.ts` stick deadzones.
+- **Status:** NOT verified on headset

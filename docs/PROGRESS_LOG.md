@@ -242,3 +242,13 @@ _Never delete entries. Append only._
 - The full gate caught a real regression the previous session missed: M6's canvas label threw `document is not defined` in the Node unit run because it was added after the last unit test run. Guarded.
 - `npm run verify` exit 0 (`reports/phase-b-verify.log`): 12 unit suites / 55 tests, seven Playwright specs, Tier A budget PASS, zero console errors. Emulator only — **NOT verified on headset**.
 
+---
+## 2026-11-10T09:40 EAT | Session 13 | DeepSeek Harness | M6 DNA / Genetics Complete
+- Implemented all seven beats in `src/modules/dna-genetics/scene.ts`: cell-interior dive through the nuclear pore (layered reveal, no camera motion), 4 m instanced double helix with two-hand unzip plus a seated replication lever, complementary base snapping with wrong-pair rejection and spring-back, room-scale ribosome with ordered A-site tRNA translocation and a growing peptide chain, CRISPR guide alignment with PAM marker and NHEJ/HDR outcomes, diversity wall with genotype dial and a three-link causal chain, and a badge plinth with exit portal.
+- Five challenges worth **1,025 XP**, five sourced anchors, and a new `genetics.ts` pure model (pairing, transcription, translation, GC fraction, Mendelian inheritance, population framing) covered by unit tests.
+- New shared pieces: `SpatialSlotPrimitive`, `createTextPanel`, `SpatialBadgePlinth` (the reusable exit-horizon kit for M9 backfill), and `ModuleDefinition.getState()` for automated assertions.
+- Sources added: African Genome Variation Project, H3Africa, KALRO, ILRI. The “up to 90 %” malaria-protection figure from the research notes is **removed** from learner copy pending a population-specific citation; the exhibit says “strong protection”.
+- `MODULE_FLAGS['dna-genetics']` flipped to `ready` + `enabled`; hub portal now lit.
+- `npm run verify` exit 0 (`reports/verify-m6.log`): 67 unit tests across 14 suites, seven Playwright specs including the full M6 playthrough, Tier A budget PASS, zero console errors. M6 measures ~20 k triangles / 82 draw calls in the emulator.
+- Committed and tagged `v0.6-dna-genetics`; pushed to `main` and `master`. All headset performance and feel claims remain **NOT verified on headset** (DT-008, DT-009 pending).
+

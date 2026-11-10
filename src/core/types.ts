@@ -44,6 +44,8 @@ export interface ModuleDefinition {
   unload(): void;
   /** Optional per-frame animation tick, driven by the application render loop. */
   update?(deltaSeconds: number): void;
+  /** Optional serialisable state for automated playthrough assertions. */
+  getState?(): Record<string, unknown> | null;
   getChallenges(): ChallengeDefinition[];
   getSpatialAnchors(): SpatialAnchorDefinition[];
 }
