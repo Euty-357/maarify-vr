@@ -33,6 +33,10 @@ const moduleDef: ModuleDefinition = {
     activeScene?.update(deltaSeconds);
   },
 
+  setDepthTier(tier) {
+    activeScene?.anchorPrimitive.updateTier(tier);
+  },
+
   getChallenges,
   getSpatialAnchors,
 };

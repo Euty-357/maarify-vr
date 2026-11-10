@@ -6,6 +6,7 @@ import { triggerHapticPulse } from '../../haptics/haptics.js';
 
 export class SpatialAnchorPrimitive {
   private anchors: Map<string, DiegeticSpatialAnchor> = new Map();
+  private definitions: Map<string, SpatialAnchorDefinition> = new Map();
 
   constructor(private containerGroup: THREE.Group) {}
 
@@ -25,6 +26,7 @@ export class SpatialAnchorPrimitive {
     anchor.position.copy(def.anchorPosition);
     this.containerGroup.add(anchor);
     this.anchors.set(def.id, anchor);
+    this.definitions.set(def.id, def);
     return anchor;
   }
 
@@ -37,8 +39,10 @@ export class SpatialAnchorPrimitive {
   }
 
   public updateTier(tier: 'foundation' | 'advanced' | 'expert'): void {
-    for (const anchor of this.anchors.values()) {
-      anchor.setTier(tier);
+    for (const [id, anchor] of this.anchors) {
+      const definition = this.definitions.get(id);
+      if (!definition) continue;
+      anchor.applyTier(tier, definition.level2Simulation[tier]);
     }
   }
 

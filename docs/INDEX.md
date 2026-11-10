@@ -15,6 +15,7 @@ _Single line per document. Consult this index before creating or modifying markd
 - `docs/PLAN.md` — Milestone execution plan (M0 through M9), timelines, and risk mitigation.
 - `docs/MODULE_TEMPLATE.md` — Authoring template, file layout, immersion map contract, and hard definition of "Ready".
 - `docs/HEADSET_TEST.md` — Meta Quest 3/2 setup, ADB reverse, MQDH profiling, and smoke-test protocol.
+- `docs/CONTROLS.md` — Complete control reference: desktop, VR controllers, hand tracking, in-world controls, tuning panel, depth tier, URL and console hooks.
 - `docs/DEVICE_TEST_BACKLOG.md` — Catalog of hardware-only test cases (DT-001+) awaiting device execution.
 - `docs/STATE.md` — Resume-critical current phase, last completed task, in-progress work, and next action.
 - `docs/TASKS.md` — Exhaustive task checklist (P0 through M9) and module delivery status matrix.

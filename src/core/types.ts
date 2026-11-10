@@ -46,6 +46,8 @@ export interface ModuleDefinition {
   update?(deltaSeconds: number): void;
   /** Optional serialisable state for automated playthrough assertions. */
   getState?(): Record<string, unknown> | null;
+  /** Optional depth-tier hook so the hub selector reaches module content. */
+  setDepthTier?(tier: 'foundation' | 'advanced' | 'expert'): void;
   getChallenges(): ChallengeDefinition[];
   getSpatialAnchors(): SpatialAnchorDefinition[];
 }

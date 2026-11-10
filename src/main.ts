@@ -18,6 +18,7 @@ import {
 import { triggerHapticPulse } from './core/haptics/haptics';
 import { ActiveTuning } from './config/tuning';
 import { isModuleAvailable } from './config/feature-flags';
+import { createTextPanel } from './core/ui/text-panel';
 
 // --- Core state -----------------------------------------------------------
 let renderer: THREE.WebGLRenderer;
@@ -35,6 +36,9 @@ let snapTurn: SpatialSnapTurnPrimitive;
 let activeModuleDef: ModuleDefinition | null = null;
 let activeModuleRoot: THREE.Object3D | null = null;
 let currentModuleName = 'hub';
+type DepthTier = 'foundation' | 'advanced' | 'expert';
+let selectedTier: DepthTier = 'foundation';
+let tuningConsole: THREE.Group;
 const progressStore = new InMemoryProgressStore();
 const physicsAccumulator = new FixedTimestepAccumulator(ActiveTuning.physics.fixedStepHz);
 const activeGrabs = new Map<THREE.Object3D, SpatialGrabPrimitive>();
@@ -135,6 +139,29 @@ function initApp() {
   tuningPanel = new RuntimeTuningPanel(camera);
   scene.add(tuningPanel.panelGroup);
 
+  // Physical console that opens the tuning panel in VR (desktop keeps the T key).
+  tuningConsole = new THREE.Group();
+  tuningConsole.name = 'hub-tuning-console';
+  const consolePlate = new THREE.Mesh(
+    new THREE.BoxGeometry(0.26, 0.14, 0.03),
+    new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.6, roughness: 0.35 })
+  );
+  tuningConsole.add(consolePlate);
+  const consoleLabel = createTextPanel('TUNING PANEL', {
+    widthMeters: 0.24,
+    heightMeters: 0.1,
+    fontSizePx: 30,
+    align: 'center',
+  });
+  consoleLabel.position.z = 0.018;
+  tuningConsole.add(consoleLabel);
+  tuningConsole.position.set(-0.95, 1.08, -1.55);
+  tuningConsole.lookAt(0, 1.3, 0);
+  const openTuningConsole = () => tuningPanel.openInFrontOf(camera);
+  tuningConsole.userData.activate = openTuningConsole;
+  consoleLabel.userData.activate = openTuningConsole;
+  scene.add(tuningConsole);
+
   teleport = new SpatialTeleportPrimitive(scene, cameraRig, comfortSystem);
   snapTurn = new SpatialSnapTurnPrimitive(cameraRig, comfortSystem);
 
@@ -225,8 +252,10 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
   const mod = (await importer()).default;
   hubWorld.visible = false;
   smokeTestZone.visible = false;
+  tuningConsole.visible = false;
   activeModuleDef = mod;
   activeModuleRoot = await mod.load(scene);
+  mod.setDepthTier?.(selectedTier);
   currentModuleName = id;
   resetRigToOrigin();
   return activeModuleRoot;
@@ -250,7 +279,16 @@ function returnToHub(): void {
   completedChallenges.clear();
   hubWorld.visible = true;
   smokeTestZone.visible = true;
+  tuningConsole.visible = true;
   resetRigToOrigin();
+}
+
+/** Applies the hub depth tier to the hub and to whichever module is loaded. */
+function applyDepthTier(tier: DepthTier): void {
+  selectedTier = tier;
+  hubWorld.setTier(tier);
+  progressStore.setDepthTier(tier);
+  activeModuleDef?.setDepthTier?.(tier);
 }
 
 function resetRigToOrigin(): void {
@@ -275,7 +313,9 @@ function setupDesktopInteraction() {
     const hit = intersects[0].object;
     const anchor = findDiegeticAnchor(hit);
 
-    if (anchor) {
+    if (hit.userData.tuningPanelSurface && intersects[0].uv) {
+      tuningPanel.handlePointer(intersects[0].uv.x, intersects[0].uv.y);
+    } else if (anchor) {
       anchor.toggleExpansion();
     } else if (hit.userData.sliderPrimitive instanceof SpatialSliderPrimitive) {
       const slider = hit.userData.sliderPrimitive as SpatialSliderPrimitive;
@@ -292,10 +332,10 @@ function setupDesktopInteraction() {
       setTimeout(() => smokeTestZone.releaseCalibrationBlock(), 400);
     } else if (hit.name.includes('anchor-tag-smoke-test-anchor')) {
       smokeTestZone.testAnchor.toggleExpansion();
+    } else if (findUserDataPrimitive(hit, 'activate')) {
+      (findUserDataPrimitive(hit, 'activate') as () => void)();
     } else if (hit.name.startsWith('tier-btn-')) {
-      const tier = hit.name.replace('tier-btn-', '') as 'foundation' | 'advanced' | 'expert';
-      hubWorld.setTier(tier);
-      progressStore.setDepthTier(tier);
+      applyDepthTier(hit.name.replace('tier-btn-', '') as DepthTier);
     } else {
       const portalId = findPortalAncestor(hit);
       if (portalId) loadModule(portalId);
@@ -378,6 +418,9 @@ function onControllerTrigger(controller: THREE.XRTargetRaySpace) {
   controller.getWorldPosition(origin);
   controller.getWorldDirection(direction);
 
+  // The tuning console overlays everything, so test it before the world.
+  if (handleTuningPanelRay(origin, direction, source)) return;
+
   if (activeModuleRoot) {
     if (handleModuleRayInteraction(origin, direction, source)) return;
     handleModuleProximityInteraction(controller, origin, source);
@@ -403,11 +446,31 @@ function findInputSource(controller: THREE.XRTargetRaySpace): XRInputSource | un
   return handle?.source ?? undefined;
 }
 
+/** Ray-to-UV routing for the tuning console; consumed before world interaction. */
+function handleTuningPanelRay(origin: THREE.Vector3, direction: THREE.Vector3, source?: XRInputSource): boolean {
+  if (!tuningPanel.isOpen) return false;
+  xrRaycaster.set(origin, direction);
+  xrRaycaster.far = 2;
+  const hits = xrRaycaster.intersectObject(tuningPanel.panelGroup, true);
+  if (hits.length === 0 || !hits[0].uv) return false;
+  const handled = tuningPanel.handlePointer(hits[0].uv.x, hits[0].uv.y);
+  if (handled) {
+    triggerHapticPulse(source, ActiveTuning.haptics.detent.intensity, ActiveTuning.haptics.detent.durationMs);
+  }
+  return true;
+}
+
 function handleHubRayInteraction(origin: THREE.Vector3, direction: THREE.Vector3, source?: XRInputSource): boolean {
   xrRaycaster.set(origin, direction);
   xrRaycaster.far = 5;
-  const hits = xrRaycaster.intersectObject(hubWorld, true);
+  const hits = xrRaycaster.intersectObjects([hubWorld, tuningConsole], true);
   for (const hit of hits) {
+    const activate = findUserDataPrimitive(hit.object, 'activate');
+    if (typeof activate === 'function') {
+      (activate as () => void)();
+      triggerHapticPulse(source, ActiveTuning.haptics.detent.intensity, ActiveTuning.haptics.detent.durationMs);
+      return true;
+    }
     const portalId = findPortalAncestor(hit.object);
     if (portalId) {
       triggerHapticPulse(source, ActiveTuning.haptics.success.intensity, ActiveTuning.haptics.success.durationMs);
@@ -415,9 +478,7 @@ function handleHubRayInteraction(origin: THREE.Vector3, direction: THREE.Vector3
       return true;
     }
     if (hit.object.name.startsWith('tier-btn-')) {
-      const tier = hit.object.name.replace('tier-btn-', '') as 'foundation' | 'advanced' | 'expert';
-      hubWorld.setTier(tier);
-      progressStore.setDepthTier(tier);
+      applyDepthTier(hit.object.name.replace('tier-btn-', '') as DepthTier);
       triggerHapticPulse(source, ActiveTuning.haptics.detent.intensity, ActiveTuning.haptics.detent.durationMs);
       return true;
     }
@@ -703,6 +764,19 @@ function publishTestHooks() {
       seatedCompatible: challenge.seatedCompatible,
       xpReward: challenge.xpReward,
     })) ?? [],
+    tier: selectedTier,
+  };
+  (window as any).__MAARIFY_SET_TIER__ = (tier: DepthTier) => applyDepthTier(tier);
+  (window as any).__MAARIFY_TUNING__ = {
+    open: () => tuningPanel.openInFrontOf(camera),
+    close: () => tuningPanel.hide(),
+    isOpen: () => tuningPanel.isOpen,
+    press: (u: number, v: number) => tuningPanel.handlePointer(u, v),
+    state: () => ({
+      isOpen: tuningPanel.isOpen,
+      grabThreshold: ActiveTuning.input.grabThresholdMeters,
+      snapTurnAngleDeg: ActiveTuning.comfort.snapTurnAngleDeg,
+    }),
   };
   (window as any).__MAARIFY_CHALLENGES__ = {
     completed: Array.from(completedChallenges),

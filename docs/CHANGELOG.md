@@ -17,6 +17,13 @@ _Follows Keep a Changelog format. Versions map to milestones._
 
 ## [Unreleased]
 ### Added
+- Interactive VR tuning console: a physical console in the hub opens a world-anchored panel with ray-operated GRAB/HAPTICS/SNAP ±, RESET, EXPORT and CLOSE buttons.
+- `docs/CONTROLS.md`: complete control reference for desktop, controllers, hand tracking, in-world controls, URL and console hooks.
+
+### Changed
+- Depth-tier selection now propagates from the hub plinth into the loaded module: every anchor updates its tier chip, caption and micro-simulation scale.
+
+### Added
 - Project bootstrap: folder structure, governance files, tracking files
 - AGENTS.md, RESUME.md, CLAUDE.md, GEMINI.md
 - docs/TOOL_COMPATIBILITY.md

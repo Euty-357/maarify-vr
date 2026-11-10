@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import * as THREE from 'three';
 import { DiegeticSpatialAnchor } from '../../../src/core/spatial-anchors/diegetic-anchor.js';
+import { SpatialAnchorPrimitive } from '../../../src/core/input/primitives/anchor.js';
 
 describe('Diegetic Spatial Anchor State Machine', () => {
   it('initializes in collapsed/resting state with leader line and tag', () => {
@@ -48,7 +49,7 @@ describe('Diegetic Spatial Anchor State Machine', () => {
     expect(simRoot?.visible).toBe(false);
   });
 
-  it('updates simulation tier appropriately', () => {
+  it('applies a depth tier to the simulation caption and scale', () => {
     const anchor = new DiegeticSpatialAnchor(
       'test-anchor',
       new THREE.Vector3(0, 1.2, -1.0),
@@ -60,9 +61,36 @@ describe('Diegetic Spatial Anchor State Machine', () => {
       }
     );
 
-    anchor.setTier('advanced');
-    // Anchor survives tier switch and maintains internal consistency
-    expect(anchor.anchorId).toBe('test-anchor');
+    anchor.applyTier('expert', { type: 'cross-section-flux', caption: 'Slice the flux.' });
+
+    expect(anchor.activeTier).toBe('expert');
+    expect(anchor.getState().simulationType).toBe('cross-section-flux');
+    expect(anchor.getState().simulationCaption).toBe('Slice the flux.');
+  });
+
+  it('propagates the depth tier to every registered anchor', () => {
+    const container = new THREE.Group();
+    const primitive = new SpatialAnchorPrimitive(container);
+    primitive.registerAnchor({
+      id: 'tiered-anchor',
+      anchorPosition: new THREE.Vector3(0, 1, -1),
+      label: 'Tiered',
+      level1Note: 'Note.',
+      level2Simulation: {
+        foundation: { type: 'exploded-view', description: 'f', caption: 'Foundation caption' },
+        advanced: { type: 'scrubbable-mechanism', description: 'a', caption: 'Advanced caption' },
+        expert: { type: 'cross-section-flux', description: 'e', caption: 'Expert caption' },
+      },
+      sourceRefs: ['TEST'],
+    });
+
+    primitive.updateTier('advanced');
+    const anchor = primitive.getAnchor('tiered-anchor');
+    expect(anchor?.activeTier).toBe('advanced');
+    expect(anchor?.getState().simulationCaption).toBe('Advanced caption');
+
+    primitive.updateTier('expert');
+    expect(anchor?.getState().simulationCaption).toBe('Expert caption');
   });
 });
 

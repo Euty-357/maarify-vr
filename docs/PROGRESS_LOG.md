@@ -261,3 +261,12 @@ _Never delete entries. Append only._
 - Added regression tests for the uniform-driven vignette and the new tuning invariants.
 - `npm run verify` exit 0. Emulator only — **NOT verified on headset**.
 
+---
+## 2026-11-10T15:05 EAT | Session 15 | DeepSeek Harness | VR Tuning Console, Tier Propagation, Controls Reference
+- The tuning panel is now genuinely interactive: canvas buttons are hit-tested from the controller/hand ray's UV intersection, with GRAB ±, HAPTICS ±, SNAP ±, RESET, EXPORT and CLOSE. The panel is 0.62 m and world-anchored 0.85 m in front of the viewer.
+- Added a physical TUNING console in the hub (left of the smoke-test plinth) so VR users can open the panel without a keyboard; desktop keeps the `T` shortcut. Panel state and actions are exposed as `__MAARIFY_TUNING__` for tests.
+- Depth tier is wired end to end: hub selector → progress store → `ModuleDefinition.setDepthTier` → `SpatialAnchorPrimitive.updateTier` → each anchor's tier chip, caption line and micro-simulation scale. Previously the selector only recoloured its own buttons.
+- New `docs/CONTROLS.md` documents every binding for desktop, controllers and hands, plus URL parameters, console hooks and the known gaps (no M2–M5 exit, no desktop grabs, no hand locomotion).
+- Tests: two anchor-tier unit tests; the M1 e2e now asserts tier propagation and a real panel button press (grab threshold +0.02).
+- `npm run verify` exit 0. Emulator only — **NOT verified on headset**.
+

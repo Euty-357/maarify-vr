@@ -97,6 +97,21 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     this.position.copy(targetPosition);
   }
 
+  /** Apply a depth tier: swaps the caption and scales the micro-simulation. */
+  public applyTier(
+    tier: 'foundation' | 'advanced' | 'expert',
+    simulation: {
+      type: 'exploded-view' | 'scrubbable-mechanism' | 'cross-section-flux';
+      caption: string;
+    }
+  ): void {
+    this.activeTier = tier;
+    this.simulationData = simulation;
+    const scale = tier === 'foundation' ? 0.85 : tier === 'advanced' ? 1 : 1.2;
+    this.microSimRoot.scale.setScalar(scale);
+    this.renderTagCanvas(this.isExpanded);
+  }
+
   private renderTagCanvas(highlighted: boolean): void {
     if (!this.tagCanvas) return;
     const ctx = this.tagCanvas.getContext('2d');
@@ -110,14 +125,27 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     ctx.fillStyle = '#38bdf8';
     ctx.fillRect(0, 0, 14, 128);
 
-    // Text rendering: label & Level 1 subtext
+    // Text rendering: label, Level 1 subtext and the active tier caption
     ctx.fillStyle = '#f8fafc';
-    ctx.font = 'bold 34px sans-serif';
-    ctx.fillText(this.anchorLabel.slice(0, 28), 26, 52);
+    ctx.font = 'bold 30px sans-serif';
+    ctx.fillText(this.anchorLabel.slice(0, 26), 26, 48);
 
     ctx.fillStyle = '#cbd5e1';
-    ctx.font = '22px sans-serif';
-    ctx.fillText(this.level1Note.slice(0, 62), 26, 94);
+    ctx.font = '20px sans-serif';
+    ctx.fillText(this.level1Note.slice(0, 48), 26, 84);
+
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '16px sans-serif';
+    ctx.fillText(this.simulationData.caption.slice(0, 62), 26, 112);
+
+    // Tier chip makes the selected depth visible at a glance.
+    ctx.fillStyle = '#0ea5e9';
+    ctx.fillRect(394, 14, 100, 28);
+    ctx.fillStyle = '#0b1728';
+    ctx.font = 'bold 17px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(this.activeTier.toUpperCase(), 444, 34);
+    ctx.textAlign = 'left';
 
     this.tagTexture.needsUpdate = true;
   }
@@ -135,10 +163,6 @@ export class DiegeticSpatialAnchor extends THREE.Group {
   /** Alias for toggleExpansion */
   public toggleExpanded(): boolean {
     return this.toggleExpansion();
-  }
-
-  public setTier(tier: 'foundation' | 'advanced' | 'expert'): void {
-    this.activeTier = tier;
   }
 
   public setMicroSimContent(mesh: THREE.Object3D): void {

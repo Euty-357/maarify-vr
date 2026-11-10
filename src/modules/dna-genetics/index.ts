@@ -31,6 +31,10 @@ const module: ModuleDefinition = {
     activeScene?.update(deltaSeconds);
   },
 
+  setDepthTier(tier) {
+    activeScene?.anchorPrimitive.updateTier(tier);
+  },
+
   getState() {
     return activeScene ? { ...activeScene.getState() } : null;
   },

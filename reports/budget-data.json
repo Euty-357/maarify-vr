@@ -1,13 +1,13 @@
 {
   "m0-spatial-spike": {
-    "triangles": 6746,
-    "drawCalls": 41
+    "triangles": 6760,
+    "drawCalls": 43
   },
   "m1-hub-and-smoke-test": {
     "states": {
       "baseline": {
-        "triangles": 6746,
-        "drawCalls": 41
+        "triangles": 6760,
+        "drawCalls": 43
       }
     }
   },

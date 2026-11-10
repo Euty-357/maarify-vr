@@ -25,6 +25,24 @@ test.describe('M1 Core Systems, Spatial Hub & Smoke-Test Zone', () => {
     expect(metrics.triangles).toBeLessThan(100000);
     expect(metrics.drawCalls).toBeLessThan(100);
 
+    // Depth tier propagates from the hub selector into application state.
+    await page.evaluate(() => (window as any).__MAARIFY_SET_TIER__('expert'));
+    await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_METRICS__?.selectedTier)).toBe('expert');
+    await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_AUDIT__?.tier)).toBe('expert');
+
+    // Tuning console opens in-world and its buttons respond to a pointer press.
+    const thresholdBefore = await page.evaluate(() => (window as any).__MAARIFY_TUNING__.state().grabThreshold);
+    await page.evaluate(() => (window as any).__MAARIFY_TUNING__.open());
+    await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_TUNING__.isOpen())).toBe(true);
+    // GRAB + button centre, in panel UV space.
+    await page.evaluate(() => (window as any).__MAARIFY_TUNING__.press(0.729, 0.479));
+    const thresholdAfter = await page.evaluate(() => (window as any).__MAARIFY_TUNING__.state().grabThreshold);
+    expect(thresholdAfter).toBeCloseTo(thresholdBefore + 0.02, 3);
+    await page.evaluate(() => (window as any).__MAARIFY_TUNING__.close());
+    await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_TUNING__.isOpen())).toBe(false);
+
+    await page.evaluate(() => (window as any).__MAARIFY_SET_TIER__('foundation'));
+
     // 2. Capture multi-pose screenshot matrix for layout verification
     const { captureMultiPoseMatrix } = await import('./helpers/screenshot-matrix.js');
     const screenshots = await captureMultiPoseMatrix(page, 'm1-hub-and-smoke-test');
