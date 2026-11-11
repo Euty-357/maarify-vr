@@ -270,3 +270,12 @@ _Never delete entries. Append only._
 - Tests: two anchor-tier unit tests; the M1 e2e now asserts tier propagation and a real panel button press (grab threshold +0.02).
 - `npm run verify` exit 0. Emulator only — **NOT verified on headset**.
 
+---
+## 2026-11-11T13:53 EAT | Session 16 | DeepSeek Harness | XR Pointer & Locomotion Fixes
+- Root cause of "cannot point, grab or enter a portal": `Object3D.getWorldDirection()` returns +Z while WebXR target rays point −Z, so the pointer ray, hub/module raycasts and teleport arc all aimed behind the user. Added `getControllerForward()` (quaternion-based −Z) and used it in all three paths.
+- Snap turn rotated the rig about its origin, so a user standing away from the origin saw the world orbit their head. The rig position is now compensated by the head's before/after delta, keeping the viewer fixed.
+- Teleport could be committed by the idle controller (any entry with a centred stick), which produced a haptic on the wrong hand and no movement. The aiming entry is now tracked as `teleportOwner` and only it can commit or cancel.
+- Added a pointer impact dot, brightened the ray, and a small hover haptic on every trigger press to confirm that select events reach the app.
+- Hands now originate the ray at the index fingertip via `renderer.xr.getHand()` joints, falling back to the target-ray origin.
+- `npm run verify` exit 0 (69 unit tests, seven Playwright specs). Hardware behaviour remains **NOT verified on headset**.
+

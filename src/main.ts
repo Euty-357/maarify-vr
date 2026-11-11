@@ -44,9 +44,14 @@ const physicsAccumulator = new FixedTimestepAccumulator(ActiveTuning.physics.fix
 const activeGrabs = new Map<THREE.Object3D, SpatialGrabPrimitive>();
 const completedChallenges = new Set<string>();
 
+interface HandSpace extends THREE.Object3D {
+  joints?: Record<string, THREE.Object3D>;
+}
+
 // XR controller bookkeeping: controller + its visible pointer ray + its input source.
 interface XRControllerHandle {
   controller: THREE.XRTargetRaySpace;
+  hand: HandSpace | null;
   rayLine: THREE.Line;
   source: XRInputSource | null;
   lastTeleportPush: number;
@@ -54,6 +59,8 @@ interface XRControllerHandle {
 }
 const xrControllers: XRControllerHandle[] = [];
 const xrRaycaster = new THREE.Raycaster();
+let teleportOwner: XRControllerHandle | null = null;
+let hitMarker: THREE.Mesh;
 
 // Desktop framing (restored when an immersive session ends).
 const DESKTOP_CAMERA_POSITION = new THREE.Vector3(0, 1.4, 0.8);
@@ -164,6 +171,15 @@ function initApp() {
 
   teleport = new SpatialTeleportPrimitive(scene, cameraRig, comfortSystem);
   snapTurn = new SpatialSnapTurnPrimitive(cameraRig, comfortSystem);
+
+  // Impact dot for the pointer ray.
+  hitMarker = new THREE.Mesh(
+    new THREE.SphereGeometry(0.014, 12, 10),
+    new THREE.MeshBasicMaterial({ color: 0x38bdf8 })
+  );
+  hitMarker.name = 'xr-pointer-hit-marker';
+  hitMarker.visible = false;
+  scene.add(hitMarker);
 
   // Direct module launch: ?module=cosmos (add &dev=true for experimental modules)
   if (typeof window !== 'undefined') {
@@ -404,19 +420,26 @@ function setupWebXR() {
     rayLine.frustumCulled = false;
     scene.add(rayLine);
 
-    xrControllers.push({ controller, rayLine, source: null, lastTeleportPush: 0, lastTurnPush: 0 });
+    const hand = renderer.xr.getHand(i) as unknown as HandSpace;
+    scene.add(hand);
+
+    xrControllers.push({ controller, hand, rayLine, source: null, lastTeleportPush: 0, lastTurnPush: 0 });
   }
 }
 
 function onControllerTrigger(controller: THREE.XRTargetRaySpace) {
+  const entry = xrControllers.find((candidate) => candidate.controller === controller) ?? null;
   const source = findInputSource(controller);
   inputMode = source?.hand ? 'Hand Tracking (pinch)' : 'Touch Plus Controller';
   soundManager.initContext();
 
+  // Immediate confirmation that the input event actually reached the app.
+  triggerHapticPulse(source, ActiveTuning.haptics.hover.intensity, ActiveTuning.haptics.hover.durationMs);
+
   const origin = new THREE.Vector3();
   const direction = new THREE.Vector3();
-  controller.getWorldPosition(origin);
-  controller.getWorldDirection(direction);
+  getControllerOrigin(entry, controller, origin);
+  getControllerForward(controller, direction);
 
   // The tuning console overlays everything, so test it before the world.
   if (handleTuningPanelRay(origin, direction, source)) return;
@@ -444,6 +467,31 @@ function onControllerTrigger(controller: THREE.XRTargetRaySpace) {
 function findInputSource(controller: THREE.XRTargetRaySpace): XRInputSource | undefined {
   const handle = xrControllers.find((entry) => entry.controller === controller);
   return handle?.source ?? undefined;
+}
+
+/**
+ * WebXR target rays point along -Z, while Object3D.getWorldDirection() returns +Z.
+ * This builds the real pointing direction from the controller's world quaternion.
+ */
+function getControllerForward(controller: THREE.Object3D, target: THREE.Vector3): THREE.Vector3 {
+  const quaternion = new THREE.Quaternion();
+  controller.getWorldQuaternion(quaternion);
+  return target.set(0, 0, -1).applyQuaternion(quaternion).normalize();
+}
+
+/** Hands point from the index fingertip; controllers point from the target ray origin. */
+function getControllerOrigin(
+  entry: XRControllerHandle | null,
+  controller: THREE.Object3D,
+  target: THREE.Vector3
+): THREE.Vector3 {
+  const fingertip = entry?.hand?.joints?.['index-finger-tip'];
+  if (fingertip) {
+    fingertip.getWorldPosition(target);
+    return target;
+  }
+  controller.getWorldPosition(target);
+  return target;
 }
 
 /** Ray-to-UV routing for the tuning console; consumed before world interaction. */
@@ -605,6 +653,8 @@ async function onEnterVR() {
       resetRigToOrigin();
       teleport.cancelAim();
       teleportAiming = false;
+      teleportOwner = null;
+      hitMarker.visible = false;
       xrControllers.forEach((entry) => { entry.rayLine.visible = false; entry.source = null; });
       comfortSystem.setMotionIntensity(0);
     });
@@ -625,40 +675,60 @@ function updateXRLocomotion(): void {
     const stickY = gamepad.axes[3] ?? 0;
     const isLeft = entry.source?.handedness === 'left';
     const isRight = entry.source?.handedness === 'right';
+    const stickMagnitude = Math.hypot(stickX, stickY);
 
-    // Left stick (or the first trackpad) walks: hold to aim, release to land.
-    if ((isLeft || (!isRight && entry.controller === xrControllers[0]?.controller)) && Math.hypot(stickX, stickY) > 0.55) {
+    // Left stick walks: hold to aim, release to land. Only the hand that started the
+    // aim may commit it, otherwise the idle controller commits (and buzzes) instead.
+    const usingLeftStick = isLeft || (!isRight && entry.controller === xrControllers[0]?.controller);
+    if (usingLeftStick && stickMagnitude > 0.55) {
       if (!teleportAiming) {
+        teleportOwner = entry;
         teleport.startAim();
         teleportAiming = true;
       }
-      const origin = new THREE.Vector3();
-      const direction = new THREE.Vector3();
-      entry.controller.getWorldPosition(origin);
-      entry.controller.getWorldDirection(direction);
-      // Flatten the arc so a forward-pointing controller lands at a comfortable distance.
-      direction.y = THREE.MathUtils.clamp(direction.y, -0.75, -0.12);
-      direction.normalize();
-      teleport.updateAim(origin, direction, 0);
-    } else if (teleportAiming && (!entry.source || Math.hypot(stickX, stickY) < 0.25)) {
+      if (teleportOwner === entry) {
+        const origin = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        getControllerOrigin(entry, entry.controller, origin);
+        getControllerForward(entry.controller, direction);
+        // Flatten the arc so a forward-pointing controller lands at a comfortable distance.
+        direction.y = THREE.MathUtils.clamp(direction.y, -0.75, -0.12);
+        direction.normalize();
+        teleport.updateAim(origin, direction, 0);
+      }
+    } else if (teleportAiming && teleportOwner === entry && stickMagnitude < 0.25) {
       teleport.commitTeleport(entry.source ?? undefined);
       teleportAiming = false;
+      teleportOwner = null;
     }
 
     // Right stick snaps the view in 30-degree detents (edge-triggered, one detent per push).
     if (isRight || (!isLeft && entry.controller === xrControllers[1]?.controller)) {
       const magnitude = Math.abs(stickX);
       if (magnitude > 0.6 && entry.lastTurnPush <= 0.6) {
+        // Rotate around the viewer's head, not the rig origin, so the world does not orbit.
+        const headBefore = camera.getWorldPosition(new THREE.Vector3());
         snapTurn.handleThumbstick(stickX, entry.source ?? undefined);
+        cameraRig.updateMatrixWorld(true);
+        const headAfter = camera.getWorldPosition(new THREE.Vector3());
+        cameraRig.position.x += headBefore.x - headAfter.x;
+        cameraRig.position.z += headBefore.z - headAfter.z;
       }
       entry.lastTurnPush = magnitude;
     }
+  }
+
+  if (teleportAiming && (!teleportOwner || !teleportOwner.source)) {
+    teleport.cancelAim();
+    teleportAiming = false;
+    teleportOwner = null;
   }
 
   updateControllerRays();
 }
 
 function updateControllerRays(): void {
+  let bestHit: THREE.Intersection | null = null;
   for (const entry of xrControllers) {
     if (!entry.source) {
       entry.rayLine.visible = false;
@@ -667,16 +737,18 @@ function updateControllerRays(): void {
     entry.rayLine.visible = true;
     const origin = new THREE.Vector3();
     const direction = new THREE.Vector3();
-    entry.controller.getWorldPosition(origin);
-    entry.controller.getWorldDirection(direction);
-    direction.normalize();
+    getControllerOrigin(entry, entry.controller, origin);
+    getControllerForward(entry.controller, direction);
 
-    let end = origin.clone().addScaledVector(direction, 1.6);
+    let end = origin.clone().addScaledVector(direction, 1.8);
     const target = activeModuleRoot ?? hubWorld;
     xrRaycaster.set(origin, direction);
     xrRaycaster.far = 4.5;
     const hits = xrRaycaster.intersectObject(target, true);
-    if (hits.length > 0) end = hits[0].point;
+    if (hits.length > 0) {
+      end = hits[0].point;
+      if (!bestHit || hits[0].distance < bestHit.distance) bestHit = hits[0];
+    }
 
     const points = entry.rayLine.geometry.getAttribute('position') as THREE.BufferAttribute;
     points.setXYZ(0, origin.x, origin.y, origin.z);
@@ -684,8 +756,15 @@ function updateControllerRays(): void {
     points.needsUpdate = true;
     entry.rayLine.geometry.computeBoundingSphere();
     (entry.rayLine.material as THREE.LineBasicMaterial).color.setHex(
-      hits.length > 0 ? 0x60a5fa : 0x334155
+      hits.length > 0 ? 0x7dd3fc : 0x38bdf8
     );
+  }
+
+  if (bestHit) {
+    hitMarker.position.copy(bestHit.point);
+    hitMarker.visible = true;
+  } else {
+    hitMarker.visible = false;
   }
 }
 
