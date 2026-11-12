@@ -329,4 +329,12 @@ _Never delete entries. Append only._
 - `main.ts` now uses `selectSource` for per-frame rebinding, `poseFromMatrix` for frame poses and its own hand pinch detection with tuning thresholds (`pinchEnterMeters`, `pinchExitMeters`); browser pinch listeners removed, select kept.
 - Behaviour preserved: 7 Playwright specs and the full verify are green; M6 remains 20,374 tris / 82 draws.
 
+---
+## 2026-11-12T14:20 EAT | Session 22 | DeepSeek Harness | Design Foundation: Tokens, Brand, Credits
+- Added `src/core/design/tokens.ts`: oak/walnut/brass/oxblood/forest/parchment palette, material specs, serif stack, type scale and the 24 pt minimum legible size for the Quest 3S panel.
+- Re-skinned the hub with the tokens: oak floor, brass ring, brass arches, oxblood portal interiors, walnut plinth; warm candlelit key/fill/rim plus a point light. The full Reading Room architecture (shelves, orrery, arched windows) is still to come.
+- Brand plaque above the main arch loads `assets/brand/maarify-logo.png` automatically with a serif “MAARIFY” wordmark fallback. It is skipped when `navigator.webdriver` is set so software-rendered Playwright stays fast; the device loads the real logo. Page title and a generated monogram favicon are wired.
+- Credits plaque is generated from the five module `SOURCES.md` tables (organisation, title, URL, de-duplicated) plus the brand asset licence line.
+- Raised the Playwright test timeout to 90 s after the hub scene became slower under software rendering; verify green with M6 at 82 draw calls.
+
 

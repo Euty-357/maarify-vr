@@ -1,5 +1,8 @@
 import * as THREE from 'three';
 import { MODULE_FLAGS } from '../config/feature-flags.js';
+import { PALETTE, standardMaterial } from '../core/design/tokens.js';
+import { createBrandPlaque } from '../core/brand/brand.js';
+import { createCreditsPlaque } from '../core/brand/credits.js';
 
 export interface HubPortal {
   id: string;
@@ -19,23 +22,19 @@ export class HubWorld extends THREE.Group {
 
     // 1. Central Spatial Hub Floor Ring
     const floorGeo = new THREE.CylinderGeometry(4.5, 4.8, 0.1, 48);
-    const floorMat = new THREE.MeshStandardMaterial({
-      color: 0x0f172a,
-      roughness: 0.7,
-      metalness: 0.2,
-    });
+    const floorMat = standardMaterial('oak');
     const floor = new THREE.Mesh(floorGeo, floorMat);
     floor.position.y = -0.05;
     this.add(floor);
 
-    // Glowing floor accent ring
+    // Brass floor accent ring
     const ringGeo = new THREE.RingGeometry(3.2, 3.25, 48);
     ringGeo.rotateX(-Math.PI / 2);
     const ringMat = new THREE.MeshBasicMaterial({
-      color: 0x38bdf8,
+      color: PALETTE.brassBright,
       side: THREE.DoubleSide,
       transparent: true,
-      opacity: 0.5,
+      opacity: 0.55,
     });
     const floorRing = new THREE.Mesh(ringGeo, ringMat);
     floorRing.position.y = 0.005;
@@ -63,6 +62,18 @@ export class HubWorld extends THREE.Group {
       this.portals.push({ id: mod.id, title: mod.title, angleRad: angle, portalMesh: portal });
       this.add(portal);
     });
+
+    // 4. Brand plaque above the Reading Room's main arch
+    const brandPlaque = createBrandPlaque(1.6, 0.6);
+    brandPlaque.position.set(0, 2.75, -3.4);
+    brandPlaque.lookAt(0, 1.4, 0);
+    this.add(brandPlaque);
+
+    // 5. Credits plaque (generated from the module SOURCES tables)
+    const creditsPlaque = createCreditsPlaque(1.15, 0.72);
+    creditsPlaque.position.set(2.35, 1.5, -1.15);
+    creditsPlaque.lookAt(0, 1.4, 0);
+    this.add(creditsPlaque);
   }
 
   private createPhysicalPortal(id: string, title: string, angleRad: number): THREE.Group {
@@ -81,8 +92,8 @@ export class HubWorld extends THREE.Group {
     // 1. Outer Portal Frame Arch (with emissive neon trim)
     const archGeo = new THREE.TorusGeometry(0.75, 0.045, 16, 32, Math.PI);
     const archMat = new THREE.MeshStandardMaterial({
-      color: isReady ? 0x2563eb : 0x475569,
-      emissive: isReady ? 0x1d4ed8 : 0x1e293b,
+      color: isReady ? 0xb08d57 : 0x475569,
+      emissive: isReady ? 0x6b4f2a : 0x1e293b,
       emissiveIntensity: isReady ? 0.6 : 0.2,
       metalness: 0.8,
       roughness: 0.2,
@@ -94,7 +105,7 @@ export class HubWorld extends THREE.Group {
     // 2. Inner threshold with depth portal effect
     const innerGeo = new THREE.CircleGeometry(0.70, 32);
     const innerMat = new THREE.MeshBasicMaterial({
-      color: isReady ? 0x0f2b5c : 0x0f172a,
+      color: isReady ? 0x5a1f1f : 0x241610,
       transparent: true,
       opacity: isReady ? 0.75 : 0.4,
       side: THREE.DoubleSide,
@@ -133,12 +144,12 @@ export class HubWorld extends THREE.Group {
         ctx.fillRect(0, 0, width, height);
 
         // Border
-        ctx.strokeStyle = isReady ? '#38bdf8' : '#64748b';
+        ctx.strokeStyle = isReady ? '#d9b877' : '#64748b';
         ctx.lineWidth = 3;
         ctx.strokeRect(2, 2, width - 4, height - 4);
 
         // Status pill
-        ctx.fillStyle = isReady ? '#10b981' : '#64748b';
+        ctx.fillStyle = isReady ? '#b08d57' : '#64748b';
         ctx.fillRect(8, 8, 12, 12);
 
         // Title text
@@ -232,7 +243,7 @@ export class HubWorld extends THREE.Group {
         // Double helix rung pair
         const rung = new THREE.Mesh(
           new THREE.CylinderGeometry(0.02, 0.02, 0.24, 8),
-          new THREE.MeshStandardMaterial({ color: 0x10b981 })
+          new THREE.MeshStandardMaterial({ color: 0xb08d57 })
         );
         rung.rotation.z = Math.PI / 4;
         preview.add(rung);
@@ -271,7 +282,7 @@ export class HubWorld extends THREE.Group {
 
     const baseGeo = new THREE.CylinderGeometry(0.35, 0.4, 0.7, 16);
     const baseMat = new THREE.MeshStandardMaterial({
-      color: 0x334155,
+      color: 0x241610,
       metalness: 0.5,
       roughness: 0.4,
     });
@@ -284,7 +295,7 @@ export class HubWorld extends THREE.Group {
     tiers.forEach((tier, i) => {
       const btnGeo = new THREE.CylinderGeometry(0.06, 0.06, 0.03, 16);
       const btnMat = new THREE.MeshStandardMaterial({
-        color: tier === 'foundation' ? 0x10b981 : 0x64748b,
+        color: tier === 'foundation' ? 0xb08d57 : 0x64748b,
       });
       const btn = new THREE.Mesh(btnGeo, btnMat);
       btn.position.set((i - 1) * 0.16, 0.72, 0);
@@ -302,7 +313,7 @@ export class HubWorld extends THREE.Group {
       const btn = this.depthTierPlinth.getObjectByName(`tier-btn-${t}`) as THREE.Mesh;
       if (btn) {
         (btn.material as THREE.MeshStandardMaterial).color.setHex(
-          t === tier ? 0x10b981 : 0x64748b
+          t === tier ? 0xb08d57 : 0x64748b
         );
       }
     });

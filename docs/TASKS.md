@@ -6,7 +6,13 @@
 - [x] `HW-03` Tuning single `quality` block; tests updated; 90 Hz default, 72 Hz floor
 - [x] `HW-04` One-time dismissible notice for non-Quest-3 headsets
 - [x] `HW-05` Move input edge/pinch/source state into `src/core/input/input-state.ts` with 8 unit tests; `main.ts` consumes it (poses, sources, pinch hysteresis)
-- [ ] `HW-06` Design tokens, dark-academia hub, brand wiring, credits plaque
+- [x] `HW-06a` Design tokens (`src/core/design/tokens.ts`) and warm hub re-skin
+- [x] `HW-06b` Brand plaque with automatic logo wiring, page title/favicon
+- [x] `HW-06c` Credits plaque generated from module SOURCES
+- [ ] `HW-06d` Full Reading Room architecture (shelves, arched windows, orrery, lectern)
+- [ ] `HW-07` Information Panels v2 + content schema + audit script
+- [ ] `HW-08` Explodable Assembly primitive + settings/sections framework
+- [ ] `HW-09` Hosting readiness (build/preview, _headers, lazy modules, size report)
 
 ## Phase 0: Environment & Portability
 - [x] `P0-01` Verify node, npm, git versions

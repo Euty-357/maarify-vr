@@ -19,6 +19,7 @@ import { ActiveTuning } from './config/tuning';
 import { isModuleAvailable } from './config/feature-flags';
 import { createTextPanel, setTextPanelText } from './core/ui/text-panel';
 import { nextPinch, poseFromMatrix, selectSource } from './core/input/input-state';
+import { applyBrandDocument } from './core/brand/brand';
 import cosmosModule from './modules/cosmos/index';
 import quantumModule from './modules/quantum/index';
 import humanBodyModule from './modules/human-body/index';
@@ -120,7 +121,7 @@ const enterXrBtn = document.getElementById('enter-xr-btn');
 // --- Boot -----------------------------------------------------------------
 function initApp() {
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x0b0d13);
+  scene.background = new THREE.Color(0x0b0908);
 
   camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 200);
   camera.position.copy(DESKTOP_CAMERA_POSITION);
@@ -153,23 +154,27 @@ function initApp() {
   const container = document.getElementById('canvas-container');
   if (container) container.appendChild(renderer.domElement);
 
-  // Lighting: image-based studio light + soft key/fill/rim (no runtime shadow passes).
-  scene.add(new THREE.HemisphereLight(0x9ecbff, 0x16202e, 0.55));
-  const keyLight = new THREE.DirectionalLight(0xffffff, 1.1);
+  // Lighting: warm, candlelit reading-room key/fill/rim (no runtime shadow passes).
+  scene.add(new THREE.HemisphereLight(0xffd9a8, 0x241610, 0.42));
+  const keyLight = new THREE.DirectionalLight(0xffe2b8, 1.0);
   keyLight.position.set(3, 6, 4);
   scene.add(keyLight);
-  const fillLight = new THREE.DirectionalLight(0x60a5fa, 0.45);
+  const fillLight = new THREE.DirectionalLight(0x8a5a3a, 0.35);
   fillLight.position.set(-4, 3, -2);
   scene.add(fillLight);
-  const rimLight = new THREE.DirectionalLight(0x38bdf8, 0.4);
+  const rimLight = new THREE.DirectionalLight(0xb08d57, 0.35);
   rimLight.position.set(0, 4, -5);
   scene.add(rimLight);
+  const candleLight = new THREE.PointLight(0xffb066, 0.55, 7, 2);
+  candleLight.position.set(0, 2.2, 0);
+  scene.add(candleLight);
 
   soundManager = new SpatialAudioManager(camera);
   comfortSystem = new ComfortSystem(camera);
 
   hubWorld = new HubWorld();
   scene.add(hubWorld);
+  applyBrandDocument();
   showHeadsetNotice();
 
   tuningPanel = new RuntimeTuningPanel(camera);
