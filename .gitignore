@@ -48,3 +48,6 @@ assets/temp/
 .claude/
 .cursor/
 .windsurf/
+
+reports/karman.pdf
+reports/karman.txt

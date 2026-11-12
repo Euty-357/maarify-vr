@@ -33,7 +33,7 @@ _This file is the single source of truth for resuming any session. Update it aft
 - All Quest 3/3S performance numbers remain NOT measured on device.
 
 ## Last Green Commit
-- `982a94b` — `fix(cosmos): verify 15 claims and correct the San Marco and Sun figures` (verify exit 0). Cosmos 24 anchors: `a5c8875`; folio: `5e6609e`.
+- `18811eb` — `fix(cosmos): verify the Karman line from the FAI PDF` (verify exit 0). 15-claim pass: `982a94b`; Cosmos 24 anchors: `a5c8875`; folio: `5e6609e`.
 
 ## Which Tool/Session Last Worked
 - DeepSeek Harness, 2026-11-12T08:30 EAT. Section 1 complete and pushed. Next: section 2 foundation (design tokens, dark-academia hub/brand, credits, panels v2, content schema + audit, Explodable Assembly, settings, sections, hosting).
