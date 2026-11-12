@@ -344,4 +344,11 @@ _Never delete entries. Append only._
 - Five schema unit tests added. No module content has been migrated yet; `audit:content` reports that honestly.
 - Playwright test timeout raised to 180 s because software rendering on this machine is now much slower; point light gated out of automated browsers. Verify green (six e2e pass plus m0 under the longer timeout).
 
+---
+## 2026-11-12T15:10 EAT | Session 24 | DeepSeek Harness | Cosmos Source Pack + First Content Batch
+- Content policy confirmed by Euty: verified-only, thresholds unchanged, source pack first, module stays experimental/hidden until the audit passes.
+- Cosmos source pack expanded from 12 to 36 entries (NASA, ESA, IAU, FAI, OpenStax, LIGO, Planck, EHT, KSA, SpaceX, ESO, ALMA, SKAO, NOAA, JPL).
+- Added `src/modules/cosmos/content/module-content.json` with 7 anchors (Kármán line, LEO/ISS, geostationary, Moon/tides, Sun core, Sagittarius A*, exoplanets), 25 glossary terms ×3 tiers, 10 mapped objectives and a 3-tool Observatory Desk. Audit passes every page/glossary/objective/practitioner rule; the only gap is 7/24 anchors, so Cosmos stays experimental and is not rendered.
+- Claim-level verification started: 3 of the 15 highest-risk claims have exact quoted sentences (Planck dark-matter density, TRAPPIST-1 planet count, GW150914 date); 12 are marked PENDING and excluded from learner view. No threshold was lowered.
+
 

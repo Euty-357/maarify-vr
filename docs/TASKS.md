@@ -12,7 +12,9 @@
 - [ ] `HW-06d` Full Reading Room architecture (shelves, arched windows, orrery, lectern)
 - [x] `HW-07a` Content schema (`src/core/content/schema.ts`) + 5 unit tests
 - [x] `HW-07b` `audit-content-depth.mjs` and `npm run audit:content` (report-only; `--enforce` fails on gaps)
-- [ ] `HW-07c` Content-as-data migration per module + Panels v2 renderer (blocked on the content-policy decision)
+- [x] `HW-07c1` Cosmos source pack (36 entries) + first content batch: 7/24 anchors, 25 glossary, 10 objectives, practitioner desk; verified quotes for 3/15 high-risk claims
+- [ ] `HW-07c2` Cosmos anchors 8–24, remaining 12 verified sentences, Panels v2 renderer, `audit:content --enforce` for Cosmos
+- [ ] `HW-07d` Content-as-data migration for the other modules (same source-pack-first rule)
 - [ ] `HW-08` Explodable Assembly primitive + settings/sections framework
 - [ ] `HW-09` Hosting readiness (build/preview, _headers, lazy modules, size report)
 
