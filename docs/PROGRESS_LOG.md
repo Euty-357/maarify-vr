@@ -351,4 +351,12 @@ _Never delete entries. Append only._
 - Added `src/modules/cosmos/content/module-content.json` with 7 anchors (Kármán line, LEO/ISS, geostationary, Moon/tides, Sun core, Sagittarius A*, exoplanets), 25 glossary terms ×3 tiers, 10 mapped objectives and a 3-tool Observatory Desk. Audit passes every page/glossary/objective/practitioner rule; the only gap is 7/24 anchors, so Cosmos stays experimental and is not rendered.
 - Claim-level verification started: 3 of the 15 highest-risk claims have exact quoted sentences (Planck dark-matter density, TRAPPIST-1 planet count, GW150914 date); 12 are marked PENDING and excluded from learner view. No threshold was lowered.
 
+---
+## 2026-11-12T15:58 EAT | Session 25 | DeepSeek Harness | Panels v2 Folio Renderer
+- Added `FolioPanel` (`src/core/ui/folio-panel.ts`): parchment/brass board beside the anchor, three brass TIER TABS that switch tier while keeping each tier's page, page arrows, collapsible header, gentle yaw toward the viewer (skipped while grabbed) and a `SpatialGrabPrimitive` so it can be moved.
+- Added `folio-state.ts` with pure tier/page/collapse state and 3 unit tests; added `src/core/content/loader.ts` importing the Cosmos content data.
+- Cosmos anchors now open the folio via the existing activation paths (ray, desktop, test hook); closing the anchor hides it and returning to the hub hides it.
+- e2e: Cosmos spec opens the Karman anchor and asserts the folio label, tier and expanded state. Screenshot helper no longer swallows capture errors and allows 120 s per screenshot under software rendering.
+- Full verify green: 82 unit tests, 7 Playwright specs, M6 20,374 tris / 82 draws. The folio is emitter/Playwright-verified only, **NOT verified on device**.
+
 

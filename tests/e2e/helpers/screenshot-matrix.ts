@@ -36,11 +36,9 @@ export async function captureMultiPoseMatrix(
     await page.waitForTimeout(100);
 
     const screenshotPath = `reports/history/screenshots/${outputPrefix}-${pose.name}.png`;
-    try {
-      await mkdir(dirname(screenshotPath), { recursive: true });
-      await page.screenshot({ path: screenshotPath });
-      capturedPaths.push(screenshotPath);
-    } catch {}
+    await mkdir(dirname(screenshotPath), { recursive: true });
+    await page.screenshot({ path: screenshotPath, timeout: 120_000 });
+    capturedPaths.push(screenshotPath);
   }
 
   return capturedPaths;

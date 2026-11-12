@@ -20,6 +20,8 @@ import { isModuleAvailable } from './config/feature-flags';
 import { createTextPanel, setTextPanelText } from './core/ui/text-panel';
 import { nextPinch, poseFromMatrix, selectSource } from './core/input/input-state';
 import { applyBrandDocument } from './core/brand/brand';
+import { FolioPanel } from './core/ui/folio-panel';
+import { findAnchorContent } from './core/content/loader';
 import cosmosModule from './modules/cosmos/index';
 import quantumModule from './modules/quantum/index';
 import humanBodyModule from './modules/human-body/index';
@@ -45,6 +47,8 @@ let soundManager: SpatialAudioManager;
 export let comfortSystem: ComfortSystem;
 let hubWorld: HubWorld;
 let tuningPanel: RuntimeTuningPanel;
+let folioPanel: FolioPanel | null = null;
+const folioCameraPosition = new THREE.Vector3();
 let teleport: SpatialTeleportPrimitive;
 let snapTurn: SpatialSnapTurnPrimitive;
 let activeModuleDef: ModuleDefinition | null = null;
@@ -436,6 +440,7 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
     if (!mod) return null;
     hubWorld.visible = false;
     tuningConsole.visible = false;
+    if (folioPanel) folioPanel.visible = false;
     activeModuleDef = mod;
     activeModuleRoot = await mod.load(scene);
     mod.setDepthTier?.(selectedTier);
@@ -469,6 +474,7 @@ function returnToHub(): void {
   completedChallenges.clear();
   hubWorld.visible = true;
   tuningConsole.visible = true;
+  if (folioPanel) folioPanel.visible = false;
   resetRigToOrigin();
 }
 
@@ -506,6 +512,7 @@ function setupDesktopInteraction() {
       tuningPanel.handlePointer(intersects[0].uv.x, intersects[0].uv.y);
     } else if (anchor) {
       anchor.toggleExpansion();
+      syncFolioForAnchor(anchor);
     } else if (hit.userData.sliderPrimitive instanceof SpatialSliderPrimitive) {
       const slider = hit.userData.sliderPrimitive as SpatialSliderPrimitive;
       slider.setNormalizedValue(slider.value >= 0.95 ? 0 : 1);
@@ -687,6 +694,22 @@ function findDiegeticAnchor(object: THREE.Object3D): DiegeticSpatialAnchor | nul
     candidate = candidate.parent;
   }
   return null;
+}
+
+/** Show the Panels v2 folio beside an expanded anchor; hide it when collapsed. */
+function syncFolioForAnchor(anchor: DiegeticSpatialAnchor): void {
+  const content = findAnchorContent(anchor.anchorId);
+  if (!content || !anchor.isExpanded) {
+    if (folioPanel) folioPanel.visible = false;
+    return;
+  }
+  if (!folioPanel) {
+    folioPanel = new FolioPanel();
+    scene.add(folioPanel);
+  }
+  const world = anchor.getWorldPosition(new THREE.Vector3());
+  folioPanel.position.copy(world).add(new THREE.Vector3(0.5, 0.2, 0.35));
+  folioPanel.setContent(content);
 }
 
 function findPortalAncestor(object: THREE.Object3D): string | null {
@@ -966,6 +989,7 @@ function handleModuleRayInteraction(
   const anchor = findDiegeticAnchor(hit.object);
   if (anchor) {
     anchor.toggleExpansion();
+    syncFolioForAnchor(anchor);
     triggerHapticPulse(source, ActiveTuning.haptics.snap.intensity, ActiveTuning.haptics.snap.durationMs);
     reason('anchor');
     return true;
@@ -1369,6 +1393,9 @@ function renderFrame(frame?: XRFrame) {
     grab.update(origin.addScaledVector(direction, distance), quaternion);
   });
 
+  if (folioPanel?.visible) {
+    folioPanel.update(camera.getWorldPosition(folioCameraPosition));
+  }
   renderer.render(scene, camera);
   publishTestHooks();
 }
@@ -1434,6 +1461,7 @@ function publishTestHooks() {
     const anchor = activeModuleRoot?.getObjectByName(`diegetic-anchor-${id}`);
     if (!(anchor instanceof DiegeticSpatialAnchor)) return false;
     anchor.toggleExpansion();
+    syncFolioForAnchor(anchor);
     return anchor.isExpanded;
   };
   (window as any).__MAARIFY_LOCOMOTION__ = {
@@ -1453,6 +1481,14 @@ function publishTestHooks() {
     selectedTier: hubWorld.selectedTier,
     currentModule: currentModuleName,
   };
+  (window as any).__MAARIFY_FOLIO__ = folioPanel && folioPanel.visible
+    ? {
+        label: folioPanel.content?.label ?? null,
+        tier: folioPanel.state.tier,
+        page: folioPanel.state.pages[folioPanel.state.tier],
+        collapsed: folioPanel.state.collapsed,
+      }
+    : null;
 }
 
 // Start application
