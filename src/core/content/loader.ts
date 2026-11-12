@@ -1,10 +1,12 @@
 import cosmosContent from '../../modules/cosmos/content/module-content.json';
 import humanBodyContent from '../../modules/human-body/content/module-content.json';
+import aerospaceContent from '../../modules/aerospace/content/module-content.json';
 import type { AnchorContent, ModuleContent } from './schema.js';
 
 const MODULE_CONTENT: Record<string, ModuleContent> = {
   cosmos: cosmosContent as unknown as ModuleContent,
   'human-body': humanBodyContent as unknown as ModuleContent,
+  aerospace: aerospaceContent as unknown as ModuleContent,
 };
 
 export function getModuleContent(moduleId: string): ModuleContent | null {

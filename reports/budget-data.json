@@ -38,8 +38,8 @@
   "m5-aerospace": {
     "states": {
       "engine-exploded-and-plume-preloaded": {
-        "triangles": 2010,
-        "drawCalls": 66
+        "triangles": 2388,
+        "drawCalls": 178
       }
     }
   },

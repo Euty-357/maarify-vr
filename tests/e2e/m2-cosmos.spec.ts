@@ -31,7 +31,16 @@ test.describe('M2 Cosmos & Astronomy Full Spec Playthrough', () => {
     expect(metrics.drawCalls).toBeLessThan(180);
 
     // 2b. Panels v2: opening a Cosmos anchor shows the folio with its rich content
-    await page.evaluate(() => (window as any).__MAARIFY_TOGGLE_ANCHOR__?.('cosmos-anchor-karman-line'));
+    const karmanExpanded = await page.evaluate(
+      () => (window as any).__MAARIFY_TOGGLE_ANCHOR__?.('cosmos-anchor-karman-line')
+    );
+    // The interaction audit may leave a previously expanded anchor in either state;
+    // establish the required expanded state rather than assuming a toggle direction.
+    if (!karmanExpanded) {
+      expect(
+        await page.evaluate(() => (window as any).__MAARIFY_TOGGLE_ANCHOR__?.('cosmos-anchor-karman-line'))
+      ).toBe(true);
+    }
     await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_FOLIO__?.label)).toBe('The Karman Line (100 km)');
     const folio = await page.evaluate(() => (window as any).__MAARIFY_FOLIO__);
     expect(folio.tier).toBe('foundation');

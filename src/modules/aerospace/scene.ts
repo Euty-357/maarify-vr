@@ -12,6 +12,7 @@ import {
   SpatialLeverPrimitive,
   ExplodableAssembly,
 } from '../../core/input/primitives/index.js';
+import { createTextPanel } from '../../core/ui/text-panel.js';
 
 export interface AerospaceSceneComponents {
   root: THREE.Group;
@@ -143,29 +144,132 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   wingMesh.name = 'aerofoil-mesh';
   wingSparRoot.add(wingMesh);
 
-  // Wind tunnel smoke streamlines (instanced thin lines)
+  // Wind tunnel smoke streamlines & luminous tracer particles (Section 4.3)
   const streamlineGroup = new THREE.Group();
   streamlineGroup.name = 'wind-tunnel-streamlines';
-  const streamlineLines: THREE.Line[] = [];
-  const numStreamlines = 12;
+  const numStreamlines = 16;
+  let flowEnabled = true;
 
+  // One batched geometry keeps the 16 flow ribbons at one draw call.
+  const streamlinePositions: number[] = [];
   for (let i = 0; i < numStreamlines; i++) {
-    const yOffset = -0.18 + (i / (numStreamlines - 1)) * 0.36;
+    const yOffset = -0.22 + (i / (numStreamlines - 1)) * 0.44;
+    const zOffset = ((i % 4) - 1.5) * 0.22;
     const points: THREE.Vector3[] = [];
-    for (let x = -0.9; x <= 0.9; x += 0.15) {
-      points.push(new THREE.Vector3(x, yOffset, (i % 3) * 0.2 - 0.2));
+    for (let x = -1.2; x <= 1.2; x += 0.1) {
+      // Flow contour turning around the aerofoil profile
+      const distFromWing = Math.hypot(x, yOffset);
+      const deflection = yOffset > 0 ? Math.exp(-distFromWing * 4) * 0.08 : -Math.exp(-distFromWing * 4) * 0.04;
+      points.push(new THREE.Vector3(x, yOffset + deflection, zOffset));
     }
-    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
-    const lineMat = new THREE.LineBasicMaterial({
-      color: 0x38bdf8,
-      transparent: true,
-      opacity: 0.6,
-    });
-    const line = new THREE.Line(lineGeo, lineMat);
-    streamlineLines.push(line);
-    streamlineGroup.add(line);
+    for (let pointIndex = 0; pointIndex < points.length - 1; pointIndex++) {
+      streamlinePositions.push(...points[pointIndex].toArray(), ...points[pointIndex + 1].toArray());
+    }
   }
+  const streamlineGeo = new THREE.BufferGeometry();
+  streamlineGeo.setAttribute('position', new THREE.Float32BufferAttribute(streamlinePositions, 3));
+  const streamlineMat = new THREE.LineBasicMaterial({
+    color: 0x38bdf8,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: false,
+  });
+  const streamlineRibbons = new THREE.LineSegments(streamlineGeo, streamlineMat);
+  streamlineRibbons.name = 'wind-tunnel-streamline-ribbons';
+  streamlineRibbons.userData.streamlineCount = numStreamlines;
+  streamlineGroup.add(streamlineRibbons);
+
+  // Active particulate smoke puffs: instanced/points particle field
+  const particleCount = 200;
+  const particleGeo = new THREE.BufferGeometry();
+  const particlePositions = new Float32Array(particleCount * 3);
+  const particleSpeeds = new Float32Array(particleCount);
+  for (let p = 0; p < particleCount; p++) {
+    particlePositions[p * 3] = (Math.random() - 0.5) * 2.4;
+    particlePositions[p * 3 + 1] = (Math.random() - 0.5) * 0.45;
+    particlePositions[p * 3 + 2] = (Math.random() - 0.5) * 0.7;
+    particleSpeeds[p] = 0.8 + Math.random() * 0.6;
+  }
+  particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
+  const particleMat = new THREE.PointsMaterial({
+    color: 0x7dd3fc,
+    size: 0.028,
+    transparent: true,
+    opacity: 0.85,
+  });
+  const smokeParticles = new THREE.Points(particleGeo, particleMat);
+  smokeParticles.name = 'wind-tunnel-particles';
+  streamlineGroup.add(smokeParticles);
   wingSparRoot.add(streamlineGroup);
+
+  // Simplified fluid model label
+  const modelNotice = createTextPanel('SIMPLIFIED MODEL — NOT ENGINEERING CFD', {
+    widthMeters: 0.9,
+    heightMeters: 0.1,
+    fontSizePx: 22,
+    align: 'center',
+    background: '#0f172a',
+    color: '#38bdf8',
+    lines: 1,
+  });
+  modelNotice.position.set(0, 0.55, 0);
+  wingSparRoot.add(modelNotice);
+
+  // Flow on/off lever, visibly set to ON at entry.
+  const flowLeverPivot = new THREE.Group();
+  flowLeverPivot.name = 'wind-tunnel-flow-lever';
+  flowLeverPivot.position.set(-1.0, 0.75, -0.9);
+  const flowLeverBase = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.06, 0.06, 0.03, 16),
+    new THREE.MeshStandardMaterial({ color: 0x334155 })
+  );
+  flowLeverPivot.add(flowLeverBase);
+  const flowLeverHandle = new THREE.Mesh(
+    new THREE.BoxGeometry(0.025, 0.16, 0.025),
+    new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.5 })
+  );
+  flowLeverHandle.position.y = 0.08;
+  flowLeverPivot.add(flowLeverHandle);
+  const flowLever = new SpatialLeverPrimitive(flowLeverPivot, {
+    axis: 'z',
+    minAngleDeg: -35,
+    maxAngleDeg: 35,
+    onAngleChange: (_angleDeg, normalized) => {
+      flowEnabled = normalized > 0.15;
+      streamlineGroup.visible = flowEnabled;
+    },
+  });
+  flowLever.setAngle(35); // ON by default
+  root.add(flowLeverPivot);
+
+  // Density lever controls both the smoke opacity and particle count without a HUD.
+  const densityLeverPivot = new THREE.Group();
+  densityLeverPivot.name = 'wind-tunnel-density-lever';
+  densityLeverPivot.position.set(-0.72, 0.75, -0.9);
+  const densityLeverBase = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.05, 0.05, 0.025, 12),
+    new THREE.MeshStandardMaterial({ color: 0x334155 })
+  );
+  densityLeverPivot.add(densityLeverBase);
+  const densityLeverHandle = new THREE.Mesh(
+    new THREE.BoxGeometry(0.022, 0.13, 0.022),
+    new THREE.MeshStandardMaterial({ color: 0x7dd3fc, metalness: 0.5 })
+  );
+  densityLeverHandle.position.y = 0.065;
+  densityLeverPivot.add(densityLeverHandle);
+  const densityLever = new SpatialLeverPrimitive(densityLeverPivot, {
+    axis: 'z',
+    minAngleDeg: -35,
+    maxAngleDeg: 35,
+    onAngleChange: (_angleDeg, normalized) => {
+      const density = 0.25 + normalized * 0.75;
+      streamlineMat.opacity = density;
+      particleMat.opacity = density;
+      smokeParticles.visible = normalized > 0.05;
+    },
+  });
+  densityLever.setAngle(25);
+  root.add(densityLeverPivot);
 
   // Wing Pitch Slider Handle & Primitive
   const pitchHandleGeo = new THREE.BoxGeometry(0.12, 0.06, 0.06);
@@ -183,16 +287,20 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
       const deg = -5 + normalizedVal * 30;
       wingMesh.rotation.z = -(deg * Math.PI) / 180;
       const aero = calculateAerodynamics(deg, 1680);
-      streamlineLines.forEach((line) => {
-        const mat = line.material as THREE.LineBasicMaterial;
-        if (aero.isStalled) {
-          mat.color.setHex(0xef4444); // Red turbulent stall
-          line.position.y = (Math.random() - 0.5) * 0.08;
-        } else {
-          mat.color.setHex(0x38bdf8); // Smooth blue laminar
-          line.position.y = 0;
-        }
-      });
+      if (aero.isStalled) {
+        streamlineMat.color.setHex(0xef4444); // Red separated flow
+        streamlineRibbons.position.y = (Math.random() - 0.5) * 0.08;
+        streamlineRibbons.rotation.z = (Math.random() - 0.5) * 0.2;
+      } else {
+        streamlineMat.color.setHex(0x38bdf8); // Smooth blue attached flow
+        streamlineRibbons.position.y = 0;
+        streamlineRibbons.rotation.z = 0;
+      }
+      if (aero.isStalled) {
+        particleMat.color.setHex(0xef4444);
+      } else {
+        particleMat.color.setHex(0x7dd3fc);
+      }
     },
   });
   root.add(wingSparRoot);
@@ -444,6 +552,7 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   anchorDefs.forEach((def) => {
     anchorPrimitive.registerAnchor(def, 'foundation');
   });
+  anchorPrimitive.batchLeaderLines();
   root.add(anchorContainer);
 
   // Scene update loop
@@ -460,10 +569,23 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
       mesh.scale.set(s, s * 1.4, s);
     });
 
-    // Animate wind tunnel streamlines along X
-    streamlineLines.forEach((line) => {
-      line.position.x = (line.position.x + deltaSeconds * 0.8) % 0.3;
-    });
+    if (flowEnabled) {
+      // Animate the batched flow field along X.
+      streamlineRibbons.position.x = (streamlineRibbons.position.x + deltaSeconds * 1.2) % 0.4;
+
+      // Animate smoke particles through wind tunnel
+      const posAttr = particleGeo.getAttribute('position') as THREE.BufferAttribute;
+      const positions = posAttr.array as Float32Array;
+      for (let p = 0; p < particleCount; p++) {
+        positions[p * 3] += particleSpeeds[p] * deltaSeconds * 1.4;
+        if (positions[p * 3] > 1.2) {
+          positions[p * 3] = -1.2;
+          positions[p * 3 + 1] = (Math.random() - 0.5) * 0.45;
+          positions[p * 3 + 2] = (Math.random() - 0.5) * 0.7;
+        }
+      }
+      posAttr.needsUpdate = true;
+    }
   };
 
   // Scene disposal
