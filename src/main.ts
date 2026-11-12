@@ -789,6 +789,8 @@ function setupWebXR() {
       const handle = xrControllers[i];
       if (handle) {
         handle.source = null;
+        handle.hasPose = false;
+        handle.pinchActive = false;
         handle.rayLine.visible = false;
         console.info('[maarify] input disconnected:', i);
       }
@@ -900,15 +902,25 @@ function getPointerRay(
   if (wrist && fingertip) {
     const tip = fingertip.getWorldPosition(new THREE.Vector3());
     const base = wrist.getWorldPosition(new THREE.Vector3());
-    origin.copy(tip);
-    direction.copy(tip).sub(base).normalize();
-    return;
+    // Guard against uninitialized joint positions (all zeros on first frame).
+    if (tip.lengthSq() > 0.0001 || base.lengthSq() > 0.0001) {
+      origin.copy(tip);
+      const delta = tip.clone().sub(base);
+      if (delta.lengthSq() > 0.00001) {
+        direction.copy(delta).normalize();
+        return;
+      }
+    }
+    // Joints present but not yet valid — fall through to pose below.
   }
+  // For both controllers and hands: use the baked target-ray pose (already composed with
+  // the rig). This is the authoritative pointing direction from the XR system.
   if (entry?.hasPose) {
     origin.copy(entry.poseOrigin);
     direction.set(0, 0, -1).applyQuaternion(entry.poseQuaternion).normalize();
     return;
   }
+  // Last resort: no pose yet (first frame, session just started).
   controller.getWorldPosition(origin);
   getControllerForward(controller, direction);
 }
@@ -1352,13 +1364,37 @@ function syncControllerSources(): void {
   for (let index = 0; index < session.inputSources.length; index += 1) {
     sources.push(session.inputSources[index]);
   }
+
+  // First pass: match by handedness for already-claimed slots.
   for (const entry of xrControllers) {
     if (!entry.handedness) continue;
     const match = selectSource(sources, entry.handedness);
     if (match !== entry.source) {
       entry.source = match;
+      if (!match) {
+        entry.hasPose = false;
+        entry.pinchActive = false;
+      }
       entry.rayLine.visible = Boolean(match);
       logDebug(`source ${entry.handedness} ${match ? (match.hand ? 'hand' : 'ctl') : 'lost'}`);
+    }
+  }
+
+  // Second pass: bootstrap slots whose handedness was never set (e.g. 'connected' event
+  // fired before this loop ran, or the Quest swapped hands and controllers in the same frame).
+  for (const entry of xrControllers) {
+    if (entry.handedness) continue; // already claimed
+    for (const source of sources) {
+      const hand = source.handedness === 'left' || source.handedness === 'right' ? source.handedness : null;
+      if (!hand) continue;
+      // Only claim if no other slot already owns this handedness.
+      const alreadyClaimed = xrControllers.some((other) => other !== entry && other.handedness === hand);
+      if (alreadyClaimed) continue;
+      entry.handedness = hand;
+      entry.source = source;
+      entry.rayLine.visible = true;
+      logDebug(`source ${hand} bootstrapped ${source.hand ? 'hand' : 'ctl'}`);
+      break;
     }
   }
 }
@@ -1393,11 +1429,19 @@ function syncControllerPoses(frame?: XRFrame): void {
     if (thumb && index) {
       const thumbPosition = thumb.getWorldPosition(new THREE.Vector3());
       const indexPosition = index.getWorldPosition(new THREE.Vector3());
-      const pinch = nextPinch(entry.pinchActive, thumbPosition.distanceTo(indexPosition));
-      if (pinch.active !== entry.pinchActive) {
-        entry.pinchActive = pinch.active;
-        if (pinch.active) onControllerTrigger(entry.controller, 'pinch');
-        else releaseControllerGrab(entry.controller);
+      // Guard against uninitialised joints (zero world position on first frame).
+      const thumbValid = thumbPosition.lengthSq() > 0.0001;
+      const indexValid = indexPosition.lengthSq() > 0.0001;
+      if (thumbValid && indexValid) {
+        const pinch = nextPinch(entry.pinchActive, thumbPosition.distanceTo(indexPosition));
+        if (pinch.active !== entry.pinchActive) {
+          entry.pinchActive = pinch.active;
+          if (pinch.active) onControllerTrigger(entry.controller, 'pinch');
+          else releaseControllerGrab(entry.controller);
+        }
+      } else {
+        // Joints present but not yet valid — keep existing pinch state, do not fire.
+        entry.pinchActive = false;
       }
     } else {
       entry.pinchActive = false;
@@ -1443,8 +1487,17 @@ function updateControllerRays(): void {
     const portalName = findPortalAncestor(bestHit.object);
     lastHitLabel = portalName ? `portal:${portalName}` : (bestHit.object.name || 'object');
     const isPortal = Boolean(portalName);
+    // Only show the hit dot when pointing at something interactive (portal, activate, primitive).
+    // Pointing at empty hub floor or module backdrop hides it so the dot isn't always on.
+    const isInteractive = isPortal
+      || Boolean(findUserDataPrimitive(bestHit.object, 'activate'))
+      || Boolean(findUserDataPrimitive(bestHit.object, 'sliderPrimitive'))
+      || Boolean(findUserDataPrimitive(bestHit.object, 'rotatorPrimitive'))
+      || Boolean(findUserDataPrimitive(bestHit.object, 'grabPrimitive'))
+      || Boolean(findUserDataPrimitive(bestHit.object, 'tuningPanelSurface'))
+      || bestHit.object.name.startsWith('tier-btn-');
     hitMarker.position.copy(bestHit.point);
-    hitMarker.visible = true;
+    hitMarker.visible = isInteractive;
     hitMarker.scale.setScalar(isPortal ? 1.8 : 1);
     (hitMarker.material as THREE.MeshBasicMaterial).color.setHex(isPortal ? 0x10b981 : 0x38bdf8);
   } else {

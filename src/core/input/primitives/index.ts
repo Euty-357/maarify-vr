@@ -5,6 +5,7 @@
  */
 
 export * from './grab.js';
+export * from './explodable-assembly.js';
 export * from './slider.js';
 export * from './lever.js';
 export * from './rotator.js';

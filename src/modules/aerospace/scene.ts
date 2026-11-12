@@ -8,8 +8,9 @@ import { getSpatialAnchors } from './anchors.js';
 import {
   SpatialAnchorPrimitive,
   SpatialSliderPrimitive,
-  SpatialGrabPrimitive,
   SpatialRotatorPrimitive,
+  SpatialLeverPrimitive,
+  ExplodableAssembly,
 } from '../../core/input/primitives/index.js';
 
 export interface AerospaceSceneComponents {
@@ -20,7 +21,7 @@ export interface AerospaceSceneComponents {
   taifaCubeSatRoot: THREE.Group;
   anchorPrimitive: SpatialAnchorPrimitive;
   wingPitchSlider: SpatialSliderPrimitive;
-  engineExplodeGrab: SpatialGrabPrimitive;
+  explodeAssembly: ExplodableAssembly;
   cycleRotator: SpatialRotatorPrimitive;
   nozzlePressureSlider: SpatialSliderPrimitive;
   update: (deltaSeconds: number) => void;
@@ -275,26 +276,52 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   nozzleBellMesh.name = 'nozzle-bell';
   rocketEngineRoot.add(nozzleBellMesh);
 
-  // Grab-and-Pull Explode Engine mechanism
-  let explodeFactor = 0.0;
-  const engineExplodeGrab = new SpatialGrabPrimitive(injectorMesh, {
-    onGrab: () => {},
-    onMove: (pos: THREE.Vector3) => {
-      // Explode displacement based on vertical grab delta
-      const dy = Math.max(0, Math.min(0.6, pos.y - 1.2));
-      explodeFactor = dy / 0.6;
-      injectorMesh.position.y = 0.55 + explodeFactor * 0.3;
-      chamberMesh.position.y = 0.35 + explodeFactor * 0.15;
-      turbopumpGroup.position.set(0.35 + explodeFactor * 0.35, 0.45, 0);
-      nozzleBellMesh.position.y = -0.05 - explodeFactor * 0.25;
-      coolingJacketGroup.scale.set(
-        1 + explodeFactor * 0.3,
-        1,
-        1 + explodeFactor * 0.3
-      );
-    },
-    onRelease: () => {},
+  // Explodable assembly: every named part is individually grabbable and snaps back.
+  const explodeAssembly = new ExplodableAssembly(rocketEngineRoot);
+  explodeAssembly.addPart('injector', injectorMesh, {
+    explodeDirection: new THREE.Vector3(0, 1, 0),
+    explodeDistanceMeters: 0.35,
   });
+  explodeAssembly.addPart('chamber', chamberMesh, {
+    explodeDirection: new THREE.Vector3(0, 0.8, 0),
+    explodeDistanceMeters: 0.28,
+  });
+  explodeAssembly.addPart('turbopump', turbopumpGroup, {
+    explodeDirection: new THREE.Vector3(1, 0.2, 0),
+    explodeDistanceMeters: 0.4,
+  });
+  explodeAssembly.addPart('cooling-jacket', coolingJacketGroup, {
+    explodeDirection: new THREE.Vector3(0, -0.3, 0.6),
+    explodeDistanceMeters: 0.25,
+  });
+  explodeAssembly.addPart('nozzle', nozzleBellMesh, {
+    explodeDirection: new THREE.Vector3(0, -1, 0),
+    explodeDistanceMeters: 0.35,
+  });
+
+  // Pull the lever up to separate every part; each part can also be grabbed alone.
+  const explodeLeverPivot = new THREE.Group();
+  explodeLeverPivot.name = 'explode-lever';
+  explodeLeverPivot.position.set(0.55, 0.68, -1.35);
+  const leverBase = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.07, 0.07, 0.03, 16),
+    new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.6, roughness: 0.4 })
+  );
+  explodeLeverPivot.add(leverBase);
+  const leverHandle = new THREE.Mesh(
+    new THREE.BoxGeometry(0.03, 0.18, 0.03),
+    new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.5, roughness: 0.35 })
+  );
+  leverHandle.position.y = 0.09;
+  explodeLeverPivot.add(leverHandle);
+  const explodeLever = new SpatialLeverPrimitive(explodeLeverPivot, {
+    axis: 'x',
+    minAngleDeg: -40,
+    maxAngleDeg: 40,
+    onAngleChange: (_angleDeg, normalized) => explodeAssembly.setExplodeAmount(normalized),
+  });
+  explodeLever.setAngle(-40);
+  root.add(explodeLeverPivot);
   root.add(rocketEngineRoot);
 
   // 5. Engine Cycle Rotator Plinth (Right of Engine)
@@ -471,7 +498,7 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
     taifaCubeSatRoot,
     anchorPrimitive,
     wingPitchSlider,
-    engineExplodeGrab,
+    explodeAssembly,
     cycleRotator,
     nozzlePressureSlider,
     update,
