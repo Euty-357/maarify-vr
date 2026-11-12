@@ -1,6 +1,6 @@
 # Aerospace Module — SPEC
 _Status: PLANNED (Immersion Audit & Rocket Engine Update)_
-_Target Hardware: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
+_Target Hardware: Meta Quest 3 and Meta Quest 3S only_
 
 ## 1. Learning Objectives (Tier-Adapted)
 - **Foundation:** Understand the four forces of flight (lift, weight, thrust, drag); how wings deflect air downward to create lift (Newton's 3rd law); how turbofans use high bypass air for efficiency; how rockets produce thrust in vacuum without pushing against air; basic rocket engine cycles and flow paths; Kenyan high-altitude aerodynamics (Wilson & JKIA airports) and space missions (Taifa-1).

@@ -29,11 +29,12 @@ describe('Tuning Configuration & Serialization', () => {
     expect(DEFAULT_TUNING.audio.masterGain).toBeGreaterThan(0);
     expect(DEFAULT_TUNING.audio.refDistance).toBeGreaterThan(0);
 
-    // Tiers
-    expect(DEFAULT_TUNING.tiers.tierA.targetFps).toBe(72);
-    expect(DEFAULT_TUNING.tiers.tierB.targetFps).toBeGreaterThanOrEqual(90);
-    expect(DEFAULT_TUNING.tiers.tierA.maxTriangles).toBe(100_000);
-    expect(DEFAULT_TUNING.tiers.tierB.maxTriangles).toBe(250_000);
+    // Tiers: one Quest 3 / 3S baseline
+    expect(DEFAULT_TUNING.quality.targetFps).toBe(90);
+    expect(DEFAULT_TUNING.quality.minFps).toBe(72);
+    expect(DEFAULT_TUNING.quality.maxTriangles).toBe(250_000);
+    expect(DEFAULT_TUNING.quality.maxDrawCalls).toBe(180);
+    expect(DEFAULT_TUNING.quality.workingTriangles).toBe(150_000);
   });
 
   it('exports and imports configuration accurately through JSON round-trip', () => {

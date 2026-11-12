@@ -103,8 +103,8 @@ const DESKTOP_CAMERA_POSITION = new THREE.Vector3(0, 1.4, 0.8);
 const DESKTOP_LOOK_AT = new THREE.Vector3(0, 1.1, -1.2);
 
 // Interaction & metrics
-let inputMode = 'Desktop (using Tier A budgets)';
-let activeTier = 'Tier A (Quest 2 Baseline)';
+let inputMode = 'Desktop (test harness)';
+let activeTier = 'Quest 3 / 3S (90 Hz target)';
 let lastTime = performance.now();
 let frameCount = 0;
 let lastFpsUpdate = performance.now();
@@ -168,6 +168,7 @@ function initApp() {
 
   hubWorld = new HubWorld();
   scene.add(hubWorld);
+  showHeadsetNotice();
 
   tuningPanel = new RuntimeTuningPanel(camera);
   scene.add(tuningPanel.panelGroup);
@@ -341,6 +342,42 @@ function initApp() {
  * Offline image-based lighting: a small procedural studio rendered into a PMREM cubemap.
  * No network, no external assets, and it gives every PBR surface believable reflections.
  */
+/** One-time, dismissible notice when the browser reports a non-Quest-3 headset. */
+function showHeadsetNotice(): void {
+  if (typeof navigator === 'undefined') return;
+  const userAgent = navigator.userAgent;
+  // Quest 3 and 3S both contain "Quest 3"; only warn for other Quest models.
+  if (!/Quest/i.test(userAgent) || /Quest 3/i.test(userAgent)) return;
+  try {
+    if (sessionStorage.getItem('maarify.headsetNotice') === 'dismissed') return;
+  } catch {
+    /* storage may be unavailable */
+  }
+
+  const panel = createTextPanel('Maarify is built for Meta Quest 3 and 3S. Tap to dismiss.', {
+    widthMeters: 0.62,
+    heightMeters: 0.16,
+    fontSizePx: 26,
+    align: 'center',
+    lines: 2,
+  });
+  panel.name = 'headset-notice';
+  panel.position.set(0, 1.55, -1.35);
+  panel.lookAt(0, 1.55, 0);
+
+  const dismiss = () => {
+    panel.visible = false;
+    try {
+      sessionStorage.setItem('maarify.headsetNotice', 'dismissed');
+    } catch {
+      /* ignore */
+    }
+  };
+  panel.userData.activate = dismiss;
+  hubWorld.add(panel);
+  window.setTimeout(dismiss, 15_000);
+}
+
 function createStudioEnvironment(target: THREE.WebGLRenderer): THREE.Texture {
   const pmrem = new THREE.PMREMGenerator(target);
   const envScene = new THREE.Scene();
@@ -1021,7 +1058,7 @@ async function onEnterVR() {
     await renderer.xr.setSession(session);
     renderer.xr.setFoveation(0.4);
     inputMode = 'WebXR Immersive Session';
-    activeTier = 'Tier B (Quest 3 / 3S Detected)';
+    activeTier = 'Quest 3 / 3S (90 Hz target)';
 
     if (session.supportedFrameRates && session.updateTargetFrameRate) {
       const rates: number[] = session.supportedFrameRates;
@@ -1031,7 +1068,7 @@ async function onEnterVR() {
 
     session.addEventListener('end', () => {
       inputMode = 'Desktop Fallback';
-      activeTier = 'Tier A (Quest 2 Baseline)';
+      activeTier = 'Quest 3 / 3S (90 Hz target)';
       camera.position.copy(DESKTOP_CAMERA_POSITION);
       camera.lookAt(DESKTOP_LOOK_AT);
       resetRigToOrigin();

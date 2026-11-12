@@ -1,7 +1,7 @@
 # Maarify Curriculum Strategy: Evidence-Based Pedagogy, Depth Tiers, and African Context
 
 **Document Status:** Ready for saving to `docs/research/curriculum-strategy.md`  
-**Target Hardware:** Meta Quest 2 (Performance Floor), Quest 3 / 3S  
+**Target Hardware (historical research note):** Quest 2 was the original performance floor. **Superseded 2026-11-12: Maarify targets Meta Quest 3 and Quest 3S only; Quest 2 and Quest Pro are not supported.** Quest 2 figures below are retained as historical research context, not design targets.  
 **Platform:** WebXR (Three.js, Vite, TypeScript strict, zero runtime backend)  
 **Learner Scope:** Form 3 Secondary School (CBC Grade 10/11 / KCSE) to Postgraduate / PhD  
 

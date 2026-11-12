@@ -9,14 +9,23 @@ export interface HapticPreset {
   durationMs: number;
 }
 
-export interface QualityTierTuning {
+export interface QualityTuning {
+  /** Target refresh rate on Quest 3/3S. */
   targetFps: number;
+  /** Minimum acceptable refresh rate; 72 Hz is the floor. */
+  minFps: number;
+  /** Hard ceilings for a worst-case scene state. NOT measured on device. */
   maxTriangles: number;
   maxDrawCalls: number;
+  /** Working target: about 60–70 % of the ceilings until measured on device. */
+  workingTriangles: number;
+  workingDrawCalls: number;
   starParticleCount: number;
   atmosphereParticleCount: number;
   fixedFoveation: number;
   framebufferScaleFactor: number;
+  /** Minimum legible text size, tuned for the lower-density Quest 3S panel. */
+  minTextSizePt: number;
 }
 
 export interface TuningConfig {
@@ -64,10 +73,7 @@ export interface TuningConfig {
     maxViewingDistanceMeters: number;
     fontSizePtEquivalent: number;
   };
-  tiers: {
-    tierA: QualityTierTuning;
-    tierB: QualityTierTuning;
-  };
+  quality: QualityTuning;
   audio: {
     masterGain: number;
     spatialPingFreqHz: number;
@@ -122,32 +128,22 @@ export const DEFAULT_TUNING: TuningConfig = {
     maxViewingDistanceMeters: 3.5,
     fontSizePtEquivalent: 24,
   },
-  tiers: {
+  quality: {
     /**
-     * Tier budgets and quality knobs. Only the particle counts are consumed today;
-     * targetFps, maxTriangles, maxDrawCalls, fixedFoveation and framebufferScaleFactor
-     * are reserved for the dynamic quality controller, which is not built yet.
+     * One baseline for Meta Quest 3 and Quest 3S. Ceilings reuse the old provisional
+     * numbers; the working target is 60–70 % of them. NOT measured on device.
      */
-    tierA: {
-      // Quest 2 baseline (guaranteed floor)
-      targetFps: 72,
-      maxTriangles: 100_000,
-      maxDrawCalls: 100,
-      starParticleCount: 6_000,
-      atmosphereParticleCount: 2_500,
-      fixedFoveation: 1.0,
-      framebufferScaleFactor: 1.0,
-    },
-    tierB: {
-      // Quest 3 / 3S (provisional, NOT measured on device)
-      targetFps: 90,
-      maxTriangles: 250_000,
-      maxDrawCalls: 180,
-      starParticleCount: 24_000,
-      atmosphereParticleCount: 8_000,
-      fixedFoveation: 0.5,
-      framebufferScaleFactor: 1.2,
-    },
+    targetFps: 90,
+    minFps: 72,
+    maxTriangles: 250_000,
+    maxDrawCalls: 180,
+    workingTriangles: 150_000,
+    workingDrawCalls: 108,
+    starParticleCount: 24_000,
+    atmosphereParticleCount: 8_000,
+    fixedFoveation: 0.5,
+    framebufferScaleFactor: 1.0,
+    minTextSizePt: 24,
   },
   audio: {
     /** Output level applied to every synthesized spatial ping. */

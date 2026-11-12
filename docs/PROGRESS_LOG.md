@@ -313,4 +313,14 @@ _Never delete entries. Append only._
 - Docs reconciled: CONTROLS, ARCHITECTURE, DEVICE_TEST_BACKLOG, HEADSET_TEST, INDEX, PLAN, STATE, TASKS.
 - Post-removal tests: 71 unit tests and seven Playwright specs green.
 
+---
+## 2026-11-12T12:50 EAT | Session 20 | DeepSeek Harness | Quest 3 / 3S Only Baseline
+- Dropped Quest 2 and Quest Pro everywhere: AGENTS, DECISIONS (D-007/D-008), IMMERSION_CHARTER, PLAN, ARCHITECTURE, HEADSET_TEST, DEVICE_TEST_BACKLOG, MODULE_TEMPLATE, SCRIPTS, TOOL_COMPATIBILITY, module SPEC, skills and reviewer files.
+- Replaced Tier A/B with one baseline: **90 Hz default, 72 Hz minimum; hard ceilings 250k triangles / 180 draw calls; working target 150k / 108 (60–70 %)**. All numbers are **NOT measured on device**.
+- Code: `tuning.ts` now has a single `quality` block (targetFps, minFps, ceilings, working target, particle counts, foveation, framebuffer scale, minimum text size for the 3S panel); `check-budgets.mjs` enforces the ceilings and warns above the working target; package scripts and e2e assertions updated; Cosmos star count reads `quality`.
+- Added a one-time, dismissible spatial notice for non-Quest-3 browsers, using the user agent only as a hint and never blocking.
+- Quest 3S research (per Meta product/compare pages, accessed 2026-11-12): Quest 3S is the design floor — lower-density panel than Quest 3, Fresnel optics, no depth projector, Touch Plus controllers, same XR2 Gen 2 family. Sources: [Quest 3S](https://www.meta.com/quest/quest-3s/), [Quest compare](https://www.meta.com/quest/compare/), [WebXR supportedFrameRates](https://immersive-web.github.io/webxr/#dom-xrsession-supportedframerates), [Meta WebXR framerate](https://developers.meta.com/horizon/documentation/web/webxr-frames/). Refresh rates are runtime-exposed; do not assume 120 Hz.
+- Device checks for both models added to DEVICE_TEST_BACKLOG (DT-001 refreshed, DT-010 for 3S legibility and MR fallback). Quest 3 controls/portals/transitions remain the only device-confirmed behaviours.
+- `npm run verify` exit 0: unit suite green, seven Playwright specs, all scenes inside the 250k/180 ceilings.
+
 

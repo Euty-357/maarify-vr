@@ -114,8 +114,8 @@ test.describe('M6 DNA & Genetics seven-beat playthrough', () => {
     expect(locomotion.rig).toBeDefined();
 
     const sceneMetrics = await metrics();
-    expect(sceneMetrics.triangles).toBeLessThan(100000);
-    expect(sceneMetrics.drawCalls).toBeLessThan(100);
+    expect(sceneMetrics.triangles).toBeLessThan(250000);
+    expect(sceneMetrics.drawCalls).toBeLessThan(180);
 
     const { captureMultiPoseMatrix } = await import('./helpers/screenshot-matrix.js');
     const screenshots = await captureMultiPoseMatrix(page, 'm6-dna-genetics');

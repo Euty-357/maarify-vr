@@ -3,13 +3,11 @@
 
 ## Product & Target Hardware
 Maarify is a gamified WebXR learning app delivered as a web app. Seven full 10–20 min modules under a spatial hub, three depth tiers (Foundation / Advanced / Expert).
-- **Target Hardware:** Meta Quest 3 is the primary development and test headset. Quest 3S and Quest 2 are supported. Quest 2 serves as the performance floor.
-- **Hardware Quality Tiers:**
-  - **Tier A (Quest 2 baseline):** 72 fps target, <100k triangles, <100 draw calls, KTX2 textures, no realtime shadows.
-  - **Tier B (Quest 3 / 3S provisional):** Up to 90/120 fps target, <250k triangles, <180 draw calls, higher particle counts, dynamic lighting, color passthrough MR. *(All Tier B metrics are provisional and marked "NOT measured on device" until tuned on Quest 3).*
+- **Target Hardware:** Meta Quest 3 (primary) and Meta Quest 3S only. Quest 2 and Quest Pro are **not supported**. Design for the less capable of the two where they differ; all performance/feel claims are "NOT measured on device" until measured on Quest 3/3S.
+- **Single Quality Baseline (Quest 3 / 3S):** 90 Hz default, 72 Hz minimum. Hard ceilings per worst-case scene: **<250k triangles, <180 draw calls**. Working target is 60–70 % of the ceilings (**150k triangles, 108 draw calls**) until measured on device. The dynamic quality controller remains: frame-time-based framebuffer scale (0.7–1.2), fixed foveation, particle and effect counts, because thermals and 90/120 Hz still matter.
 - **Dynamic Quality Engine:** Runtime capability detection via `session.supportedFrameRates`, `session.updateTargetFrameRate()`, `XRWebGLLayer.fixedFoveation` (0.0 to 1.0), and `framebufferScaleFactor` (0.7 to 1.2). A frame-time-based dynamic quality controller scales visual fidelity dynamically to prevent dropped frames.
 - **Fixed Timestep Simulation:** All physical and numerical simulations run on an accumulator-driven fixed timestep ($dt = 1/120\text{s}$) with state interpolation, completely decoupled from render frame rate (72/80/90/120 Hz).
-- **Binding Immersion Charter (`docs/IMMERSION_CHARTER.md`):** VR-first, hands-first. Desktop is a graceful fallback. Show, don't tell: Level 2 technical content must be an interactive 3D demonstration (scrub, pitch, slice, rotate), not a text block.
+- **Binding Immersion Charter (`docs/IMMERSION_CHARTER.md`):** VR-first, hands-first. Desktop exists only as a test harness; the learner target is Quest 3/3S. Show, don't tell: Level 2 technical content must be an interactive 3D demonstration (scrub, pitch, slice, rotate), not a text block.
 - **Diegetic Spatial Anchors:** No head-locked HUDs, scroll panes, or floating cards. Info is anchored on/next to objects with spatial leader lines. Level 1 = 3D tag (≤40 words); Level 2 = exploded/scrubbable micro-simulation at that spot.
 
 ## Stack (fixed)
@@ -27,7 +25,7 @@ src/
   core/          # XR session, input (Touch Plus/hands), locomotion, comfort,
                  # spatial audio, diegetic anchor kit, store, fixed timestep physics,
                  # dynamic quality controller, shared stakeholder simulation
-  hub/           # Hub scene, physical portals, device smoke-test zone
+  hub/           # Hub scene, physical portals
   modules/<name> # One folder per module; exports ModuleDefinition
   gamification/  # XP, badges, spatial status plinths
 ```
@@ -57,7 +55,7 @@ Commit **only** when:
 ## Honesty Labelling
 - `verified by unit test`
 - `verified in Playwright/emulator`
-- `NOT verified on headset` (All Quest 3 / Quest 2 hardware-specific performance and feel metrics)
+- `NOT verified on headset` (all Quest 3 / 3S hardware-specific performance and feel metrics)
 
 ## Reviewers (sign-off required to close a module)
 | Reviewer | Scope |
@@ -66,13 +64,13 @@ Commit **only** when:
 | `immersion-reviewer` | VR-first, spatial anchors, direct manipulation, body kinematics |
 | `science-medical-reviewer` | Accuracy, sources, tone, medical sensitivity, rocket safety scope |
 | `comfort-accessibility-reviewer` | Comfort, seated completability, legibility, motion sickness |
-| `performance-reviewer` | Budget measurements (<100k tris baseline, 72/90/120 fps) |
+| `performance-reviewer` | Budget measurements (Quest 3/3S ceilings: 250k tris / 180 draws; 90 Hz target, 72 Hz floor; all NOT measured on device) |
 | `qa-automation` | Tests passing, zero console errors, reports generated |
 
 ## Build Strategy: Full Sequential Delivery
-Modules built one by one to 100% full SPEC before starting the next:
-Order: M0, M1, M2 Cosmos, M3 Quantum, M4 Human Body & Medicine, M5 Aerospace, M6 DNA/Genetics, M7 Environment, M8 Urban Development, M9 Integration & Polish.
-No hard freeze (withdrawn 2026-11-10 by user). Current scope: complete M6 DNA/Genetics to full Ready, then stop for review; M7–M9 require explicit instruction.
+Modules built one by one to 100% full SPEC before starting the next.
+Order (revised 2026-11-12): foundation → M2 Cosmos → Medicine (six wings) → Aerospace → Climate Change → Urban Development & Planning → Quantum → DNA → Integration & Polish.
+Desktop/mobile UX is dropped; IWER-driven tests are kept. Audio and narration are last.
 
 ## npm run verify
 Runs: `sync:agents` → `check:hygiene` → `typecheck` → `lint` → `test:unit` → `test:e2e` → `test:budget` → `generate-report`. Must be fully green before any code commit.

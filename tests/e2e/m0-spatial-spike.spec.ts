@@ -25,9 +25,9 @@ test.describe('M0 Toolchain & WebXR Spatial Spike', () => {
     const metrics = await page.evaluate(() => (window as any).__MAARIFY_METRICS__);
     expect(metrics).toBeDefined();
     expect(metrics.triangles).toBeGreaterThan(0);
-    // Tier A hard budget: < 100k triangles, < 100 draw calls
-    expect(metrics.triangles).toBeLessThan(100000);
-    expect(metrics.drawCalls).toBeLessThan(100);
+    // Quest 3 hard budget: < 250k triangles, < 180 draw calls
+    expect(metrics.triangles).toBeLessThan(250000);
+    expect(metrics.drawCalls).toBeLessThan(180);
 
     // 4. Test desktop pointer interaction (click to toggle grab)
     await page.mouse.click(windowWidthHalf(page), windowHeightHalf(page));

@@ -15,19 +15,20 @@ _This file is the single source of truth for resuming any session. Update it aft
 7. **Git Source Control & GitHub Remote Sync:** Both `master` (GitHub default branch) and `main` are fully synchronized on [`https://github.com/Euty-357/maarify-vr`](https://github.com/Euty-357/maarify-vr) with dual-push refspecs active.
 
 ## In Progress
-- **Section 1 cleanup (2026-11-12):** input/controls rework committed separately; smoke-test zone, poke primitive, desktop debug overlay and obsolete plan doc removed; dev tools gated behind `?debug=1`. Verify + three Playwright runs still to complete before the cleanup commit.
-- **Device evidence:** with the current build, controls, portals and hub↔module transitions work on the Quest 3 (user-confirmed). Grab, bounded teleport, the closest-hit dispatch and smooth locomotion are **not yet device-verified**.
+- **Hardware baseline update (2026-11-12):** Quest 2 and Quest Pro dropped. One Quest 3 / 3S baseline: 90 Hz default, 72 Hz floor, hard ceilings 250k triangles / 180 draw calls, working target 150k / 108, all NOT measured on device. Code, budget script, tuning, tests and the core docs are updated; a one-time spatial notice warns non-Quest-3 headsets.
+- **Next:** move the input logic out of `src/main.ts` into `src/core/input/` with unit tests (behaviour unchanged), then design tokens, the dark-academia hub, brand wiring and the credits plaque. Panels v2 and Explodable Assembly stay blocked until the user reports device grab/teleport results.
 
 ## What Is Next
-1. Finish section 1: verify green, three Playwright runs, cleanup commit, push.
-2. Start section 2 foundation: design tokens, dark-academia hub/brand, credits plaque, Information Panels v2, content schema + audit script, Explodable Assembly, per-scene settings, sections support, hosting readiness.
-3. Then module order: Cosmos → Medicine → Aerospace → Climate Change → Urban → Quantum → DNA.
+1. Input service extraction + tests; verify and commit.
+2. Design tokens + dark-academia hub + brand (`assets/brand/maarify-logo.png`) + credits plaque; verify and commit.
+3. Await device results before panels v2 / Explodable Assembly.
 
 ## Blockers
-- None currently. Aerospace portal still needs a load-error catch (section 4).
+- Information Panels v2 and the Explodable Assembly are blocked on the user's on-device grab and teleport results.
+- All Quest 3/3S performance numbers remain NOT measured on device.
 
 ## Last Green Commit
-- `541e562` — `chore(cleanup): remove smoke-test zone, dead primitives and desktop overlays` (verify exit 0, three Playwright runs green). Input rework: `7e3b8ab`.
+- `a6d96c5` — section 1 cleanup + input rework. Hardware update commit pending.
 
 ## Which Tool/Session Last Worked
 - DeepSeek Harness, 2026-11-12T08:30 EAT. Section 1 complete and pushed. Next: section 2 foundation (design tokens, dark-academia hub/brand, credits, panels v2, content schema + audit, Explodable Assembly, settings, sections, hosting).

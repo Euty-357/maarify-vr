@@ -1,6 +1,6 @@
 # MAARIFY — Architecture
 _Last updated: 2026-11-08. Owner: architect & immersion-reviewer._
-_Target Hardware: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
+_Target Hardware: Meta Quest 3 (primary) and Meta Quest 3S only_
 
 ## 1. Architectural Philosophy: Immersion-First WebXR
 Maarify is engineered from the ground up as a native 6DOF Virtual Reality experience running within the Meta Quest Browser. The architecture strictly implements the **MAARIFY IMMERSION CHARTER** (`docs/IMMERSION_CHARTER.md`):
@@ -46,22 +46,16 @@ c:\maarify\
 
 ---
 
-## 3. Hardware Quality Tiers & Dynamic Quality Controller
+## 3. Quest 3 / 3S Baseline & Dynamic Quality Controller
 
-### 3.1 Two Hardware Tiers
-- **Tier A (Quest 2 Baseline):**
-  - Display Refresh: 72 Hz
-  - Triangles: $< 100,000$ per scene
-  - Draw Calls: $< 100$ per scene
-  - Textures: KTX2 Basis Universal only
-  - Shadows: Baked contact shadows / ambient occlusion only
-- **Tier B (Quest 3 / 3S Provisional):**
-  - Display Refresh: 90 Hz / 120 Hz
-  - Triangles: $< 250,000$ per scene (provisional, NOT measured on device)
-  - Draw Calls: $< 180$ per scene (provisional, NOT measured on device)
-  - Textures: High-resolution KTX2
-  - Lighting: Lightweight directional key light + procedural specular highlights
-  - Mixed Reality: Full-color passthrough tabletop mode (`immersive-ar` + `alpha-blend`)
+### 3.1 One Hardware Baseline
+- **Supported devices:** Meta Quest 3 (primary) and Quest 3S. Quest 2 and Quest Pro are not supported.
+- **Display refresh:** 90 Hz default, 72 Hz minimum. Record what `session.supportedFrameRates` actually exposes in the Quest Browser; do not assume 120 Hz.
+- **Triangles:** < 250,000 per worst-case scene state (hard ceiling). Working target 150,000 (60 %).
+- **Draw calls:** < 180 per worst-case scene state (hard ceiling). Working target 108 (60 %).
+- **Textures:** KTX2 Basis Universal; no real-time shadow maps.
+- **Quest 3S is the design floor** where the two differ: lower panel density (design text for it), Fresnel optics, no depth projector. Do not require a Quest 3-only MR feature; every MR feature needs a fallback.
+- **All numbers are NOT measured on device** until measured on Quest 3 and 3S.
 
 ### 3.2 Dynamic Quality Controller (`src/core/quality/`)
 Rather than brittle device-name hardcoding, quality adapts at runtime using standard WebXR APIs:
@@ -158,5 +152,5 @@ flowchart TD
 
 ## 7. Performance Budget Enforcement
 Automated verification via `scripts/check-budgets.mjs`:
-- Verified against Tier A (Quest 2 baseline: $< 100\text{k}$ tris, $< 100$ draw calls, 72 fps target) and Tier B (Quest 3 provisional).
+- Verified against the single Quest 3 / 3S baseline (hard ceilings 250k triangles, 180 draw calls; working target 150k / 108, all NOT measured on device).
 - Realtime shadow maps strictly forbidden unless approved in writing.

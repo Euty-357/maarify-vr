@@ -63,7 +63,7 @@ interface SimAction {
 ```
 
 ## Fluid Flow Visualisation (Aerospace)
-- Use GPU particle advection in a potential flow field (not Navier-Stokes — too expensive for real-time Quest 2).
+- Use GPU particle advection in a potential flow field (not Navier-Stokes — too expensive for real-time Quest 3).
 - Potential flow: superposition of uniform flow + doublet = flow around a cylinder; transform to airfoil shape.
 - Label: "Simplified potential flow model — not CFD. Real airflow is more complex."
 - Expert tier may explain what a full CFD solver (Navier-Stokes) would add, without simulating it.

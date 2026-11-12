@@ -12,7 +12,7 @@ _Follows Keep a Changelog format. Versions map to milestones._
 - Hard freeze withdrawn (2026-11-10); delivery scope fixed at M6, then stop.
 
 ### Verified
-- `npm run verify` green: unit tests, seven Playwright specs, Tier A budget, zero console errors.
+- `npm run verify` green: unit tests, seven Playwright specs, Quest 3/3S budget, zero console errors.
 - All hardware performance and feel findings remain **NOT verified on headset**.
 
 ## [Unreleased]

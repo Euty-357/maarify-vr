@@ -101,7 +101,7 @@ A module is tagged as "Ready" and the next module started only when **ALL** seve
 - [ ] Haptic pulses on touch, grab, snap, and detent stops
 - [ ] All factual claims verified and cited in `SOURCES.md`
 - [ ] Playwright autopilot test green with zero console errors
-- [ ] Quest 2 budgets verified via `renderer.info` ($< 100\text{k}$ tris, $< 100$ draw calls, 72 fps target)
+- [ ] Quest 3/3S ceilings verified via `renderer.info` (< 250k triangles, < 180 draw calls worst case; working target 150k / 108; 90 Hz target, 72 Hz floor; all NOT measured on device)
 - [ ] Sign-off obtained: `science-medical-reviewer`
 - [ ] Sign-off obtained: `comfort-accessibility-reviewer`
 - [ ] Sign-off obtained: `immersion-reviewer`

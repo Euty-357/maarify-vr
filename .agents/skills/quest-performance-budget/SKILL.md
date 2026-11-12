@@ -2,27 +2,28 @@
 name: quest-performance-budget
 description: >
   Performance budgets, profiling, instancing, texture compression, LOD,
-  dynamic quality scaling, and fixed-timestep execution for Meta Quest 3 and Quest 2.
+  dynamic quality scaling, and fixed-timestep execution for Meta Quest 3 and Quest 3S.
   Load when optimising scenes or reviewing performance.
 ---
 
 # Quest Performance Budget & Quality Skill
 
-## Target Headsets & Quality Tiers
+## Target Headsets & Baseline
 - **Primary Development Target:** Meta Quest 3 (Snapdragon XR2 Gen 2)
-- **Supported Headsets:** Meta Quest 3S, Meta Quest 2 (Baseline performance floor)
+- **Supported Headset:** Meta Quest 3S (the design floor where the two differ)
+- **Not supported:** Quest 2, Quest Pro.
 
-### Quality Tiers Matrix
-| Metric | Tier A (Quest 2 Baseline) | Tier B (Quest 3 / 3S Provisional) | Notes |
-| :--- | :--- | :--- | :--- |
-| **Target Frame Rate** | 72 fps | 90 fps / 120 fps | Configured via `updateTargetFrameRate()` |
-| **Triangles per Scene** | $< 100,000$ | $< 250,000$ *(Provisional)* | Hard limit checked in `check-budgets.mjs` |
-| **Draw Calls per Scene** | $< 100$ | $< 180$ *(Provisional)* | Strict batching / instancing required |
-| **Textures** | KTX2 Basis Universal | KTX2 Basis Universal | ETC1S for color, UASTC for normals |
-| **Fixed Foveation (FFR)** | 0.8 to 1.0 | 0.0 to 0.5 (Dynamic) | Adjusted via `baseLayer.fixedFoveation` |
-| **Realtime Shadows** | Forbidden | Prohibited (Use contact blobs) | Saves 1 full scene render pass |
+### Single Baseline (Quest 3 / 3S)
+| Metric | Baseline | Notes |
+| :--- | :--- | :--- |
+| **Target Frame Rate** | 90 fps default, 72 fps minimum | Record what `supportedFrameRates` exposes; configure via `updateTargetFrameRate()` |
+| **Triangles per Scene** | < 250,000 hard ceiling; 150,000 working target | Worst-case state, checked in `check-budgets.mjs` |
+| **Draw Calls per Scene** | < 180 hard ceiling; 108 working target | Strict batching / instancing required |
+| **Textures** | KTX2 Basis Universal | ETC1S for color, UASTC for normals |
+| **Fixed Foveation (FFR)** | 0.0 to 1.0, frame-time driven (start 0.5) | Adjusted via `baseLayer.fixedFoveation` |
+| **Realtime Shadows** | Prohibited (use contact blobs) | Saves a full scene render pass |
 
-*(All Tier B figures are provisional and marked "NOT measured on device" until calibrated on physical Quest 3).*
+*(All figures are NOT measured on device until calibrated on physical Quest 3 and 3S.)*
 
 ---
 

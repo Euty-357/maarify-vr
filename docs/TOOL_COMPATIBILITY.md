@@ -37,6 +37,6 @@ Run `node scripts/sync-agent-configs.mjs` whenever skills or agent files change.
 - GitHub: https://github.com/meta-quest/IWER
 - Maintained by Meta's Immersive Web team; successor to the browser extension emulator.
 - Works headlessly in Node/Playwright (no browser extension required in CI).
-- Simulates Quest 2 controller input, 6DOF pose, hand tracking events.
+- Simulates Quest 3 controller input, 6DOF pose, hand tracking events.
 - Alternative considered: `@immersive-web/webxr-polyfill` — lower fidelity, no controller simulation.
 - Justification: IWER is the current best option for headless XR testing as of 2026; backed by W3C Immersive Web CG.

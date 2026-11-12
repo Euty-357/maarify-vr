@@ -28,7 +28,7 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   root.name = 'cosmos-module-root';
 
   // 1. Starfield Particle System (Tier-Scaled)
-  const starCount = ActiveTuning.tiers.tierA.starParticleCount;
+  const starCount = ActiveTuning.quality.starParticleCount;
   const starGeo = new THREE.BufferGeometry();
   const starPositions = new Float32Array(starCount * 3);
   const starColors = new Float32Array(starCount * 3);

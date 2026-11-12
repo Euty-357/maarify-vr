@@ -5,14 +5,14 @@ _Record all significant decisions with rationale and alternatives considered._
 
 | ID | Date | Decision | Rationale | Alternatives Considered | Decided By |
 |----|------|----------|-----------|------------------------|------------|
-| D-001 | 2026-11-07 | WebXR emulator: IWER | Meta-backed, headless CI support, Quest 2/3 controller simulation | @immersive-web/webxr-polyfill | Antigravity/Euty |
+| D-001 | 2026-11-07 | WebXR emulator: IWER | Meta-backed, headless CI support, Quest 3/3S controller and hand simulation | @immersive-web/webxr-polyfill | Antigravity/Euty |
 | D-002 | 2026-11-07 | No React | Stack fixed by brief; Three.js scene graph is the UI layer | React Three Fiber (adds abstraction overhead) | Euty (brief) |
 | D-003 | 2026-11-07 | Progress store: in-memory only (Phase 0–M9) | No backend; resets on reload; storage interface allows future swap | localStorage, Supabase | Euty (brief) |
 | D-004 | 2026-11-07 | Modules never import each other | Prevents coupling; each module is a self-contained ModuleDefinition | Shared module bus | Euty (brief) |
 | D-005 | 2026-11-07 | Canonical rules in AGENTS.md; tool files are thin pointers | Tool-neutral portability; no content duplication | Per-tool rule files | Euty (brief) |
 | D-006 | 2026-11-07 | Build order: Cosmos first as vertical slice | Highest wow-factor; covers travel mechanics and scale shifts | Human Body | Euty (brief) |
-| D-007 | 2026-11-08 | Primary target headset: Meta Quest 3 | Developer's real physical test device; Snapdragon XR2 Gen 2 | Quest 2 sole target | Euty |
-| D-008 | 2026-11-08 | Tier A (Quest 2) vs Tier B (Quest 3/3S) quality tiers | Guarantee 72fps floor on Quest 2 while unlocking Quest 3 capabilities | Single lowest-common-denominator target | Euty |
+| D-007 | 2026-11-08 | Primary target headset: Meta Quest 3 (2026-11-12: Quest 3 and 3S only) | Developer's physical test device; Snapdragon XR2 Gen 2 in both | Quest 2 as supported device (dropped 2026-11-12) | Euty |
+| D-008 | 2026-11-12 | **Single Quest 3 / 3S baseline replaces Tier A/B.** 90 Hz default, 72 Hz minimum; hard ceilings 250k triangles / 180 draw calls; working target 150k / 108 | One supported hardware family removes a dead low-end branch; Quest 3S is the less capable design target; all numbers remain NOT measured on device | Keeping the Quest 2 floor, or two tiers within Quest 3/3S | Euty |
 | D-009 | 2026-11-08 | Fixed timestep physics ($dt = 1/120\text{s}$) | Deterministic simulation decoupled from variable display refresh rates (72/80/90/120 Hz) | Frame-rate-dependent delta updates | Euty |
 | D-010 | 2026-11-08 | Binding Immersion Charter (`docs/IMMERSION_CHARTER.md`) | Eliminates flat web-style 2D cards/HUDs; enforces diegetic spatial anchors | Standard HTML/CSS world overlays | Euty |
 | D-011 | 2026-11-08 | Shared interaction primitives in `src/core/input/primitives/` | Modules forbidden from using raw WebXR input APIs directly; ensures consistency | Ad-hoc controller handlers per module | Euty |
@@ -32,12 +32,13 @@ _Record all significant decisions with rationale and alternatives considered._
 6. **No Fabricated Facts:** Factual claims require claim-level verification in `SOURCES.md`. Unverified claims are labeled as such and excluded from learner content.
 7. **Tool-Neutral Governance:** `.agents/` is the single source of truth; mirrors are synced via `scripts/sync-agent-configs.mjs`.
 
-### Section B: Hardware & Quality Tiers
-1. **Target Hardware:** Meta Quest 3 is primary test headset; Quest 3S and Quest 2 are fully supported. Quest 2 represents performance floor.
-2. **Quality Tiers:**
-   - **Tier A (Quest 2 baseline):** 72 fps target, <100k triangles, <100 draw calls, KTX2 textures, no real-time shadows.
-   - **Tier B (Quest 3 / 3S provisional):** 90/120 fps target, <250k triangles, <180 draw calls, enhanced particle fields, dynamic lighting, color passthrough. *(Tier B metrics marked "NOT measured on device" until physical tuning).*
-3. **Runtime Adaptation:** WebXR capability detection (`supportedFrameRates`, `fixedFoveation`, `framebufferScaleFactor`) driven by dynamic quality engine.
+### Section B: Hardware & Quality Baseline
+1. **Target Hardware:** Meta Quest 3 (primary) and Quest 3S only. Quest 2 and Quest Pro are not supported. Design for the less capable of the two where they differ.
+2. **Single quality baseline:**
+   - 90 Hz default, 72 Hz minimum; record the refresh rates the Quest Browser actually exposes.
+   - **Hard ceilings (fail verify):** <250k triangles and <180 draw calls per worst-case scene state.
+   - **Working target (warn only):** 150k triangles and 108 draw calls, i.e. 60–70 % of the ceilings, until measured on device. All numbers are **NOT measured on device**.
+3. **Runtime Adaptation:** WebXR capability detection (`supportedFrameRates`, `fixedFoveation`, `framebufferScaleFactor`) driven by a frame-time dynamic quality controller, because thermals and 90/120 Hz still matter.
 4. **Fixed Timestep Simulation:** All physical and numerical integrations run at $dt = 1/120\text{s}$ with accumulator and state interpolation.
 
 ### Section C: Immersion Charter

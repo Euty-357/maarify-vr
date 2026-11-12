@@ -11,7 +11,7 @@ description: >
 ## Test Pyramid
 1. **Unit tests (Vitest):** Pure logic — gamification, store, challenge scoring, info-card state machine, travel-time calculations.
 2. **Integration tests (Vitest + JSDOM / IWER):** XR session lifecycle, input routing, locomotion state.
-3. **E2E / autopilot tests (Playwright + IWER):** Full module playthroughs in headless browser with emulated Quest 2.
+3. **E2E / autopilot tests (Playwright + IWER):** Full module playthroughs in headless browser with emulated Quest 3 input.
 
 ## npm run verify Pipeline
 ```json

@@ -20,10 +20,10 @@ test.describe('M1 Spatial Hub', () => {
     const metrics = await page.evaluate(() => (window as any).__MAARIFY_METRICS__);
     expect(metrics).toBeDefined();
 
-    // Verify Tier A performance budgets (< 100k triangles, < 100 draw calls)
+    // Verify Quest 3 budgets (< 250k triangles, < 180 draw calls)
     expect(metrics.triangles).toBeGreaterThan(500);
-    expect(metrics.triangles).toBeLessThan(100000);
-    expect(metrics.drawCalls).toBeLessThan(100);
+    expect(metrics.triangles).toBeLessThan(250000);
+    expect(metrics.drawCalls).toBeLessThan(180);
 
     // Depth tier propagates from the hub selector into application state.
     await page.evaluate(() => (window as any).__MAARIFY_SET_TIER__('expert'));

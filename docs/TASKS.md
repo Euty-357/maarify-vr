@@ -1,5 +1,13 @@
 # TASKS.md — Maarify Task Checklist
 
+## Hardware Baseline (2026-11-12)
+- [x] `HW-01` Drop Quest 2/Pro; single Quest 3/3S baseline (AGENTS, DECISIONS, CHARTER, PLAN, ARCHITECTURE, docs, skills, agents)
+- [x] `HW-02` Single ceilings 250k tris / 180 draws; working target 150k / 108; verify + report updated
+- [x] `HW-03` Tuning single `quality` block; tests updated; 90 Hz default, 72 Hz floor
+- [x] `HW-04` One-time dismissible notice for non-Quest-3 headsets
+- [ ] `HW-05` Move input logic from `src/main.ts` to `src/core/input/` with tests
+- [ ] `HW-06` Design tokens, dark-academia hub, brand wiring, credits plaque
+
 ## Phase 0: Environment & Portability
 - [x] `P0-01` Verify node, npm, git versions
 - [x] `P0-02` Create folder structure (src/, tests/, scripts/, docs/, assets/, .agents/)
@@ -20,7 +28,7 @@
 - [x] `P2-02` docs/research/curriculum-strategy.md complete and reviewed
 
 ## Phase 3: Planning & Immersion Audit (STOP gate)
-- [x] `P3-01` Write docs/PLAN.md (audited for Immersion Charter & Quest 2 physics)
+- [x] `P3-01` Write docs/PLAN.md (audited for Immersion Charter & Quest 3/3S physics)
 - [x] `P3-02` Write docs/ARCHITECTURE.md (audited for Diegetic Spatial Anchors & kinematic solvers)
 - [x] `P3-03` Write docs/MODULE_TEMPLATE.md (audited with mandatory Immersion Map)
 - [x] `P3-04` Write docs/HEADSET_TEST.md
@@ -34,7 +42,7 @@
 - [x] `P3-IMMERSION-01` Write docs/IMMERSION_CHARTER.md (10 binding principles)
 - [x] `P3-IMMERSION-02` Add .agents/skills/spatial-interaction-design/SKILL.md & .agents/agents/immersion-reviewer.md; sync to .claude/
 - [x] `P3-IMMERSION-03` Audit all 7 module specs with comprehensive Immersion Maps & Diegetic Spatial Anchors
-- [x] `P3-IMMERSION-04` Evaluate 3D physics library options for Quest 2 (custom kinematic constraints vs rapier3d-compat)
+- [x] `P3-IMMERSION-04` Evaluate 3D physics library options for Quest 3/3S (custom kinematic constraints vs rapier3d-compat)
 - [x] `P3-IMMERSION-05` Citation audit of curriculum-strategy.md -> docs/research/citation-audit.md
 - [x] `P3-IMMERSION-06` Medical & science justification -> docs/research/medical-sensitivity-justification.md
 - [ ] `P3-12` **STOP: Present Phase 3 Immersion Audit summary, changes, risks, open questions. Wait for user approval.**

@@ -1,7 +1,7 @@
 # HEADSET TEST GUIDE & PROTOCOL
-_Primary Test Device: Meta Quest 3 (Quest 3S & Quest 2 supported)_
-_Last Updated: 2026-11-08_
-_Status: Pre-device instructions. All headset metrics marked NOT verified on headset until Tuesday test run._
+_Test devices: Meta Quest 3 (primary) and Meta Quest 3S (design floor). Quest 2 and Quest Pro are not supported._
+_Last Updated: 2026-11-12_
+_Status: device results are recorded per check; anything not measured on a Quest 3/3S is marked NOT verified._
 > **Companion Backlog:** See [DEVICE_TEST_BACKLOG.md](file:///c:/maarify/docs/DEVICE_TEST_BACKLOG.md) for the active list of headset-only test cases (DT-001+).
 
 ## 1. Prerequisites & Host Machine Setup
@@ -71,6 +71,8 @@ Run after any input or scene change. Record results in `DEVICE_TEST_BACKLOG.md`;
 7. **Performance:** run OVR Metrics during the heaviest module and record fps, frame time, dropped frames and thermal status.
 
 Desktop and emulator results do not count for items 2, 5, 6 or 7.
+
+**Run the same list on Quest 3S.** Where the two differ, Quest 3S is the design floor: verify text legibility at 1 m and 2 m on its lower-density panel, and do not require any Quest 3-only depth or mixed-reality feature — every such feature needs a fallback. Record the refresh rates the Quest Browser exposes via `session.supportedFrameRates` on each device; 90 Hz is the default target and 72 Hz the floor.
 
 ---
 

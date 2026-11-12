@@ -1,8 +1,8 @@
 ---
 name: quest-deploy-and-test
 description: >
-  Deploying to Meta Quest 3, 3S, and Quest 2 via adb reverse, MQDH,
-  Developer Mode setup, and running the Hub Device Smoke-Test procedure.
+  Deploying to Meta Quest 3 and Quest 3S via adb reverse, MQDH,
+  Developer Mode setup, and running the Quest 3/3S device checks.
   Load when preparing for headset testing or writing deployment docs.
 ---
 
@@ -37,13 +37,13 @@ http://localhost:5173
   adb shell ovrgpuprofiler -t
   ```
 
-## Tuesday Headset Smoke-Test Checklist
-Located at the **Hub Device Smoke-Test Zone**:
-1. [ ] Direct index finger poke triggers chime and haptic detent.
-2. [ ] Touch Plus controller grip grab and release calibration cube cleanly.
-3. [ ] Teleport and 30° snap-turn operate smoothly without stutter.
-4. [ ] Smooth locomotion triggers peripheral radial vignette; zero nausea.
-5. [ ] Spatial audio HRTF pans cleanly as tester walks 360° around beacon.
-6. [ ] Color passthrough MR toggle functions with transparent background (Quest 3).
-7. [ ] Target frame rate switches cleanly between 72Hz, 90Hz, and 120Hz.
-8. [ ] Spatial anchor tags legible at 1.0 m, 1.5 m, and 2.0 m distances.
+## Quest 3 / 3S Device Check
+See `docs/HEADSET_TEST.md` for the current list. In short:
+1. [ ] Portal entry by walking within 1 m and by trigger; `RET hub-hit`.
+2. [ ] Grab at distance (`RET ray-grab`) and release into a socket.
+3. [ ] Teleport lands inside the hub radius; snap turn pivots on the head.
+4. [ ] Controllers↔hands switching keeps `POSE 2/2` and rays live.
+5. [ ] Text legible at 1 m and 2 m on Quest 3S as well as Quest 3.
+6. [ ] OVR Metrics records frame time, dropped frames and thermal state.
+7. [ ] Record which refresh rates `supportedFrameRates` exposes on each device.
+8. [ ] No Quest 3-only MR feature is required for any lesson.

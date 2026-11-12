@@ -61,7 +61,7 @@ The product's entire value is that learning happens in Virtual Reality in ways a
 ### 8. OPTIONAL MIXED REALITY (MR) PASSTHROUGH
 - Where placing the object into the learner's physical living room adds cognitive or spatial value (e.g., examining a beating heart, quantum cryostat, or turbofan on your real coffee table), modules must offer an optional **Passthrough Tabletop Mode**.
 - Must use WebXR `'immersive-ar'` session mode with `'alpha-blend'` blend mode when supported (Quest 3/3S).
-- On Quest 2 (grayscale, fixed depth), MR is supported as an experimental fallback; full immersive VR remains the primary showcase.
+- Mr modes run on Quest 3/3S only. No Quest 3-only mixed-reality feature may be required for a lesson; every MR feature needs a non-MR fallback. Full immersive VR remains the primary showcase.
 
 ### 9. STRICT FORBIDDEN ANTI-PATTERNS
 The following are prohibited in Maarify:

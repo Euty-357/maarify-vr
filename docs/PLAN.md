@@ -1,6 +1,6 @@
 # MAARIFY — Project Plan
-_Last updated: 2026-11-08. Status: Implementation Phase (M0/M1 Active)_
-_Target Hardware: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
+_Last updated: 2026-11-12. Status: implementation active; module order revised._
+_Target Hardware: Meta Quest 3 (primary) and Meta Quest 3S only_
 
 ## 1. Milestone Overview & Sequential Order
 
@@ -9,26 +9,29 @@ _Target Hardware: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
 | **M0** | Toolchain & Spatial Spike | WebXR grabbable cube, flat desktop fallback, IWER emulator harness, verify pipeline | `npm run verify` green; baseline commit |
 | **M1** | Core Systems & Hub | Direct hands, teleport, vignette, positional audio, haptics, Diegetic Spatial Anchor kit, portal Hub | **STOP GATE:** Quest 3 test rehearsal & review |
 | **M2** | Cosmos (Full Spec) | Earth surface $\to$ Karman line $\to$ LEO $\to$ warp/lightspeed $\to$ planets $\to$ black hole | 100% SPEC complete; M2 retro report |
-| **M3** | Quantum (Full Spec) | Bloch sphere rotation, 7 hardware cryostat models, Deutsch-Jozsa/Grover circuits | 100% SPEC complete; regression check |
-| **M4** | Human Body & Medicine (Full Spec) | Beating heart, blood flow scale ride, brain circuits, cancer hallmarks, HIV virion & Pumwani cohort | 100% SPEC complete; medical sign-off |
-| **M5** | Aerospace & Propulsion (Full Spec) | Aircraft aerodynamics, wind tunnel stall, turbofan, 7 rocket engine exploded cycles & propellant trade-offs | 100% SPEC complete; safety scope sign-off |
-| **M6** | DNA / Genetics (Full Spec) | Double helix unzipping, ribosome translation, CRISPR-Cas9 manual insertion | 100% SPEC complete; regression check |
-| **M7** | Environment (Full Spec) | Watershed time scrub, Mau Forest & Naivasha scenarios, shared stakeholder cause-and-effect sim | 100% SPEC complete; regression check |
-| **M8** | Urban Development (Full Spec) | Nairobi transit & land use, paratransit matatu routing, informal settlement upgrading | 100% SPEC complete; regression check |
+| **M3** | Medicine (six wings) | Heart, Brain, Spine, Cancer, HIV, Infection Prevention; hospital atrium, wards and labs | 100% SPEC complete; medical sign-off |
+| **M4** | Aerospace (Full Spec) | Hangar, engine test stand, wind tunnel; complete exploded engine, visible fluid dynamics | 100% SPEC complete; safety scope sign-off |
+| **M5** | Climate Change (new) | Kenyan landscapes, energy balance, impacts, mitigation/adaptation, stakeholder simulation | 100% SPEC complete; science sign-off |
+| **M6** | Urban Development & Planning (new) | Nairobi planning studio and living model, 2050 policy levers | 100% SPEC complete; regression check |
+| **M7** | Quantum (upgrade) | Bloch sphere, cryostat, hardware gallery, circuits, practitioner desk | 100% SPEC complete; regression check |
+| **M8** | DNA / Genetics (upgrade) | Helix, replication, translation, CRISPR concepts, African genomics, sickle-cell trait | 100% SPEC complete; regression check |
 | **M9** | Integration & Headset Polish | Final polish pass, dynamic quality tuning on Quest 3, accessibility check, deployment tag | Ship gate: full Ready + sign-offs (freeze withdrawn 2026-11-10) |
 
 ---
 
-## 2. Hardware Quality Tiers & Performance Budgets
+## 2. Quest 3 / 3S Baseline & Performance Budgets
 
-| Metric | Tier A (Quest 2 Baseline) | Tier B (Quest 3 / 3S Provisional) | Verification Method |
-| :--- | :--- | :--- | :--- |
-| **Display Refresh Rate** | 72 Hz | 90 Hz / 120 Hz | WebXR `updateTargetFrameRate` |
-| **Triangle Budget** | $< 100,000$ per scene | $< 250,000$ per scene *(Provisional)* | `renderer.info.render.triangles` |
-| **Draw Call Budget** | $< 100$ per scene | $< 180$ per scene *(Provisional)* | `renderer.info.render.calls` |
-| **Texture Format** | KTX2 Basis Universal | High-Res KTX2 Basis Universal | Three.js `KTX2Loader` |
-| **Fixed Foveation (FFR)** | 0.8–1.0 (Aggressive) | 0.0–0.5 (Dynamic based on frame time) | `XRWebGLLayer.fixedFoveation` |
-| **Mixed Reality Mode** | Grayscale fallback | 4MP Color Passthrough (`immersive-ar`) | WebXR feature detection |
+| Metric | Quest 3 / 3S baseline | Verification Method |
+| :--- | :--- | :--- |
+| **Display Refresh Rate** | 90 Hz default, 72 Hz minimum; record `supportedFrameRates` | WebXR `updateTargetFrameRate` |
+| **Triangle ceiling** | $< 250,000$ worst-case scene state | `renderer.info.render.triangles` |
+| **Draw-call ceiling** | $< 180$ worst-case scene state | `renderer.info.render.calls` |
+| **Working target** | 150,000 triangles / 108 draw calls (60–70 %) | warning in `check-budgets.mjs` |
+| **Texture Format** | KTX2 Basis Universal | Three.js `KTX2Loader` |
+| **Fixed Foveation (FFR)** | 0.0–1.0, frame-time driven (start 0.5) | `XRWebGLLayer.fixedFoveation` |
+| **Mixed Reality** | Optional color passthrough with a non-MR fallback | WebXR feature detection |
+
+All numbers are **NOT measured on device**. Quest 3S is the design floor where the two differ.
 
 ---
 

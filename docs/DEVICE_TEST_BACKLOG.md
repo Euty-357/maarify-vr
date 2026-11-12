@@ -1,17 +1,20 @@
 # DEVICE_TEST_BACKLOG.md — Headset-Only Test Cases
-_Target Device: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
-_Last Updated: 2026-11-08_
+_Target Devices: Meta Quest 3 (primary) and Meta Quest 3S (design floor). Quest 2 and Quest Pro are not supported._
+_Last Updated: 2026-11-12_
 _All items here cannot be verified in headless CI or emulator and are strictly labelled **NOT verified on headset**._
-> **Companion Procedure:** See [HEADSET_TEST.md](file:///c:/maarify/docs/HEADSET_TEST.md) for ADB reverse setup, MQDH profiling, and the Quest 3 device check list.
+> **Companion Procedure:** See [HEADSET_TEST.md](file:///c:/maarify/docs/HEADSET_TEST.md) for ADB reverse setup, MQDH profiling, and the Quest 3/3S device check list.
+
+## Recorded device results
+- **Quest 3, 2026-11-12:** controls, portal entry and hub↔module transitions observed working by Euty. Grab at distance, bounded teleport and smooth locomotion still pending. No Quest 3S session yet.
 
 ---
 
-## DT-001 — Target Refresh Rate & Dynamic Quality Adaptation (Quest 3 vs Quest 2)
-- **What:** Confirm application runs at locked 90 Hz / 120 Hz on Quest 3 (Tier B) and 72 Hz on Quest 2 (Tier A) without frame drops. Verify dynamic quality controller adjusts `framebufferScaleFactor` and `fixedFoveation` if frame time spikes.
-- **Why device needed:** Emulator runs on host PC GPU; cannot simulate Snapdragon XR2 Gen 2 (Quest 3) vs Gen 1 (Quest 2) hardware thermals, clock scaling, and real refresh rate negotiation.
-- **Module / System:** Core / Dynamic Quality Controller & XR Session
-- **How to test:** Connect via `adb reverse tcp:5173 tcp:5173`; enable OVR Metrics Tool persistent overlay; navigate heavy Cosmos scene; observe FPS readout over 5 minutes.
-- **Pass criteria:** Steady 90 fps sustained on Quest 3 (or 72 fps on Quest 2); frame drop rate $< 0.1\%$; dynamic resolution maintains frame rate without jarring visual pop.
+## DT-001 — Refresh Rate & Dynamic Quality Adaptation (Quest 3 and 3S)
+- **What:** Confirm 90 Hz default with 72 Hz floor on both headsets, record the exact `session.supportedFrameRates` list, and verify the dynamic quality controller adjusts `framebufferScaleFactor` and `fixedFoveation` when frame time spikes.
+- **Why device needed:** Emulator runs on a host GPU; it cannot reproduce Snapdragon XR2 Gen 2 thermals, clock scaling, panel differences between Quest 3 and 3S, or real refresh-rate negotiation.
+- **Module / System:** Core / dynamic quality controller and XR session
+- **How to test:** `adb reverse tcp:5173 tcp:5173`; OVR Metrics overlay; heavy Cosmos scene for 5 minutes on each headset; log the frame rate list.
+- **Pass criteria:** Steady 90 fps (72 acceptable floor); dropped frames < 0.1 %; no jarring resolution pop; the exposed refresh list is recorded per device.
 - **Status:** NOT verified on headset
 
 ## DT-002 — Touch Plus & Touch Pro Controller Haptic Detents
@@ -78,4 +81,12 @@ _All items here cannot be verified in headless CI or emulator and are strictly l
 - **How to test:** Enter VR from the hub. Teleport to each of the seven portals, turn across a module, point at an anchor and a slider, grab a M6 nucleotide, and release it into a socket. Repeat seated, then standing with physical walking.
 - **Pass criteria:** Teleport lands where the arc shows; snap turn never overshoots; the ray visibly changes colour on a hit; haptics fire distinctly on grab, snap, detent and error; no nausea or unintended movement; every control is reachable seated.
 - **First tuning target if failed:** `src/config/tuning.ts` (`comfort.*`, `haptics.*`, `input.rotatorDetentStepDeg`) and `src/main.ts` stick deadzones.
+- **Status:** NOT verified on headset
+
+## DT-010 � Quest 3S Legibility and MR Fallback
+- **What:** On Quest 3S, read anchor text and panels at 1 m and 2 m and confirm nothing depends on a Quest 3-only depth or mixed-reality feature.
+- **Why device needed:** Quest 3S uses a lower-density panel and Fresnel optics than Quest 3 and has no depth projector; only the device shows the real legibility and MR behaviour.
+- **Module / System:** Core / spatial anchors, panels v2, optional MR
+- **How to test:** Run the same module on Quest 3 and 3S; compare text legibility at the 1 m and 2 m marks; disable MR and confirm every lesson remains completable.
+- **Pass criteria:** 24 pt-equivalent text legible at 2 m on 3S; no lesson blocks without MR; no Quest 3-only feature is required.
 - **Status:** NOT verified on headset

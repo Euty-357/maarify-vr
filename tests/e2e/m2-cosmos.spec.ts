@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { auditModuleInteractions } from './helpers/module-interaction-audit.js';
 
 test.describe('M2 Cosmos & Astronomy Full Spec Playthrough', () => {
-  test('renders full Cosmos scene within Tier A budgets, passes screenshot matrix, and has zero console errors', async ({
+  test('renders full Cosmos scene within Quest 3 budgets, passes screenshot matrix, and has zero console errors', async ({
     page,
   }) => {
     const consoleErrors: string[] = [];
@@ -25,10 +25,10 @@ test.describe('M2 Cosmos & Astronomy Full Spec Playthrough', () => {
     expect(metrics.currentModule).toBe('cosmos');
     await auditModuleInteractions(page);
 
-    // 2. Verify Tier A performance budgets (< 100k triangles, < 100 draw calls)
+    // 2. Verify Quest 3 budgets (< 250k triangles, < 180 draw calls)
     expect(metrics.triangles).toBeGreaterThan(1000);
-    expect(metrics.triangles).toBeLessThan(100000);
-    expect(metrics.drawCalls).toBeLessThan(100);
+    expect(metrics.triangles).toBeLessThan(250000);
+    expect(metrics.drawCalls).toBeLessThan(180);
 
     // 3. Capture multi-pose screenshot matrix for visual layout verification
     const { captureMultiPoseMatrix } = await import('./helpers/screenshot-matrix.js');

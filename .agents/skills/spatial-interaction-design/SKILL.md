@@ -116,5 +116,5 @@ const session = await navigator.xr.requestSession('immersive-ar', {
 renderer.setClearColor(0x000000, 0);
 ```
 - Quest 3/3S: Full color passthrough with automatic surface hit-testing.
-- Quest 2: Grayscale passthrough fallback (**NOT verified on headset**).
+- Quest 3 / 3S: color passthrough is available; always keep a non-MR fallback (**NOT verified on headset**).
 

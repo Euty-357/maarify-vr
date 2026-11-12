@@ -36,7 +36,7 @@ description: >
 ## Passthrough (Quest 3/3S)
 - Request `'xr-spatial-tracking'` and check `session.environmentBlendMode`.
 - If `'alpha-blend'` or `'additive'`: set renderer background to transparent.
-- Quest 2: `'opaque'` only. Quest 3: `'alpha-blend'` available.
+- Quest 3 / 3S: `'alpha-blend'` passthrough available; always provide a non-MR fallback.
 - **NOT verified on headset.**
 
 ## Desktop Fallback
