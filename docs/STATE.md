@@ -28,7 +28,7 @@ _This file is the single source of truth for resuming any session. Update it aft
 - All Quest 3/3S performance numbers remain NOT measured on device.
 
 ## Last Green Commit
-- `a6d96c5` — section 1 cleanup + input rework. Hardware update commit pending.
+- `ecbbf8b` — `feat(platform): target Meta Quest 3 and 3S only with one quality baseline` (verify exit 0). Section 1 cleanup: `541e562`; input rework: `7e3b8ab`.
 
 ## Which Tool/Session Last Worked
 - DeepSeek Harness, 2026-11-12T08:30 EAT. Section 1 complete and pushed. Next: section 2 foundation (design tokens, dark-academia hub/brand, credits, panels v2, content schema + audit, Explodable Assembly, settings, sections, hosting).
