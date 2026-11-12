@@ -323,4 +323,10 @@ _Never delete entries. Append only._
 - Device checks for both models added to DEVICE_TEST_BACKLOG (DT-001 refreshed, DT-010 for 3S legibility and MR fallback). Quest 3 controls/portals/transitions remain the only device-confirmed behaviours.
 - `npm run verify` exit 0: unit suite green, seven Playwright specs, all scenes inside the 250k/180 ceilings.
 
+---
+## 2026-11-12T13:14 EAT | Session 21 | DeepSeek Harness | Input State Moved into Core
+- Added `src/core/input/input-state.ts`: edge detection, pinch hysteresis, handedness mapping/source selection, XR pose decomposition and -Z forward. Eight unit tests cover press/release edges, hysteresis, list-order changes and pose math.
+- `main.ts` now uses `selectSource` for per-frame rebinding, `poseFromMatrix` for frame poses and its own hand pinch detection with tuning thresholds (`pinchEnterMeters`, `pinchExitMeters`); browser pinch listeners removed, select kept.
+- Behaviour preserved: 7 Playwright specs and the full verify are green; M6 remains 20,374 tris / 82 draws.
+
 

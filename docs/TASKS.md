@@ -5,7 +5,7 @@
 - [x] `HW-02` Single ceilings 250k tris / 180 draws; working target 150k / 108; verify + report updated
 - [x] `HW-03` Tuning single `quality` block; tests updated; 90 Hz default, 72 Hz floor
 - [x] `HW-04` One-time dismissible notice for non-Quest-3 headsets
-- [ ] `HW-05` Move input logic from `src/main.ts` to `src/core/input/` with tests
+- [x] `HW-05` Move input edge/pinch/source state into `src/core/input/input-state.ts` with 8 unit tests; `main.ts` consumes it (poses, sources, pinch hysteresis)
 - [ ] `HW-06` Design tokens, dark-academia hub, brand wiring, credits plaque
 
 ## Phase 0: Environment & Portability

@@ -41,6 +41,8 @@ export interface TuningConfig {
   input: {
     grabThresholdMeters: number;
     pokeThresholdMeters: number;
+    pinchEnterMeters: number;
+    pinchExitMeters: number;
     handSmoothingAlpha: number;
     scalePinchMin: number;
     scalePinchMax: number;
@@ -97,6 +99,8 @@ export const DEFAULT_TUNING: TuningConfig = {
   input: {
     grabThresholdMeters: 0.14,
     pokeThresholdMeters: 0.045,
+    pinchEnterMeters: 0.025,
+    pinchExitMeters: 0.04,
     handSmoothingAlpha: 0.35,
     scalePinchMin: 0.2,
     scalePinchMax: 5.0,

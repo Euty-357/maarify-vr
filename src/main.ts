@@ -18,6 +18,7 @@ import { triggerHapticPulse } from './core/haptics/haptics';
 import { ActiveTuning } from './config/tuning';
 import { isModuleAvailable } from './config/feature-flags';
 import { createTextPanel, setTextPanelText } from './core/ui/text-panel';
+import { nextPinch, poseFromMatrix, selectSource } from './core/input/input-state';
 import cosmosModule from './modules/cosmos/index';
 import quantumModule from './modules/quantum/index';
 import humanBodyModule from './modules/human-body/index';
@@ -77,6 +78,7 @@ interface XRControllerHandle {
   poseOrigin: THREE.Vector3;
   poseQuaternion: THREE.Quaternion;
   hasPose: boolean;
+  pinchActive: boolean;
 }
 const xrControllers: XRControllerHandle[] = [];
 const xrRaycaster = new THREE.Raycaster();
@@ -724,9 +726,6 @@ function setupWebXR() {
     });
     controller.addEventListener('selectstart', () => onControllerTrigger(controller, 'select'));
     controller.addEventListener('selectend', () => releaseControllerGrab(controller));
-    // Pre-synthesised pinch events from three's hand tracking (select can be unreliable).
-    controller.addEventListener('pinchstart', () => onControllerTrigger(controller, 'pinch'));
-    controller.addEventListener('pinchend', () => releaseControllerGrab(controller));
     // Controllers and hands ride the rig so teleport/snap turn move them with the viewer.
     cameraRig.add(controller);
 
@@ -747,7 +746,7 @@ function setupWebXR() {
     const hand = renderer.xr.getHand(i) as unknown as HandSpace;
     cameraRig.add(hand);
 
-    xrControllers.push({ controller, hand, rayLine, source: null, handedness: null, lastTeleportPush: 0, lastTurnPush: 0, lastFacePress: false, lastTriggerPress: false, lastTriggerAt: 0, lastBackPress: false, poseOrigin: new THREE.Vector3(), poseQuaternion: new THREE.Quaternion(), hasPose: false });
+    xrControllers.push({ controller, hand, rayLine, source: null, handedness: null, lastTeleportPush: 0, lastTurnPush: 0, lastFacePress: false, lastTriggerPress: false, lastTriggerAt: 0, lastBackPress: false, poseOrigin: new THREE.Vector3(), poseQuaternion: new THREE.Quaternion(), hasPose: false, pinchActive: false });
   }
 }
 
@@ -1209,16 +1208,13 @@ function updateXRLocomotion(frame?: XRFrame, deltaSeconds = 0): void {
 function syncControllerSources(): void {
   const session = renderer.xr.getSession();
   if (!session) return;
+  const sources: XRInputSource[] = [];
+  for (let index = 0; index < session.inputSources.length; index += 1) {
+    sources.push(session.inputSources[index]);
+  }
   for (const entry of xrControllers) {
     if (!entry.handedness) continue;
-    let match: XRInputSource | null = null;
-    for (let index = 0; index < session.inputSources.length; index += 1) {
-      const candidate = session.inputSources[index];
-      if (candidate.handedness === entry.handedness) {
-        match = candidate;
-        break;
-      }
-    }
+    const match = selectSource(sources, entry.handedness);
     if (match !== entry.source) {
       entry.source = match;
       entry.rayLine.visible = Boolean(match);
@@ -1230,12 +1226,11 @@ function syncControllerSources(): void {
 function syncControllerPoses(frame?: XRFrame): void {
   const referenceSpace = renderer.xr.getReferenceSpace();
   if (!frame || !referenceSpace) return;
-  const matrix = new THREE.Matrix4();
-  const scale = new THREE.Vector3();
   for (const entry of xrControllers) {
     const source = entry.source;
     if (!source) {
       entry.hasPose = false;
+      entry.pinchActive = false;
       continue;
     }
     const pose = frame.getPose(source.targetRaySpace, referenceSpace);
@@ -1243,9 +1238,24 @@ function syncControllerPoses(frame?: XRFrame): void {
       entry.hasPose = false;
       continue;
     }
-    matrix.fromArray(pose.transform.matrix);
-    matrix.decompose(entry.poseOrigin, entry.poseQuaternion, scale);
+    poseFromMatrix(pose.transform.matrix, entry.poseOrigin, entry.poseQuaternion);
     entry.hasPose = true;
+
+    // Own pinch detection with hysteresis instead of relying on browser events.
+    const thumb = entry.hand?.joints?.['thumb-tip'];
+    const index = entry.hand?.joints?.['index-finger-tip'];
+    if (thumb && index) {
+      const thumbPosition = thumb.getWorldPosition(new THREE.Vector3());
+      const indexPosition = index.getWorldPosition(new THREE.Vector3());
+      const pinch = nextPinch(entry.pinchActive, thumbPosition.distanceTo(indexPosition));
+      if (pinch.active !== entry.pinchActive) {
+        entry.pinchActive = pinch.active;
+        if (pinch.active) onControllerTrigger(entry.controller, 'pinch');
+        else releaseControllerGrab(entry.controller);
+      }
+    } else {
+      entry.pinchActive = false;
+    }
   }
 }
 
