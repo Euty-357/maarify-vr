@@ -27,7 +27,7 @@ _This file is the single source of truth for resuming any session. Update it aft
 - None currently. Aerospace portal still needs a load-error catch (section 4).
 
 ## Last Green Commit
-- `b793fd9` — input/controls rework commit pending (`fix(xr): stable controller/hand input…`); cleanup commit pending. Update this line after the pushes.
+- `541e562` — `chore(cleanup): remove smoke-test zone, dead primitives and desktop overlays` (verify exit 0, three Playwright runs green). Input rework: `7e3b8ab`.
 
 ## Which Tool/Session Last Worked
-- DeepSeek Harness, 2026-11-12T08:15 EAT. Next: finish section 1 verify and commits.
+- DeepSeek Harness, 2026-11-12T08:30 EAT. Section 1 complete and pushed. Next: section 2 foundation (design tokens, dark-academia hub/brand, credits, panels v2, content schema + audit, Explodable Assembly, settings, sections, hosting).
