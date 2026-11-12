@@ -16,7 +16,7 @@
 - [x] `HW-07c2a` Panels v2 folio renderer (tier tabs, paging, collapse, gentle turn, grab) + 3 state tests + Cosmos e2e assertion
 - [x] `HW-07c2b` Cosmos 24/24 anchors + all anchors placed in the scene + `audit:content --enforce` passes
 - [x] `HW-07c2c` 15/15 exact claim quotes recorded; San Marco and Sun figures corrected from primary sources
-- [ ] `HW-07c2c2` Verify the 100 km Kármán convention or replace it with a retrievable source
+- [x] `HW-07c2c2` 100 km Kármán convention verified from the FAI/ICARE PDF (16/16 claims)
 - [ ] `HW-07c2d` Cosmos draw-call optimisation (132 -> ≤126, ideally ≤108)
 - [ ] `HW-07d` Content-as-data migration for the other modules (same source-pack-first rule)
 - [ ] `HW-08` Explodable Assembly primitive + settings/sections framework

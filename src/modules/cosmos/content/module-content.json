@@ -1,7 +1,7 @@
 {
   "moduleId": "cosmos",
   "status": "experimental",
-  "verification": "15 of 15 high-risk claims have exact supporting sentences (NASA fact sheets, Planck, Gillon, LIGO, KSA); the 100 km Karman convention is still unverified, so the module stays experimental",
+  "verification": "16 of 16 high-risk claims have exact supporting sentences, including the FAI Karman line; module remains experimental pending reviewer passes and the draw-call target",
   "anchors": [
     {
       "id": "cosmos-anchor-karman-line",

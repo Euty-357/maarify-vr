@@ -375,4 +375,11 @@ _Never delete entries. Append only._
 - The 100 km Kármán convention remains the one open item: FAI's page returns 404 and its statement 403, so it is not counted among the fifteen and Cosmos stays experimental.
 - `audit:content --enforce` passes; full verify green.
 
+---
+## 2026-11-12T17:04 EAT | Session 28 | DeepSeek Harness | Kármán Claim Closed
+- Downloaded the FAI/ICARE presentation PDF and extracted its text locally; exact sentence: "Set at 100 km by FAI in 1960 (with a group of scientists, including Kármán) for separating aeronautics and astronautics records."
+- Cosmos now has 16/16 high-risk claims with exact supporting sentences. The FAI row in SOURCES.md points at the PDF; the Cloudflare-blocked statement page is no longer the only reference.
+- SOURCES.md had been written as cp1252 by an earlier shell edit; converted back to UTF-8 so the edit tool and audit can read it. No content lost.
+- Cosmos stays experimental until the four reviewer passes and the draw-call target are done, but the content-verification blocker is closed.
+
 
