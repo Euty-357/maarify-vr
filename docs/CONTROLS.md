@@ -36,6 +36,7 @@ This is the single reference for every control in the build. If a binding is not
 | **Trigger release** | Release a held object; slot checks (base pairing, tRNA docking, causal chain) run on release |
 | **Left thumbstick** | Hold past ~55 % to aim a teleport arc; release to land (max 8 m, vignette flash) |
 | **Right thumbstick** | Snap turn 30° per push (edge-triggered, vignette pulse) |
+| **B / Y** | Return to the hub from any module |
 | **Haptics** | Fired on grab, release, snap, detent, error and success |
 | **Not wired** | Grip/squeeze, A/B/X/Y, menu, thumbstick click. These do nothing today. |
 
@@ -65,6 +66,7 @@ Seated play is fully supported: every module control is reachable from a seated 
 | Sliders / rotators | Every module | Drag / step; each has a seated reach |
 | Grabbables | Every module | Pick up, release into a socket |
 | Badge plinth + exit portal | M6 only | Badge unlocks at 5/5 challenges; portal returns to the hub |
+| **Red return ring** | Every module, 1.35 m behind the spawn point | Step onto it for 0.6 s, or point at it and press trigger, to return to the hub |
 | Simplified-model label | Every module | Static governance label |
 
 ---
@@ -118,7 +120,46 @@ The three tier *descriptions* exist per anchor, but the micro-simulation geometr
 
 ---
 
-## 9. Known gaps
+## 9. Debug panel (development aid)
+
+A small panel sits at the bottom of the head-relative view and follows the head. It refreshes at 4 Hz and is mirrored into the desktop overlay. It is a development aid, not learner content, and must be gated off before any ship build.
+
+| Line | Meaning |
+|---|---|
+| `BUILD` | Build id injected by Vite (git hash + server start). If this differs from `http://localhost:5173/__build`, the page is stale — reload. |
+| `VIS` / `XR` | `XRSession.visibilityState` and whether an immersive session is presenting. |
+| `SCENE` / `FRAME` | Current hub or module, and the last frame time in ms. |
+| `SRC` | Live `session.inputSources`, e.g. `L:ctl:gp R:hand:h` (`ctl` controller, `hand`, `gp` gamepad). `none` means no sources are bound. |
+| `RET` | Last reason code an activation stopped: `no-session`, `blurred`, `loading`, `debounce`, `panel`, `module-ray`, `module-near`, `hub-hit`, `hub-miss`. |
+| `HIT` | Last ray hit (`portal:<id>`, object name, or `none`). |
+| `EV` | Last three input/scene events with timestamps. |
+| `ERR` | Newest of the last ten errors (`window.error`, `unhandledrejection`, frame errors). |
+| `HEAD` | Head position in world x/z. |
+
+A thrown frame is caught and logged; the render loop keeps running. This is deliberate: three.js stops requesting frames if the animation callback throws.
+
+## 10. Dev loop, stale builds and the cable
+
+**One command:** `npm run quest` frees port 5173, clears `node_modules/.vite`, starts Vite with `strictPort`, waits for `/__build`, runs `adb reverse tcp:5173 tcp:5173`, verifies the mapping, then prints the URL and the build id. If any step fails it prints exactly which one and exits non-zero. Keep that terminal open.
+
+**Stale build detection:** the page polls `/__build` every 10 seconds. If the served id differs from the loaded one, a red **STALE BUILD — RELOAD** notice appears below the debug panel and `STALE YES` shows in the panel. Reload in the headset browser.
+
+**Hard-clear the Quest Browser cache for localhost:** open the site, tap the padlock/site-info icon → Site settings → Clear & reset, or Meta Quest Browser menu → Settings → Privacy and security → Clear browsing data (cached images and files, cookies and site data). Then reload `http://localhost:5173`.
+
+**Wireless debugging (no cable):**
+```powershell
+adb tcpip 5555
+# Headset IP: Settings -> Wi-Fi -> your network -> IP address
+adb connect <headset-ip>:5555
+adb -s <headset-ip>:5555 reverse tcp:5173 tcp:5173
+```
+If `adb tcpip` or `adb shell` hangs, do it with the headset awake but out of an immersive session; the shell can block while the browser is in VR. Wireless adb resets after a headset reboot or long sleep — re-run `adb connect` and the reverse.
+
+**Secure context:** WebXR only runs on `https://` or `localhost`. A plain `http://192.168.x.x` LAN address will load the page but the **Enter WebXR** button will report WebXR unavailable. Use `adb reverse` (localhost) or an HTTPS tunnel/deploy. An optional cable-free option is `cloudflared tunnel --url http://localhost:5173`, which gives an HTTPS URL; it is not required.
+
+The initial page load always needs the dev server (Vite fetches modules at load; all five modules are imported eagerly so entering one never fetches after load). Once loaded, unplugging the cable is safe unless the page reloads.
+
+## 11. Known gaps
 
 1. No in-app help card — this document is the reference.
 2. M2–M5 have no exit portal; use reload or the console hook.

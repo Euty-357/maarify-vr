@@ -279,3 +279,29 @@ _Never delete entries. Append only._
 - Hands now originate the ray at the index fingertip via `renderer.xr.getHand()` joints, falling back to the target-ray origin.
 - `npm run verify` exit 0 (69 unit tests, seven Playwright specs). Hardware behaviour remains **NOT verified on headset**.
 
+---
+## 2026-11-11T16:12 EAT | Session 17 | DeepSeek Harness | Phase 1 Instrumentation + Phase 2 Research
+- Vite now injects `__BUILD_ID__` (git hash + server start ms) and serves `/__build` with `Cache-Control: no-store`; the build id is shown in-headset so a stale page is immediately visible.
+- The debug panel is now head-relative (small, bottom of view, follows the head), throttled to 4 Hz, and shows build, `visibilityState`, XR on/off, scene, frame ms, a live table of `session.inputSources` (handedness/kind/gamepad/hand), last reason code, last ray hit, the last three events, the newest error and head position. The same text mirrors into the desktop overlay.
+- Every activation early return now records a reason code: `no-session`, `blurred`, `loading`, `debounce`, `panel`, `module-ray`, `module-near`, `hub-hit`, `hub-miss`.
+- The frame callback is guarded (a thrown frame can no longer stop `renderer.setAnimationLoop`), and `window.error` plus `unhandledrejection` feed a 10-entry error ring.
+- Dev loop: `vite.config.ts` had `strictPort` but the old server died on config reload; restarted Vite on 5173, re-applied `adb reverse tcp:5173 tcp:5173`, verified `/__build` returns the current id.
+- Phase 2 research findings: (1) re-read `session.inputSources` every frame; `inputsourceschange` may fire on temporary tracking loss ([spec](https://github.com/immersive-web/webxr/blob/main/index.bs)); (2) controllers can fail to connect with no `inputsourceschange` at all ([Meta forum](https://communityforums.atmeta.com/discussions/dev-quest/controller-is-webxr-are-not-connecting-randomly-no-inputsourceschange-event-/1319730)); (3) three indexes controllers by input-source order, so key by handedness ([WebXRManager](https://github.com/mrdoob/three.js/blob/dev/src/renderers/webxr/WebXRManager.js)); (4) three skips pose updates while `visibilityState === 'visible-blurred'`, so blurred sessions must pause activation ([source](https://github.com/mrdoob/three.js/blob/dev/src/renderers/webxr/WebXRManager.js)); (5) hand pinch is not a browser event, three synthesises it from joint distance, so our own hysteresis is safer ([WebXR Hand Input](https://immersive-web.github.io/webxr-hand-input/)); (6) IWER can script controllers and hands for tests ([IWER](https://github.com/meta-quest/IWER), [scripting hands](https://meta-quest.github.io/immersive-web-emulation-runtime/scripting-hands.html)); (7) three's pointer examples derive rays from the world quaternion and −Z ([dragging example](https://threejs.org/examples/#webxr_vr_dragging)); (8) Meta's [Immersive Web SDK](https://github.com/meta-quest/immersive-web-sdk) contains proven grab/ray/poke patterns worth adapting, not adding as a dependency; (9) select/squeeze are per-source events, so a missed event must not latch state; (10) conclusion: poll sources per frame, own the edge detection, key by handedness.
+- Phase 1 is emulator/typecheck-verified only; device verification is the panel read-off in the checklist below.
+
+---
+## 2026-11-11T18:05 EAT | Session 18 | DeepSeek Harness | Phases 5–6: Teleport Bounds, Dev Loop
+- Device evidence from the panel: `SRC L:ctl:gp R:ctl:gp`, `VIS visible`, `ERR -` for the whole session; `RET module-ray` consumed the press. That ruled out H4 (loop exception) and H6 (blur) and showed the press was being applied to an anchor, not a grab.
+- Module ray dispatch now uses the **closest hit only** and reports `anchor`, `activate`, `slider`, `rotator` or `ray-grab`. Previously any anchor anywhere along the ray could consume the trigger.
+- Input sources are re-read every frame and re-bound by handedness; controller poses come from `XRFrame.getPose(source.targetRaySpace)`, not three's controller matrices, so hand↔controller swaps cannot leave stale pointers. Panel shows `POSE n/2`.
+- Teleport returned to controller aiming, with a **horizontal** range check (the old 3D distance rejected normal throws from chest height — caught by a new unit test) and a walkable-radius clamp (`comfort.teleportMaxRadiusMeters`). Invalid targets show the red arc and no marker.
+- Added opt-in smooth locomotion (`comfort.smoothLocomotion`, default false) with a vignette scaled to stick magnitude. Snap turn still pivots on the head.
+- `npm run quest` implemented and executed: frees 5173, clears `node_modules/.vite`, starts Vite with `strictPort`, waits for `/__build`, applies and verifies `adb reverse`, prints URL and build id. Run result: stopped PID 23072, Vite ready, reverse active, build `b793fd9-1794409747081`.
+- Stale-build detection: the page polls `/__build` every 10 s; a red `STALE BUILD — RELOAD` notice and `STALE YES` appear when the ids differ.
+- Red grab hints moved behind `?grabhints=1` after they pushed M6 to 97/100 draw calls; default M6 is back to 84/100.
+- Debug panel made transparent (0.6) and head-relative.
+- Modules are imported eagerly, so entering one never fetches after load; the cable can be unplugged once the page has loaded.
+- `npm run verify` exit 0: 72 unit tests (3 new teleport-bound tests), seven Playwright specs, M6 20,378 tris / 84 draws.
+- Still open: Phase 3 extraction into `src/core/input/`, Aerospace portal load diagnosis (H7), IWER repeat tests, 3× flake run. Device verification pending.
+
+

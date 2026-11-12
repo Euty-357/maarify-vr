@@ -15,19 +15,20 @@ _This file is the single source of truth for resuming any session. Update it aft
 7. **Git Source Control & GitHub Remote Sync:** Both `master` (GitHub default branch) and `main` are fully synchronized on [`https://github.com/Euty-357/maarify-vr`](https://github.com/Euty-357/maarify-vr) with dual-push refspecs active.
 
 ## In Progress
-- **M6 DNA / Genetics complete and Ready** (2026-11-10). Seven beats implemented (cell dive, 4 m helix with two-hand unzip, base snapping with rejection, room-scale ribosome with A-site translocation, CRISPR alignment with NHEJ/HDR, diversity + sickle-trait exhibit, badge and exit portal). Five challenges worth 1,025 XP, five sourced anchors, and `MODULE_FLAGS['dna-genetics']` is now `ready` + `enabled`.
-- **Phase B headset enablement landed** in `b55a76d`: camera rig, teleport, snap turn, controller-raycast portal entry, real `XRInputSource` haptics, module animation ticks, studio IBL and ACES tone mapping.
+- **Input hardening (Phases 1–7 of the 2026-11-11 brief).** Phase 1 (instrumentation) is implemented: build id via Vite (`__BUILD_ID__` + `/__build`), head-relative 4 Hz debug panel with live `session.inputSources`, reason codes, event and error rings, and a guarded frame loop. Phase 2 research is logged. Phase 3 (single core input service) is next.
+- **M6 DNA / Genetics is complete and tagged** (`v0.6-dna-genetics`), but module work M6-onward is paused until input is solid.
 
 ## What Is Next
-1. **Headset validation session** using DT-008 (M6 reachability, scale, anchor legibility) and DT-009 (locomotion, portal entry, haptics). Nothing has been tuned against a real device yet.
-2. **Stop.** M7 Environment and M8 Urban Development are out of scope until explicit instruction; both still require the missing `src/core/simulation/stakeholder-sim.ts`.
-3. Record the four review-lane sign-offs against the packed evidence already produced: `reports/latest.md`, the M6 screenshots, and `reports/budget-data.json`. Automated evidence exists; human judgement of headset feel does not.
+1. **Device verification of Phases 1/5/6:** reload to build `b793fd9-1794409747081`, confirm `POSE 2/2`, portals by walk/trigger, `RET ray-grab` in Aerospace with `?grabhints=1`, clamped teleport, B/Y return.
+2. **Phase 3:** extract the per-frame source/pose/edge logic from `main.ts` into `src/core/input/xr-input-service.ts` and route primitives through it, without changing behaviour. The behaviour already exists in `main.ts` (fresh sources, handedness, frame poses, owned edges); only the file boundary is missing.
+3. **Phase 4/7:** Aerospace portal load catch + spatial notice, per-module grab Playwright tests, IWER repeat loop, three flake runs. Then `npm run verify` and wait for "commit".
 
 ## Blockers
-- None for M6 delivery. Every performance and feel claim remains **NOT verified on headset** until DT-001…DT-009 are run on Quest 3.
+- Aerospace portal still does not open on device (H7 unresolved).
+- No headset verification for anything changed after the last device test; all claims remain emulator-only.
 
 ## Last Green Commit
-- `b55a76d` — `feat(core): wire XR locomotion, portal entry, haptics and module ticks` (verify exit 0 at 2026-11-10T08:42 EAT). The M6 closeout commit is this session's `feat(dna-genetics)` commit.
+- `b793fd9` — `fix(xr): aim the pointer forward, pivot snap turn on the head, and own the teleport`. Everything after this is uncommitted.
 
 ## Which Tool/Session Last Worked
-- DeepSeek Harness, 2026-11-10T09:00 EAT. M6 is the agreed stopping point; do not start M7 without explicit instruction.
+- DeepSeek Harness, 2026-11-11T18:06 EAT. Next: device verification, then Phase 3 extraction.

@@ -96,7 +96,10 @@ function paintPanel(mesh: THREE.Mesh, text: string): void {
   ctx.fillStyle = color;
   ctx.font = `600 ${fontSizePx}px -apple-system, Segoe UI, Roboto, sans-serif`;
   ctx.textBaseline = 'top';
-  const wrapped = wrapText(text, Math.floor(w / (fontSizePx * 0.56)), lines);
+  const maxChars = Math.floor(w / (fontSizePx * 0.56));
+  const wrapped = text.includes('\n')
+    ? text.split('\n').slice(0, lines)
+    : wrapText(text, maxChars, lines);
   const lineHeight = fontSizePx * 1.25;
   const startY = (h - wrapped.length * lineHeight) / 2;
   wrapped.forEach((line, index) => {

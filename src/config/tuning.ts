@@ -40,8 +40,11 @@ export interface TuningConfig {
   };
   comfort: {
     teleportMaxDistanceMeters: number;
+    teleportMaxRadiusMeters: number;
     teleportArcGravity: number;
     teleportLaunchVelocity: number;
+    smoothLocomotion: boolean;
+    smoothSpeedMetersPerSecond: number;
     snapTurnAngleDeg: number;
     vignetteMinEdge: number;
     vignetteMaxEdge: number;
@@ -95,9 +98,12 @@ export const DEFAULT_TUNING: TuningConfig = {
     rotatorDetentStepDeg: 15,
   },
   comfort: {
-    teleportMaxDistanceMeters: 8.0,
+    teleportMaxDistanceMeters: 3.5,
+    teleportMaxRadiusMeters: 4.0,
     teleportArcGravity: 9.81,
-    teleportLaunchVelocity: 8.5,
+    teleportLaunchVelocity: 6.0,
+    smoothLocomotion: false,
+    smoothSpeedMetersPerSecond: 1.6,
     snapTurnAngleDeg: 30,
     vignetteMinEdge: 0.35,
     vignetteMaxEdge: 0.70,

@@ -18,7 +18,17 @@ import {
 import { triggerHapticPulse } from './core/haptics/haptics';
 import { ActiveTuning } from './config/tuning';
 import { isModuleAvailable } from './config/feature-flags';
-import { createTextPanel } from './core/ui/text-panel';
+import { createTextPanel, setTextPanelText } from './core/ui/text-panel';
+import cosmosModule from './modules/cosmos/index';
+import quantumModule from './modules/quantum/index';
+import humanBodyModule from './modules/human-body/index';
+import aerospaceModule from './modules/aerospace/index';
+import dnaGeneticsModule from './modules/dna-genetics/index';
+
+declare const __BUILD_ID__: string;
+
+/** Build id injected by Vite; shown in-world so a stale headset page is obvious. */
+const BUILD_ID = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'unknown-build';
 
 // --- Core state -----------------------------------------------------------
 let renderer: THREE.WebGLRenderer;
@@ -42,6 +52,7 @@ let tuningConsole: THREE.Group;
 const progressStore = new InMemoryProgressStore();
 const physicsAccumulator = new FixedTimestepAccumulator(ActiveTuning.physics.fixedStepHz);
 const activeGrabs = new Map<THREE.Object3D, SpatialGrabPrimitive>();
+const grabDistances = new Map<THREE.Object3D, number>();
 const completedChallenges = new Set<string>();
 
 interface HandSpace extends THREE.Object3D {
@@ -54,13 +65,37 @@ interface XRControllerHandle {
   hand: HandSpace | null;
   rayLine: THREE.Line;
   source: XRInputSource | null;
+  handedness: 'left' | 'right' | null;
   lastTeleportPush: number;
   lastTurnPush: number;
+  lastFacePress: boolean;
+  lastTriggerPress: boolean;
+  lastTriggerAt: number;
+  lastBackPress: boolean;
+  poseOrigin: THREE.Vector3;
+  poseQuaternion: THREE.Quaternion;
+  hasPose: boolean;
 }
 const xrControllers: XRControllerHandle[] = [];
 const xrRaycaster = new THREE.Raycaster();
 let teleportOwner: XRControllerHandle | null = null;
 let hitMarker: THREE.Mesh;
+let debugPanel: THREE.Mesh;
+let staleNotice: THREE.Mesh;
+let staleBuild = false;
+let lastDebugPaint = 0;
+let lastHitLabel = 'none';
+const debugEvents: string[] = [];
+const errorLog: string[] = [];
+let lastReason = 'boot';
+let desktopDebugElem: HTMLElement | null = null;
+let walkInTimer = 0;
+let walkInPortal: string | null = null;
+let moduleEnteredAt = 0;
+let moduleLoadInProgress = false;
+let returnGate: THREE.Group;
+let returnTimer = 0;
+let grabHighlightGroup: THREE.Group | null = null;
 
 // Desktop framing (restored when an immersive session ends).
 const DESKTOP_CAMERA_POSITION = new THREE.Vector3(0, 1.4, 0.8);
@@ -169,6 +204,106 @@ function initApp() {
   consoleLabel.userData.activate = openTuningConsole;
   scene.add(tuningConsole);
 
+  // Head-relative debug panel: small, bottom of view, follows the head (dev aid only).
+  debugPanel = createTextPanel('BOOT', {
+    widthMeters: 0.5,
+    heightMeters: 0.34,
+    fontSizePx: 16,
+    align: 'left',
+    lines: 13,
+    pixelWidth: 900,
+    pixelHeight: 660,
+  });
+  debugPanel.name = 'xr-debug-panel';
+  debugPanel.position.set(0, -0.23, -0.55);
+  debugPanel.renderOrder = 10000;
+  const debugMaterial = debugPanel.material as THREE.MeshBasicMaterial;
+  debugMaterial.depthTest = false;
+  debugMaterial.transparent = true;
+  debugMaterial.opacity = 0.6;
+  camera.add(debugPanel);
+
+  desktopDebugElem = document.createElement('div');
+  desktopDebugElem.id = 'metric-debug';
+  desktopDebugElem.style.cssText =
+    'margin-top:6px;border-top:1px solid rgba(255,255,255,0.15);padding-top:6px;font-size:11px;white-space:pre-wrap;max-width:560px;';
+  const overlay = document.getElementById('debug-overlay');
+  if (overlay) overlay.appendChild(desktopDebugElem);
+
+  window.addEventListener('error', (event) => recordError(`window.error: ${event.message}`));
+  window.addEventListener('unhandledrejection', (event) => {
+    recordError(`unhandledrejection: ${String((event as PromiseRejectionEvent).reason)}`);
+  });
+
+  // Stale-build warning: the headset page polls the dev server's build id.
+  staleNotice = createTextPanel('STALE BUILD — RELOAD', {
+    widthMeters: 0.42,
+    heightMeters: 0.08,
+    fontSizePx: 30,
+    align: 'center',
+    background: '#7f1d1d',
+    accent: '#ef4444',
+    lines: 1,
+  });
+  staleNotice.position.set(0, 0.02, -0.55);
+  staleNotice.visible = false;
+  camera.add(staleNotice);
+
+  const checkBuildFreshness = async () => {
+    if (!import.meta.env.DEV) return;
+    try {
+      const response = await fetch('/__build', { cache: 'no-store' });
+      if (!response.ok) return;
+      const data = (await response.json()) as { buildId?: string };
+      if (data.buildId && data.buildId !== BUILD_ID) {
+        staleBuild = true;
+        staleNotice.visible = true;
+        logDebug('STALE BUILD');
+      }
+    } catch {
+      /* expected once the headset is unplugged; the app keeps running */
+    }
+  };
+  window.setInterval(() => { void checkBuildFreshness(); }, 10_000);
+  void checkBuildFreshness();
+
+  // Return gate: present in every module, behind the spawn point.
+  returnGate = new THREE.Group();
+  returnGate.name = 'module-return-gate';
+  const gatePad = new THREE.Mesh(
+    new THREE.RingGeometry(0.3, 0.48, 32).rotateX(-Math.PI / 2),
+    new THREE.MeshBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.85, side: THREE.DoubleSide })
+  );
+  gatePad.position.set(0, 0.03, 2.4);
+  returnGate.add(gatePad);
+  const gateColumn = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.03, 0.03, 0.9, 8),
+    new THREE.MeshStandardMaterial({ color: 0x7f1d1d, emissive: 0xef4444, emissiveIntensity: 0.6 })
+  );
+  gateColumn.position.set(0, 0.45, 2.55);
+  returnGate.add(gateColumn);
+  const gateLabel = createTextPanel('RETURN TO HUB — step on the red ring', {
+    widthMeters: 0.7,
+    heightMeters: 0.16,
+    fontSizePx: 26,
+    align: 'center',
+    accent: '#ef4444',
+  });
+  gateLabel.position.set(0, 1.02, 2.55);
+  gateLabel.lookAt(0, 1.1, 0);
+  returnGate.add(gateLabel);
+  const exitModule = () => {
+    if (activeModuleDef) {
+      logDebug('return gate');
+      returnToHub();
+    }
+  };
+  returnGate.userData.activate = exitModule;
+  gatePad.userData.activate = exitModule;
+  gateLabel.userData.activate = exitModule;
+  returnGate.visible = false;
+  scene.add(returnGate);
+
   teleport = new SpatialTeleportPrimitive(scene, cameraRig, comfortSystem);
   snapTurn = new SpatialSnapTurnPrimitive(cameraRig, comfortSystem);
 
@@ -258,31 +393,41 @@ function createStudioEnvironment(target: THREE.WebGLRenderer): THREE.Texture {
 
 // --- Module lifecycle -----------------------------------------------------
 export async function loadModule(id: string): Promise<THREE.Object3D | null> {
+  if (moduleLoadInProgress) return null;
   if (!isModuleAvailable(id)) return null;
-  if (activeModuleDef) activeModuleDef.unload();
-  completedChallenges.clear();
 
-  const importer = MODULE_IMPORTERS[id];
-  if (!importer) return null;
+  moduleLoadInProgress = true;
+  try {
+    clearGrabHighlights();
+    if (activeModuleDef) activeModuleDef.unload();
+    completedChallenges.clear();
 
-  const mod = (await importer()).default;
-  hubWorld.visible = false;
-  smokeTestZone.visible = false;
-  tuningConsole.visible = false;
-  activeModuleDef = mod;
-  activeModuleRoot = await mod.load(scene);
-  mod.setDepthTier?.(selectedTier);
-  currentModuleName = id;
-  resetRigToOrigin();
-  return activeModuleRoot;
+    const mod = MODULE_DEFINITIONS[id];
+    if (!mod) return null;
+    hubWorld.visible = false;
+    smokeTestZone.visible = false;
+    tuningConsole.visible = false;
+    activeModuleDef = mod;
+    activeModuleRoot = await mod.load(scene);
+    mod.setDepthTier?.(selectedTier);
+    highlightGrabbables(activeModuleRoot);
+    currentModuleName = id;
+    moduleEnteredAt = performance.now();
+    resetRigToOrigin();
+    return activeModuleRoot;
+  } finally {
+    moduleLoadInProgress = false;
+  }
 }
 
-const MODULE_IMPORTERS: Record<string, () => Promise<{ default: ModuleDefinition }>> = {
-  cosmos: () => import('./modules/cosmos/index'),
-  quantum: () => import('./modules/quantum/index'),
-  'human-body': () => import('./modules/human-body/index'),
-  aerospace: () => import('./modules/aerospace/index'),
-  'dna-genetics': () => import('./modules/dna-genetics/index'),
+// Modules are imported eagerly so entering one never triggers a network fetch. The
+// Quest can then be unplugged after the page loads without breaking module entry.
+const MODULE_DEFINITIONS: Record<string, ModuleDefinition> = {
+  cosmos: cosmosModule,
+  quantum: quantumModule,
+  'human-body': humanBodyModule,
+  aerospace: aerospaceModule,
+  'dna-genetics': dnaGeneticsModule,
 };
 
 function returnToHub(): void {
@@ -359,6 +504,161 @@ function setupDesktopInteraction() {
   });
 }
 
+function logDebug(message: string): void {
+  const stamp = (performance.now() / 1000).toFixed(1);
+  debugEvents.unshift(`${stamp} ${message}`);
+  if (debugEvents.length > 6) debugEvents.pop();
+  console.info('[maarify]', message);
+}
+
+/** Records the reason an activation attempt stopped, for the on-device panel. */
+function reason(code: string): void {
+  lastReason = code;
+  logDebug(`RET ${code}`);
+}
+
+function recordError(message: string): void {
+  const stamp = (performance.now() / 1000).toFixed(1);
+  errorLog.unshift(`${stamp} ${message}`);
+  if (errorLog.length > 10) errorLog.pop();
+  console.error('[maarify]', message);
+  lastDebugPaint = 0;
+}
+
+function updateDebugPanel(): void {
+  const now = performance.now();
+  if (now - lastDebugPaint < 250) return;
+  lastDebugPaint = now;
+
+  const session = renderer.xr.getSession();
+  const sources: XRInputSource[] = [];
+  if (session) {
+    for (let index = 0; index < session.inputSources.length; index += 1) {
+      sources.push(session.inputSources[index]);
+    }
+  }
+  const sourceRows = sources.length === 0
+    ? 'none'
+    : sources.map((source) => {
+        const kind = source.hand ? 'hand' : 'ctl';
+        const flags = `${source.gamepad ? 'gp' : '--'}${source.hand ? '/h' : ''}`;
+        return `${(source.handedness || 'n')[0].toUpperCase()}:${kind}:${flags}`;
+      }).join(' ');
+
+  const head = camera.getWorldPosition(new THREE.Vector3());
+  const lines = [
+    `BUILD ${BUILD_ID}`,
+    `VIS ${session?.visibilityState ?? 'none'} XR ${renderer.xr.isPresenting ? 'on' : 'off'}`,
+    `SCENE ${currentModuleName} FRAME ${frameTimeMs.toFixed(0)}ms`,
+    `STALE ${staleBuild ? 'YES — RELOAD' : 'no'}`,
+    `SRC ${sourceRows}`,
+    `POSE ${xrControllers.filter((entry) => entry.hasPose).length}/${xrControllers.length}`,
+    `RET ${lastReason}`,
+    `HIT ${lastHitLabel}`,
+    `EV ${debugEvents[0] ?? '-'}`,
+    `EV ${debugEvents[1] ?? ''}`,
+    `EV ${debugEvents[2] ?? ''}`,
+    `ERR ${errorLog[0] ?? '-'}`,
+    `HEAD ${head.x.toFixed(1)} ${head.z.toFixed(1)}`,
+  ];
+  setTextPanelText(debugPanel, lines.join('\n'));
+  if (desktopDebugElem) desktopDebugElem.textContent = lines.join('\n');
+}
+
+/** Walking through a portal ring enters it; no button required. */
+function updateWalkInEntry(deltaSeconds: number): void {
+  if (!renderer.xr.isPresenting || activeModuleRoot) {
+    walkInTimer = 0;
+    walkInPortal = null;
+    return;
+  }
+  const head = camera.getWorldPosition(new THREE.Vector3());
+  let nearest: { id: string; distance: number } | null = null;
+  for (const portal of hubWorld.portals) {
+    const position = portal.portalMesh.getWorldPosition(new THREE.Vector3());
+    const distance = head.distanceTo(position);
+    if (distance < 1.0 && (!nearest || distance < nearest.distance)) nearest = { id: portal.id, distance };
+  }
+  if (nearest) {
+    if (walkInPortal === nearest.id) walkInTimer += deltaSeconds;
+    else {
+      walkInPortal = nearest.id;
+      walkInTimer = 0;
+    }
+    if (walkInTimer > 0.9) {
+      logDebug(`proximity enter ${nearest.id}`);
+      tryLoadModule(nearest.id);
+      walkInTimer = 0;
+      walkInPortal = null;
+    }
+  } else {
+    walkInTimer = 0;
+    walkInPortal = null;
+  }
+}
+
+/** Red ring behind the spawn point returns to the hub, by ray or by stepping on it. */
+function updateReturnGate(deltaSeconds: number): void {
+  const inModule = Boolean(activeModuleDef);
+  returnGate.visible = inModule;
+  if (!inModule) {
+    returnTimer = 0;
+    return;
+  }
+  // Grace period so arriving in a module never immediately bounces the learner out.
+  if (performance.now() - moduleEnteredAt < 2500) return;
+  const head = camera.getWorldPosition(new THREE.Vector3());
+  const distance = Math.hypot(head.x - returnGate.position.x, head.z - 2.4);
+  const toGate = new THREE.Vector3(0, 0, 2.4).sub(head);
+  toGate.y = 0;
+  toGate.normalize();
+  const gaze = camera.getWorldDirection(new THREE.Vector3());
+  gaze.y = 0;
+  gaze.normalize();
+  // Must stand on the ring AND face it, so walking past it does nothing.
+  if (distance < 0.9 && toGate.dot(gaze) > 0.7) {
+    returnTimer += deltaSeconds;
+    if (returnTimer > 1.0) {
+      logDebug('return ring');
+      returnToHub();
+    }
+  } else {
+    returnTimer = 0;
+  }
+}
+
+/** Red grabbable boxes are opt-in: they cost one draw call each and eat the budget. */
+const GRAB_HINTS_ENABLED = typeof window !== 'undefined'
+  && new URLSearchParams(window.location.search).get('grabhints') === '1';
+function highlightGrabbables(root: THREE.Object3D): void {
+  if (!GRAB_HINTS_ENABLED) return;
+  clearGrabHighlights();
+  const group = new THREE.Group();
+  group.name = 'debug-grab-highlights';
+  const lineMaterial = new THREE.LineBasicMaterial({ color: 0xef4444 });
+  root.traverse((object) => {
+    if (!object.userData.grabPrimitive || object.userData.debugGrabBox) return;
+    const box = new THREE.BoxHelper(object as THREE.Object3D, 0xef4444);
+    box.material = lineMaterial;
+    box.name = `debug-grab-${object.name || 'object'}`;
+    group.add(box);
+    object.userData.debugGrabBox = box;
+  });
+  root.add(group);
+  grabHighlightGroup = group;
+  logDebug(`grab highlights ${group.children.length}`);
+}
+
+function clearGrabHighlights(): void {
+  if (!grabHighlightGroup) return;
+  grabHighlightGroup.parent?.remove(grabHighlightGroup);
+  grabHighlightGroup.traverse((object) => {
+    const box = object as THREE.BoxHelper;
+    box.geometry?.dispose();
+  });
+  grabHighlightGroup = null;
+}
+
 function findDiegeticAnchor(object: THREE.Object3D): DiegeticSpatialAnchor | null {
   let candidate: THREE.Object3D | null = object;
   while (candidate) {
@@ -392,7 +692,13 @@ function setupWebXR() {
       const handle = xrControllers[i];
       if (handle) {
         handle.source = (event.data as XRInputSource) ?? null;
+        handle.handedness = event.data?.handedness === 'left'
+          ? 'left'
+          : event.data?.handedness === 'right'
+            ? 'right'
+            : handle.handedness;
         handle.rayLine.visible = true;
+        console.info('[maarify] input connected:', event.data?.handedness, event.data?.hand ? 'hand' : 'controller');
       }
     });
     controller.addEventListener('disconnected', () => {
@@ -400,11 +706,16 @@ function setupWebXR() {
       if (handle) {
         handle.source = null;
         handle.rayLine.visible = false;
+        console.info('[maarify] input disconnected:', i);
       }
     });
-    controller.addEventListener('selectstart', () => onControllerTrigger(controller));
+    controller.addEventListener('selectstart', () => onControllerTrigger(controller, 'select'));
     controller.addEventListener('selectend', () => releaseControllerGrab(controller));
-    scene.add(controller);
+    // Pre-synthesised pinch events from three's hand tracking (select can be unreliable).
+    controller.addEventListener('pinchstart', () => onControllerTrigger(controller, 'pinch'));
+    controller.addEventListener('pinchend', () => releaseControllerGrab(controller));
+    // Controllers and hands ride the rig so teleport/snap turn move them with the viewer.
+    cameraRig.add(controller);
 
     // Cheap pointer ray: a two-point line in world space, extended to the first hit.
     const rayGeometry = new THREE.BufferGeometry().setFromPoints([
@@ -421,15 +732,26 @@ function setupWebXR() {
     scene.add(rayLine);
 
     const hand = renderer.xr.getHand(i) as unknown as HandSpace;
-    scene.add(hand);
+    cameraRig.add(hand);
 
-    xrControllers.push({ controller, hand, rayLine, source: null, lastTeleportPush: 0, lastTurnPush: 0 });
+    xrControllers.push({ controller, hand, rayLine, source: null, handedness: null, lastTeleportPush: 0, lastTurnPush: 0, lastFacePress: false, lastTriggerPress: false, lastTriggerAt: 0, lastBackPress: false, poseOrigin: new THREE.Vector3(), poseQuaternion: new THREE.Quaternion(), hasPose: false });
   }
 }
 
-function onControllerTrigger(controller: THREE.XRTargetRaySpace) {
+function onControllerTrigger(controller: THREE.XRTargetRaySpace, via = 'select') {
   const entry = xrControllers.find((candidate) => candidate.controller === controller) ?? null;
+  const session = renderer.xr.getSession();
+  if (!session) { reason('no-session'); return; }
+  if (session.visibilityState === 'visible-blurred') { reason('blurred'); return; }
+  if (moduleLoadInProgress) { reason('loading'); return; }
+  // Select, pinch and the polled trigger all arrive here; keep only one per press.
+  const now = performance.now();
+  if (entry) {
+    if (now - entry.lastTriggerAt < 150) return;
+    entry.lastTriggerAt = now;
+  }
   const source = findInputSource(controller);
+  logDebug(`${via} ${source?.handedness ?? '?'}`);
   inputMode = source?.hand ? 'Hand Tracking (pinch)' : 'Touch Plus Controller';
   soundManager.initContext();
 
@@ -438,19 +760,20 @@ function onControllerTrigger(controller: THREE.XRTargetRaySpace) {
 
   const origin = new THREE.Vector3();
   const direction = new THREE.Vector3();
-  getControllerOrigin(entry, controller, origin);
-  getControllerForward(controller, direction);
+  getPointerRay(entry, controller, origin, direction);
 
   // The tuning console overlays everything, so test it before the world.
-  if (handleTuningPanelRay(origin, direction, source)) return;
+  if (handleTuningPanelRay(origin, direction, source)) { reason('panel'); return; }
 
   if (activeModuleRoot) {
-    if (handleModuleRayInteraction(origin, direction, source)) return;
+    if (handleModuleRayInteraction(controller, origin, direction, source)) return;
     handleModuleProximityInteraction(controller, origin, source);
+    reason('module-near');
     return;
   }
 
-  if (handleHubRayInteraction(origin, direction, source)) return;
+  if (handleHubRayInteraction(origin, direction, source)) { reason('hub-hit'); return; }
+  reason('hub-miss');
 
   // Physical proximity fallbacks at the smoke-test plinth.
   const pos = controller.position;
@@ -458,6 +781,7 @@ function onControllerTrigger(controller: THREE.XRTargetRaySpace) {
     smokeTestZone.pokeChime(source);
   } else if (pos.distanceTo(smokeTestZone.grabBlock.position) < 0.3) {
     smokeTestZone.grabCalibrationBlock(source);
+    window.setTimeout(() => smokeTestZone.releaseCalibrationBlock(), 400);
   } else if (pos.distanceTo(smokeTestZone.testAnchor.position) < 0.4) {
     smokeTestZone.testAnchor.toggleExpansion();
     triggerHapticPulse(source, ActiveTuning.haptics.snap.intensity, ActiveTuning.haptics.snap.durationMs);
@@ -479,19 +803,29 @@ function getControllerForward(controller: THREE.Object3D, target: THREE.Vector3)
   return target.set(0, 0, -1).applyQuaternion(quaternion).normalize();
 }
 
-/** Hands point from the index fingertip; controllers point from the target ray origin. */
-function getControllerOrigin(
+/** Hands point from the wrist through the index fingertip; controllers along their -Z ray. */
+function getPointerRay(
   entry: XRControllerHandle | null,
   controller: THREE.Object3D,
-  target: THREE.Vector3
-): THREE.Vector3 {
+  origin: THREE.Vector3,
+  direction: THREE.Vector3
+): void {
+  const wrist = entry?.hand?.joints?.['wrist'];
   const fingertip = entry?.hand?.joints?.['index-finger-tip'];
-  if (fingertip) {
-    fingertip.getWorldPosition(target);
-    return target;
+  if (wrist && fingertip) {
+    const tip = fingertip.getWorldPosition(new THREE.Vector3());
+    const base = wrist.getWorldPosition(new THREE.Vector3());
+    origin.copy(tip);
+    direction.copy(tip).sub(base).normalize();
+    return;
   }
-  controller.getWorldPosition(target);
-  return target;
+  if (entry?.hasPose) {
+    origin.copy(entry.poseOrigin);
+    direction.set(0, 0, -1).applyQuaternion(entry.poseQuaternion).normalize();
+    return;
+  }
+  controller.getWorldPosition(origin);
+  getControllerForward(controller, direction);
 }
 
 /** Ray-to-UV routing for the tuning console; consumed before world interaction. */
@@ -521,8 +855,7 @@ function handleHubRayInteraction(origin: THREE.Vector3, direction: THREE.Vector3
     }
     const portalId = findPortalAncestor(hit.object);
     if (portalId) {
-      triggerHapticPulse(source, ActiveTuning.haptics.success.intensity, ActiveTuning.haptics.success.durationMs);
-      loadModule(portalId);
+      tryLoadModule(portalId, source);
       return true;
     }
     if (hit.object.name.startsWith('tier-btn-')) {
@@ -531,43 +864,129 @@ function handleHubRayInteraction(origin: THREE.Vector3, direction: THREE.Vector3
       return true;
     }
   }
+
+  // Aim assist: a forgiving cone so imprecise controller/hand pointing still works.
+  const aimed = findAimedPortal(origin, direction, 0.92, 6.5);
+  if (aimed) {
+    tryLoadModule(aimed, source);
+    return true;
+  }
+
+  // Hands often point imprecisely; walking up to a portal and pinching should still enter.
+  let nearestPortal: { id: string; distance: number } | null = null;
+  for (const portal of hubWorld.portals) {
+    const portalPosition = portal.portalMesh.getWorldPosition(new THREE.Vector3());
+    const distance = origin.distanceTo(portalPosition);
+    if (distance < 1.1 && (!nearestPortal || distance < nearestPortal.distance)) {
+      nearestPortal = { id: portal.id, distance };
+    }
+  }
+  if (nearestPortal) {
+    tryLoadModule(nearestPortal.id, source);
+    return true;
+  }
+
+  // Last resort: look at a portal and press trigger. Also proves whether the controller
+  // ray or the head gaze is the part that is misbehaving.
+  const gazeOrigin = camera.getWorldPosition(new THREE.Vector3());
+  const gazeDirection = camera.getWorldDirection(new THREE.Vector3());
+  const looked = findAimedPortal(gazeOrigin, gazeDirection, 0.9, 6.5);
+  if (looked) {
+    tryLoadModule(looked, source);
+    return true;
+  }
+
   return false;
 }
 
-function handleModuleRayInteraction(origin: THREE.Vector3, direction: THREE.Vector3, source?: XRInputSource): boolean {
+/** Portal closest to a ray, within an angular cone and a distance limit. */
+function findAimedPortal(
+  origin: THREE.Vector3,
+  direction: THREE.Vector3,
+  minDot: number,
+  maxDistance: number
+): string | null {
+  let best: { id: string; score: number } | null = null;
+  for (const portal of hubWorld.portals) {
+    const position = portal.portalMesh.getWorldPosition(new THREE.Vector3());
+    const toPortal = position.sub(origin);
+    const distance = toPortal.length();
+    if (distance > maxDistance || distance < 0.001) continue;
+    const dot = toPortal.normalize().dot(direction);
+    if (dot >= minDot && (!best || dot > best.score)) best = { id: portal.id, score: dot };
+  }
+  return best?.id ?? null;
+}
+
+/** Loads a module or gives audible/haptic feedback when the portal is still locked. */
+function tryLoadModule(moduleId: string, source?: XRInputSource): boolean {
+  if (!isModuleAvailable(moduleId)) {
+    triggerHapticPulse(source, ActiveTuning.haptics.error.intensity, ActiveTuning.haptics.error.durationMs);
+    logDebug(`load ${moduleId} LOCKED`);
+    return false;
+  }
+  triggerHapticPulse(source, ActiveTuning.haptics.success.intensity, ActiveTuning.haptics.success.durationMs);
+  logDebug(`load ${moduleId} ok`);
+  loadModule(moduleId);
+  return true;
+}
+
+function handleModuleRayInteraction(
+  controller: THREE.XRTargetRaySpace,
+  origin: THREE.Vector3,
+  direction: THREE.Vector3,
+  source?: XRInputSource
+): boolean {
   if (!activeModuleRoot) return false;
   xrRaycaster.set(origin, direction);
   xrRaycaster.far = 4.5;
-  const hits = xrRaycaster.intersectObject(activeModuleRoot, true);
+  const targets: THREE.Object3D[] = [activeModuleRoot];
+  if (returnGate.visible) targets.push(returnGate);
+  const hits = xrRaycaster.intersectObjects(targets, true);
   if (hits.length === 0) return false;
 
-  for (const hit of hits) {
-    const anchor = findDiegeticAnchor(hit.object);
-    if (anchor) {
-      anchor.toggleExpansion();
-      triggerHapticPulse(source, ActiveTuning.haptics.snap.intensity, ActiveTuning.haptics.snap.durationMs);
-      return true;
-    }
+  // Dispatch on the CLOSEST hit only. Previously every anchor anywhere along the ray
+  // could consume the press, so aiming at a grabbable near an anchor tag toggled the
+  // anchor instead of grabbing.
+  const hit = hits[0];
+
+  const activate = findUserDataPrimitive(hit.object, 'activate');
+  if (typeof activate === 'function') {
+    (activate as () => void)();
+    reason('activate');
+    return true;
   }
-  for (const hit of hits) {
-    const activate = findUserDataPrimitive(hit.object, 'activate');
-    if (typeof activate === 'function') {
-      (activate as () => void)();
-      return true;
-    }
+
+  const anchor = findDiegeticAnchor(hit.object);
+  if (anchor) {
+    anchor.toggleExpansion();
+    triggerHapticPulse(source, ActiveTuning.haptics.snap.intensity, ActiveTuning.haptics.snap.durationMs);
+    reason('anchor');
+    return true;
   }
-  for (const hit of hits) {
-    const slider = findUserDataPrimitive(hit.object, 'sliderPrimitive') as SpatialSliderPrimitive | null;
-    if (slider) {
-      slider.updateDrag(hit.point, source);
-      return true;
-    }
-    const rotator = findUserDataPrimitive(hit.object, 'rotatorPrimitive') as SpatialRotatorPrimitive | null;
-    if (rotator) {
-      rotator.addDeltaDeg(ActiveTuning.input.rotatorDetentStepDeg);
-      return true;
-    }
+
+  const slider = findUserDataPrimitive(hit.object, 'sliderPrimitive') as SpatialSliderPrimitive | null;
+  if (slider) {
+    slider.updateDrag(hit.point, source);
+    reason('slider');
+    return true;
   }
+
+  const rotator = findUserDataPrimitive(hit.object, 'rotatorPrimitive') as SpatialRotatorPrimitive | null;
+  if (rotator) {
+    rotator.addDeltaDeg(ActiveTuning.input.rotatorDetentStepDeg);
+    reason('rotator');
+    return true;
+  }
+
+  const grab = findUserDataPrimitive(hit.object, 'grabPrimitive') as SpatialGrabPrimitive | null;
+  if (grab && !grab.isGrabbed && grab.tryGrab(hit.point, new THREE.Quaternion(), source)) {
+    activeGrabs.set(controller, grab);
+    grabDistances.set(controller, Math.max(0.35, hit.distance));
+    reason('ray-grab');
+    return true;
+  }
+
   return false;
 }
 
@@ -624,6 +1043,7 @@ function releaseControllerGrab(controller: THREE.Object3D): void {
   if (!grab) return;
   grab.release(findInputSource(controller as THREE.XRTargetRaySpace));
   activeGrabs.delete(controller);
+  grabDistances.delete(controller);
 }
 
 async function onEnterVR() {
@@ -664,8 +1084,14 @@ async function onEnterVR() {
 }
 
 // --- Per-frame XR locomotion ---------------------------------------------
-function updateXRLocomotion(): void {
+function updateXRLocomotion(frame?: XRFrame, deltaSeconds = 0): void {
   if (!renderer.xr.isPresenting) return;
+
+  // Re-read session.inputSources every frame and rebind by handedness. Three reuses
+  // controller slots when the Quest switches between hands and controllers, so cached
+  // source references (and index-based assignment) go stale.
+  syncControllerSources();
+  syncControllerPoses(frame);
 
   for (const entry of xrControllers) {
     const gamepad = entry.source?.gamepad;
@@ -680,23 +1106,39 @@ function updateXRLocomotion(): void {
     // Left stick walks: hold to aim, release to land. Only the hand that started the
     // aim may commit it, otherwise the idle controller commits (and buzzes) instead.
     const usingLeftStick = isLeft || (!isRight && entry.controller === xrControllers[0]?.controller);
-    if (usingLeftStick && stickMagnitude > 0.55) {
+    const smoothLocomotion = ActiveTuning.comfort.smoothLocomotion;
+    if (smoothLocomotion && usingLeftStick) {
+      const magnitude = Math.min(1, stickMagnitude);
+      if (magnitude > 0.15) {
+        const headDirection = camera.getWorldDirection(new THREE.Vector3());
+        headDirection.y = 0;
+        headDirection.normalize();
+        const forward = Math.abs(stickY) > 0.15 ? -Math.sign(stickY) : 0;
+        cameraRig.position.addScaledVector(
+          headDirection,
+          forward * ActiveTuning.comfort.smoothSpeedMetersPerSecond * magnitude * deltaSeconds
+        );
+        comfortSystem.setMotionIntensity(Math.min(0.5, magnitude * 0.6));
+      } else {
+        comfortSystem.setMotionIntensity(0);
+      }
+    } else if (!smoothLocomotion && usingLeftStick && stickMagnitude > 0.55) {
       if (!teleportAiming) {
         teleportOwner = entry;
         teleport.startAim();
         teleportAiming = true;
       }
       if (teleportOwner === entry) {
+        // Controller-aimed arc; the landing point is clamped by the teleport primitive.
         const origin = new THREE.Vector3();
         const direction = new THREE.Vector3();
-        getControllerOrigin(entry, entry.controller, origin);
-        getControllerForward(entry.controller, direction);
-        // Flatten the arc so a forward-pointing controller lands at a comfortable distance.
+        getPointerRay(entry, entry.controller, origin, direction);
         direction.y = THREE.MathUtils.clamp(direction.y, -0.75, -0.12);
         direction.normalize();
         teleport.updateAim(origin, direction, 0);
       }
     } else if (teleportAiming && teleportOwner === entry && stickMagnitude < 0.25) {
+      logDebug(`tele ${teleport.target.position.x.toFixed(1)},${teleport.target.position.z.toFixed(1)}`);
       teleport.commitTeleport(entry.source ?? undefined);
       teleportAiming = false;
       teleportOwner = null;
@@ -713,9 +1155,45 @@ function updateXRLocomotion(): void {
         const headAfter = camera.getWorldPosition(new THREE.Vector3());
         cameraRig.position.x += headBefore.x - headAfter.x;
         cameraRig.position.z += headBefore.z - headAfter.z;
+        logDebug('snap turn');
       }
       entry.lastTurnPush = magnitude;
     }
+
+    // Polled trigger: the same path the sticks use, so it survives missing select events.
+    const triggerPressed = Boolean(gamepad.buttons[0]?.pressed);
+    if (triggerPressed && !entry.lastTriggerPress) {
+      onControllerTrigger(entry.controller, 'poll');
+    } else if (!triggerPressed && entry.lastTriggerPress) {
+      releaseControllerGrab(entry.controller);
+    }
+    entry.lastTriggerPress = triggerPressed;
+
+    // Face button (A/X or B/Y) enters the aimed portal. This path uses gamepad polling,
+    // so it still works if select events are unreliable.
+    const facePressed = Boolean(gamepad.buttons[4]?.pressed || gamepad.buttons[5]?.pressed);
+    if (facePressed && !entry.lastFacePress && !activeModuleRoot) {
+      logDebug('face button');
+      const origin = new THREE.Vector3();
+      const direction = new THREE.Vector3();
+      getPointerRay(entry, entry.controller, origin, direction);
+      const aimed = findAimedPortal(origin, direction, 0.85, 8);
+      if (aimed) {
+        tryLoadModule(aimed, entry.source ?? undefined);
+      } else {
+        triggerHapticPulse(entry.source ?? undefined, ActiveTuning.haptics.error.intensity, ActiveTuning.haptics.error.durationMs);
+        console.info('[maarify] face button pressed, no portal inside the aim cone');
+      }
+    }
+    entry.lastFacePress = facePressed;
+
+    // B/Y returns to the hub (polled, so it works even if select events do not).
+    const backPressed = Boolean(gamepad.buttons[5]?.pressed);
+    if (backPressed && !entry.lastBackPress && activeModuleDef) {
+      logDebug('back button');
+      returnToHub();
+    }
+    entry.lastBackPress = backPressed;
   }
 
   if (teleportAiming && (!teleportOwner || !teleportOwner.source)) {
@@ -725,6 +1203,49 @@ function updateXRLocomotion(): void {
   }
 
   updateControllerRays();
+}
+
+function syncControllerSources(): void {
+  const session = renderer.xr.getSession();
+  if (!session) return;
+  for (const entry of xrControllers) {
+    if (!entry.handedness) continue;
+    let match: XRInputSource | null = null;
+    for (let index = 0; index < session.inputSources.length; index += 1) {
+      const candidate = session.inputSources[index];
+      if (candidate.handedness === entry.handedness) {
+        match = candidate;
+        break;
+      }
+    }
+    if (match !== entry.source) {
+      entry.source = match;
+      entry.rayLine.visible = Boolean(match);
+      logDebug(`source ${entry.handedness} ${match ? (match.hand ? 'hand' : 'ctl') : 'lost'}`);
+    }
+  }
+}
+
+function syncControllerPoses(frame?: XRFrame): void {
+  const referenceSpace = renderer.xr.getReferenceSpace();
+  if (!frame || !referenceSpace) return;
+  const matrix = new THREE.Matrix4();
+  const scale = new THREE.Vector3();
+  for (const entry of xrControllers) {
+    const source = entry.source;
+    if (!source) {
+      entry.hasPose = false;
+      continue;
+    }
+    const pose = frame.getPose(source.targetRaySpace, referenceSpace);
+    if (!pose) {
+      entry.hasPose = false;
+      continue;
+    }
+    matrix.fromArray(pose.transform.matrix);
+    matrix.decompose(entry.poseOrigin, entry.poseQuaternion, scale);
+    entry.hasPose = true;
+  }
 }
 
 function updateControllerRays(): void {
@@ -737,8 +1258,7 @@ function updateControllerRays(): void {
     entry.rayLine.visible = true;
     const origin = new THREE.Vector3();
     const direction = new THREE.Vector3();
-    getControllerOrigin(entry, entry.controller, origin);
-    getControllerForward(entry.controller, direction);
+    getPointerRay(entry, entry.controller, origin, direction);
 
     let end = origin.clone().addScaledVector(direction, 1.8);
     const target = activeModuleRoot ?? hubWorld;
@@ -761,9 +1281,15 @@ function updateControllerRays(): void {
   }
 
   if (bestHit) {
+    const portalName = findPortalAncestor(bestHit.object);
+    lastHitLabel = portalName ? `portal:${portalName}` : (bestHit.object.name || 'object');
+    const isPortal = Boolean(portalName);
     hitMarker.position.copy(bestHit.point);
     hitMarker.visible = true;
+    hitMarker.scale.setScalar(isPortal ? 1.8 : 1);
+    (hitMarker.material as THREE.MeshBasicMaterial).color.setHex(isPortal ? 0x10b981 : 0x38bdf8);
   } else {
+    lastHitLabel = 'none';
     hitMarker.visible = false;
   }
 }
@@ -780,6 +1306,18 @@ function animate() {
 }
 
 function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
+  // A single thrown frame used to kill three's animation loop, freezing the whole app.
+  try {
+    renderFrame(_frame);
+  } catch (error) {
+    const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
+    recordError(`frame: ${message}`);
+    lastDebugPaint = 0;
+    try { updateDebugPanel(); } catch { /* keep the loop alive */ }
+  }
+}
+
+function renderFrame(frame?: XRFrame) {
   const now = performance.now();
   const deltaSec = Math.min((now - lastTime) / 1000, 0.1);
   frameTimeMs = now - lastTime;
@@ -792,7 +1330,10 @@ function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
     lastFpsUpdate = now;
   }
 
-  updateXRLocomotion();
+  updateXRLocomotion(frame, deltaSec);
+  updateWalkInEntry(deltaSec);
+  updateReturnGate(deltaSec);
+  updateDebugPanel();
 
   // Fixed-timestep simulation stays decoupled from display refresh.
   physicsAccumulator.step(deltaSec, (dt) => {
@@ -805,7 +1346,14 @@ function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
   // Module animation tick (helix sway, plume pulse, heart beat...).
   activeModuleDef?.update?.(deltaSec);
 
-  activeGrabs.forEach((grab, controller) => grab.update(controller.position, controller.quaternion));
+  activeGrabs.forEach((grab, controller) => {
+    const entry = xrControllers.find((candidate) => candidate.controller === controller) ?? null;
+    const origin = entry?.hasPose ? entry.poseOrigin.clone() : controller.getWorldPosition(new THREE.Vector3());
+    const quaternion = entry?.hasPose ? entry.poseQuaternion.clone() : controller.getWorldQuaternion(new THREE.Quaternion());
+    const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
+    const distance = grabDistances.get(controller) ?? 0.6;
+    grab.update(origin.addScaledVector(direction, distance), quaternion);
+  });
 
   renderer.render(scene, camera);
   updateMetricsOverlay();
@@ -863,6 +1411,24 @@ function publishTestHooks() {
     badges: progressStore.getProgress().earnedBadges,
   };
   (window as any).__MAARIFY_MODULE_STATE__ = activeModuleDef?.getState?.() ?? null;
+  (window as any).__MAARIFY_XR_DEBUG__ = {
+    inputs: xrControllers.map((entry) => ({
+      source: Boolean(entry.source),
+      hand: Boolean(entry.source?.hand),
+      handedness: entry.source?.handedness ?? null,
+      rayVisible: entry.rayLine.visible,
+      trigger: entry.lastTriggerPress,
+      position: entry.controller.getWorldPosition(new THREE.Vector3()).toArray().map((value) => Number(value.toFixed(2))),
+    })),
+    lastHit: lastHitLabel,
+    events: [...debugEvents],
+    module: currentModuleName,
+    presenting: renderer.xr.isPresenting,
+    teleport: {
+      aiming: teleportAiming,
+      target: [Number(teleport.target.position.x.toFixed(2)), Number(teleport.target.position.z.toFixed(2))],
+    },
+  };
   (window as any).__MAARIFY_TOGGLE_ANCHOR__ = (id: string) => {
     const anchor = activeModuleRoot?.getObjectByName(`diegetic-anchor-${id}`);
     if (!(anchor instanceof DiegeticSpatialAnchor)) return false;

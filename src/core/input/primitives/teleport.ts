@@ -79,8 +79,13 @@ export class SpatialTeleportPrimitive {
         pos.y = groundY;
         this.arcPoints.push(pos.clone());
         this.target.position.copy(pos);
-        const dist = originPos.distanceTo(pos);
-        this.target.isValid = dist <= ActiveTuning.comfort.teleportMaxDistanceMeters;
+        // Range is a walking distance, so measure it on the floor plane. A 3D distance
+        // includes the drop from controller height and rejects ordinary throws.
+        const horizontalDistance = Math.hypot(pos.x - originPos.x, pos.z - originPos.z);
+        const horizontalRadius = Math.hypot(pos.x, pos.z);
+        this.target.isValid =
+          horizontalDistance <= ActiveTuning.comfort.teleportMaxDistanceMeters &&
+          horizontalRadius <= ActiveTuning.comfort.teleportMaxRadiusMeters;
         break;
       }
     }
