@@ -34,12 +34,34 @@ export interface ChallengeDefinition {
   seatedCompatible: boolean;
 }
 
+export interface ModuleSetting {
+  id: string;
+  name: string;
+  environment: 'interior' | 'exterior' | 'space';
+  lighting: string;
+  palette: string[];
+  props: string[];
+  ambience: string;
+}
+
+export interface ModuleSection {
+  id: string;
+  title: string;
+  settingId: string;
+  summary: string;
+  entryPosition: [number, number, number];
+}
+
 export interface ModuleDefinition {
   id: string;
   displayName: string;
   description: string;
   estimatedMinutes: [number, number];
   thumbnail: string;
+  /** Optional declared setting for the module's main scene. */
+  setting?: ModuleSetting;
+  /** Optional ordered sections (wings, chapters) with their own settings. */
+  sections?: ModuleSection[];
   load(container: THREE.Scene): Promise<THREE.Object3D>;
   unload(): void;
   /** Optional per-frame animation tick, driven by the application render loop. */

@@ -3,6 +3,7 @@ import type { ModuleDefinition } from '../../core/types.js';
 import { buildHumanBodyScene, type HumanBodySceneComponents } from './scene.js';
 import { getChallenges } from './challenges.js';
 import { getSpatialAnchors } from './anchors.js';
+import { MEDICINE_ATRIUM, MEDICINE_WINGS } from './sections.js';
 
 let activeScene: HumanBodySceneComponents | null = null;
 
@@ -12,6 +13,8 @@ const moduleDef: ModuleDefinition = {
   description: 'From cardiac valves to CAR-T immunotherapy and destigmatizing HIV science.',
   estimatedMinutes: [15, 20],
   thumbnail: '/assets/thumbnails/human-body.ktx2',
+  setting: MEDICINE_ATRIUM,
+  sections: MEDICINE_WINGS.map((wing) => wing.section),
 
   async load(container: THREE.Scene): Promise<THREE.Object3D> {
     activeScene = await buildHumanBodyScene();

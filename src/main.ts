@@ -18,7 +18,7 @@ import { triggerHapticPulse } from './core/haptics/haptics';
 import { ActiveTuning } from './config/tuning';
 import { isModuleAvailable } from './config/feature-flags';
 import { createTextPanel, setTextPanelText } from './core/ui/text-panel';
-import { nextPinch, poseFromMatrix, selectSource } from './core/input/input-state';
+import { nextPinch, poseFromMatrix, selectSource, toWorldPose } from './core/input/input-state';
 import { applyBrandDocument } from './core/brand/brand';
 import { FolioPanel } from './core/ui/folio-panel';
 import { findAnchorContent } from './core/content/loader';
@@ -850,8 +850,12 @@ function getPointerRay(
   origin: THREE.Vector3,
   direction: THREE.Vector3
 ): void {
-  const wrist = entry?.hand?.joints?.['wrist'];
-  const fingertip = entry?.hand?.joints?.['index-finger-tip'];
+  // Only trust joints while the live source is a hand. three keeps the last joint
+  // poses after a switch back to controllers, so an unguarded read pinned the ray
+  // to wherever the hand was last seen.
+  const hand = entry?.source?.hand ? entry.hand : null;
+  const wrist = hand?.joints?.['wrist'];
+  const fingertip = hand?.joints?.['index-finger-tip'];
   if (wrist && fingertip) {
     const tip = fingertip.getWorldPosition(new THREE.Vector3());
     const base = wrist.getWorldPosition(new THREE.Vector3());
@@ -1267,6 +1271,8 @@ function syncControllerSources(): void {
 function syncControllerPoses(frame?: XRFrame): void {
   const referenceSpace = renderer.xr.getReferenceSpace();
   if (!frame || !referenceSpace) return;
+  // The rig is current after a teleport/snap turn; poses are composed against it below.
+  cameraRig.updateWorldMatrix(true, false);
   for (const entry of xrControllers) {
     const source = entry.source;
     if (!source) {
@@ -1280,11 +1286,15 @@ function syncControllerPoses(frame?: XRFrame): void {
       continue;
     }
     poseFromMatrix(pose.transform.matrix, entry.poseOrigin, entry.poseQuaternion);
+    // XR poses are reference-space; compose with the rig so teleport and snap turn
+    // do not leave the pointer orbiting the spot where the session started.
+    toWorldPose(entry.poseOrigin, entry.poseQuaternion, cameraRig.matrixWorld);
     entry.hasPose = true;
 
     // Own pinch detection with hysteresis instead of relying on browser events.
-    const thumb = entry.hand?.joints?.['thumb-tip'];
-    const index = entry.hand?.joints?.['index-finger-tip'];
+    // Joints are only fresh for a hand source; controllers leave stale ones behind.
+    const thumb = source.hand ? entry.hand?.joints?.['thumb-tip'] : undefined;
+    const index = source.hand ? entry.hand?.joints?.['index-finger-tip'] : undefined;
     if (thumb && index) {
       const thumbPosition = thumb.getWorldPosition(new THREE.Vector3());
       const indexPosition = index.getWorldPosition(new THREE.Vector3());
@@ -1492,6 +1502,12 @@ function publishTestHooks() {
     selectedTier: hubWorld.selectedTier,
     currentModule: currentModuleName,
   };
+  (window as any).__MAARIFY_SECTIONS__ = activeModuleDef?.sections?.map((section) => ({
+    id: section.id,
+    title: section.title,
+    settingId: section.settingId,
+  })) ?? [];
+  (window as any).__MAARIFY_SETTING__ = activeModuleDef?.setting ?? null;
   (window as any).__MAARIFY_FOLIO__ = folioPanel && folioPanel.visible
     ? {
         label: folioPanel.content?.label ?? null,

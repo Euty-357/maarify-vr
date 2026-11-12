@@ -395,4 +395,11 @@ _Never delete entries. Append only._
 - Hero-object close-up added to the M4 Playwright spec (`reports/history/screenshots/m4-heart-closeup.png`) so the heart can be reviewed without the wide-scene cards.
 - Honest verdict: the silhouette and vessel layout now read as a heart, but it is still stylised — no atrial appendages, valve detail, epicardial fat or surface texture. It is **not** medical-atlas grade and has not passed a medical review. A licensed anatomical mesh remains the better long-term answer.
 
+---
+## 2026-11-12T18:05 EAT | Session 31 | DeepSeek Harness | Sections/Settings + Medicine Atrium
+- Added `ModuleSetting` and `ModuleSection` to the core module contract, with optional `setting` and `sections` on `ModuleDefinition`. Cosmos declares Near-Earth Space; Medicine declares the hospital-lobby atrium plus six wing sections and per-wing settings (lighting, palette, props, ambience).
+- Built the Medicine atrium: six framed wing entrances around a wayfinding ring, each with a brass sign, accent threshold and named group (`medicine-wing-heart` … `medicine-wing-infection-prevention`). They are entrances, not yet loaded wing scenes.
+- e2e asserts six sections in the declared order, the interior setting, and the section ids. M4 measures 14,492 tris / 73 draws.
+- Still to do for Medicine: per-wing anchors/content (8 each), practitioner desk, wing scene loading, and medical review.
+
 

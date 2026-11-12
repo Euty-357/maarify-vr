@@ -12,6 +12,15 @@ const moduleDef: ModuleDefinition = {
   description: 'From Malindi to Sagittarius A*: orbital velocity, scale collapse, and exoplanets.',
   estimatedMinutes: [15, 20],
   thumbnail: '/assets/thumbnails/cosmos.ktx2',
+  setting: {
+    id: 'cosmos-space',
+    name: 'Near-Earth Space',
+    environment: 'space',
+    lighting: 'sunlit Earth limb, black sky, instrument glow',
+    palette: ['#0b0908', '#38bdf8', '#f97316'],
+    props: ['Earth limb', 'satellite', 'solar-system orrery', 'black-hole accretion disc'],
+    ambience: 'silence with faint comms and instrument hum',
+  },
 
   async load(container: THREE.Scene): Promise<THREE.Object3D> {
     activeScene = await buildCosmosScene();

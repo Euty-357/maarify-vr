@@ -22,9 +22,9 @@
 - [ ] `HW-07d` Content-as-data migration for the other modules (same source-pack-first rule)
 - [x] `MED-01a` Heart rebuilt with tapered ventricles, atria, great vessels, vena cavae, pulmonary veins and coronaries; close-up evidence captured
 - [ ] `MED-01b` Heart detail pass (appendages, valves, surface) or licensed mesh; medical review
-- [ ] `MED-02` Medicine source pack + six-wing atrium/sections (Heart, Brain, Spine, Cancer, HIV, Infection Prevention)
-- [ ] `HW-08` Explodable Assembly primitive + settings/sections framework
-- [ ] `HW-09` Hosting readiness (build/preview, _headers, lazy modules, size report)
+- [x] `MED-02a` Shared SETTING/sections framework in `ModuleDefinition`; Cosmos setting; Medicine atrium + six declared wings (settings, entrances, e2e)
+- [ ] `MED-02b` Medicine source pack, 8 anchors per wing, practitioner desk, wing scene loading
+- [ ] `MED-03` Heart detail pass / licensed mesh + medical review
 
 ## Phase 0: Environment & Portability
 - [x] `P0-01` Verify node, npm, git versions

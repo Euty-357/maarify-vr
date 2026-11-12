@@ -81,3 +81,21 @@ export function poseFromMatrix(
 export function forwardFromQuaternion(quaternion: THREE.Quaternion, target: THREE.Vector3): THREE.Vector3 {
   return target.set(0, 0, -1).applyQuaternion(quaternion).normalize();
 }
+
+const scratchRigRotation = new THREE.Quaternion();
+
+/**
+ * Compose an XR reference-space pose with the camera rig's world matrix.
+ * `frame.getPose()` returns poses relative to the XR reference space, while the rig
+ * carries teleport and snap turn. Using a reference-space pose as a world pose pins
+ * the pointer to wherever the user first stood, so every consumer must compose first.
+ */
+export function toWorldPose(
+  origin: THREE.Vector3,
+  quaternion: THREE.Quaternion,
+  rigMatrix: THREE.Matrix4
+): void {
+  origin.applyMatrix4(rigMatrix);
+  scratchRigRotation.setFromRotationMatrix(rigMatrix);
+  quaternion.premultiply(scratchRigRotation);
+}

@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { createHeartAnatomyMesh, HIV_STRUCTURAL_COMPONENTS } from './anatomy.js';
 import { getSpatialAnchors } from './anchors.js';
+import { MEDICINE_WINGS } from './sections.js';
+import { createTextPanel } from '../../core/ui/text-panel.js';
 import {
   SpatialAnchorPrimitive,
   SpatialSliderPrimitive,
@@ -24,9 +26,86 @@ export interface HumanBodySceneComponents {
   dispose: () => void;
 }
 
+/** Six clearly separated wing doorways around the shared hospital-lobby atrium. */
+function buildMedicineAtrium(root: THREE.Group): void {
+  const atrium = new THREE.Group();
+  atrium.name = 'medicine-atrium';
+
+  const floor = new THREE.Mesh(
+    new THREE.CylinderGeometry(4.7, 4.9, 0.08, 48),
+    new THREE.MeshStandardMaterial({ color: 0xd6d3d1, roughness: 0.85, metalness: 0.05 })
+  );
+  floor.position.y = -0.04;
+  atrium.add(floor);
+
+  const wayfindingRing = new THREE.Mesh(
+    new THREE.RingGeometry(2.35, 2.42, 48),
+    new THREE.MeshBasicMaterial({ color: 0x0f766e, side: THREE.DoubleSide })
+  );
+  wayfindingRing.rotation.x = -Math.PI / 2;
+  wayfindingRing.position.y = 0.01;
+  atrium.add(wayfindingRing);
+
+  const pillarMaterial = new THREE.MeshStandardMaterial({ color: 0xe7e5e4, roughness: 0.55 });
+
+  MEDICINE_WINGS.forEach(({ section, setting }, index) => {
+    const angle = (index * Math.PI) / 3 - Math.PI / 2;
+    const wing = new THREE.Group();
+    wing.name = `medicine-wing-${section.id}`;
+    wing.position.set(Math.sin(angle) * 3.6, 0, -Math.cos(angle) * 3.6);
+    wing.lookAt(0, 1.1, 0);
+    wing.userData.sectionId = section.id;
+
+    const accent = new THREE.Color(setting.palette[0]);
+    const doorway = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.1, 2.1),
+      new THREE.MeshStandardMaterial({ color: 0x0b0908, emissive: accent, emissiveIntensity: 0.22 })
+    );
+    doorway.position.y = 1.05;
+    wing.add(doorway);
+
+    for (const x of [-0.7, 0.7]) {
+      const pillar = new THREE.Mesh(new THREE.BoxGeometry(0.14, 2.2, 0.14), pillarMaterial);
+      pillar.position.set(x, 1.1, 0.02);
+      wing.add(pillar);
+    }
+    const lintel = new THREE.Mesh(new THREE.BoxGeometry(1.55, 0.16, 0.18), pillarMaterial);
+    lintel.position.y = 2.2;
+    wing.add(lintel);
+
+    const sign = createTextPanel(section.title.toUpperCase(), {
+      widthMeters: 1.15,
+      heightMeters: 0.15,
+      fontSizePx: 26,
+      align: 'center',
+      background: '#241610',
+      color: '#e8dcc0',
+      accent: setting.palette[0],
+      pixelWidth: 768,
+      pixelHeight: 96,
+      lines: 1,
+    });
+    sign.position.set(0, 2.42, 0.02);
+    wing.add(sign);
+
+    const threshold = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.3, 0.12),
+      new THREE.MeshBasicMaterial({ color: accent })
+    );
+    threshold.rotation.x = -Math.PI / 2;
+    threshold.position.set(0, 0.02, 0.6);
+    wing.add(threshold);
+
+    atrium.add(wing);
+  });
+
+  root.add(atrium);
+}
+
 export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   const root = new THREE.Group();
   root.name = 'human-body-module-root';
+  buildMedicineAtrium(root);
 
   // 1. Biological Dark Lab Floor Environment
   const floorGroup = new THREE.Group();

@@ -23,6 +23,20 @@ test.describe('M4 Human Body & Medicine Full Spec Playthrough', () => {
     const metrics = await page.evaluate(() => (window as any).__MAARIFY_METRICS__);
     expect(metrics).toBeDefined();
     expect(metrics.currentModule).toBe('human-body');
+
+    // 1b. Six-wing sections and their declared settings
+    const sections = await page.evaluate(() => (window as any).__MAARIFY_SECTIONS__);
+    expect(sections).toHaveLength(6);
+    expect(sections.map((section: { id: string }) => section.id)).toEqual([
+      'heart',
+      'brain',
+      'spine',
+      'cancer',
+      'hiv',
+      'infection-prevention',
+    ]);
+    const setting = await page.evaluate(() => (window as any).__MAARIFY_SETTING__);
+    expect(setting.environment).toBe('interior');
     await auditModuleInteractions(page);
 
     // 2. Verify Quest 3 budgets (< 250k triangles, < 180 draw calls)

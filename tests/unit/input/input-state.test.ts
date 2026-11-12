@@ -7,6 +7,7 @@ import {
   poseFromMatrix,
   selectSource,
   sourceHandedness,
+  toWorldPose,
 } from '../../../src/core/input/input-state.js';
 import { ActiveTuning } from '../../../src/config/tuning.js';
 
@@ -74,5 +75,36 @@ describe('pose helpers', () => {
   it('points along -Z after identity rotation', () => {
     const direction = forwardFromQuaternion(new THREE.Quaternion(), new THREE.Vector3());
     expect(direction.toArray()).toEqual([0, 0, -1]);
+  });
+
+  it('composes a reference-space pose with the rig after teleport and snap turn', () => {
+    // Rig teleported 2 m right and 3 m back, then snapped 90 degrees.
+    const rig = new THREE.Matrix4().compose(
+      new THREE.Vector3(2, 0, -3),
+      new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 2),
+      new THREE.Vector3(1, 1, 1)
+    );
+    const origin = new THREE.Vector3(0, 1.5, -0.5);
+    const quaternion = new THREE.Quaternion();
+
+    toWorldPose(origin, quaternion, rig);
+
+    expect(origin.x).toBeCloseTo(1.5, 5);
+    expect(origin.y).toBeCloseTo(1.5, 5);
+    expect(origin.z).toBeCloseTo(-3, 5);
+
+    // The pointing direction must turn with the rig, not stay in the old frame.
+    const direction = forwardFromQuaternion(quaternion, new THREE.Vector3());
+    expect(direction.x).toBeCloseTo(-1, 5);
+    expect(direction.y).toBeCloseTo(0, 5);
+    expect(direction.z).toBeCloseTo(0, 5);
+  });
+
+  it('leaves a pose untouched when the rig sits at the origin', () => {
+    const origin = new THREE.Vector3(0.2, 1.4, -1.1);
+    const quaternion = new THREE.Quaternion();
+    toWorldPose(origin, quaternion, new THREE.Matrix4());
+    expect(origin.toArray()).toEqual([0.2, 1.4, -1.1]);
+    expect(quaternion.toArray().map((value) => Number(value.toFixed(6)))).toEqual([0, 0, 0, 1]);
   });
 });
