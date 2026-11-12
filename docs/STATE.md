@@ -15,20 +15,23 @@ _This file is the single source of truth for resuming any session. Update it aft
 7. **Git Source Control & GitHub Remote Sync:** Both `master` (GitHub default branch) and `main` are fully synchronized on [`https://github.com/Euty-357/maarify-vr`](https://github.com/Euty-357/maarify-vr) with dual-push refspecs active.
 
 ## In Progress
-- **Hardware baseline update (2026-11-12):** Quest 2 and Quest Pro dropped. One Quest 3 / 3S baseline: 90 Hz default, 72 Hz floor, hard ceilings 250k triangles / 180 draw calls, working target 150k / 108, all NOT measured on device. Code, budget script, tuning, tests and the core docs are updated; a one-time spatial notice warns non-Quest-3 headsets.
-- **Next:** move the input logic out of `src/main.ts` into `src/core/input/` with unit tests (behaviour unchanged), then design tokens, the dark-academia hub, brand wiring and the credits plaque. Panels v2 and Explodable Assembly stay blocked until the user reports device grab/teleport results.
+- **Input** now lives in `src/core/input/input-state.ts` (edges, pinch hysteresis, handedness/source selection, pose maths) with 8 unit tests; `main.ts` consumes it.
+- **Design foundation** is in: `src/core/design/tokens.ts`, warm oak/brass/oxblood hub, brand plaque with automatic logo wiring, generated credits plaque. The full Reading Room architecture is still to build.
+- **Next (goal continues):** content schema + `audit-content-depth.mjs`, Information Panels v2, Explodable Assembly, per-scene SETTING framework, sections in `ModuleDefinition`, hosting readiness; then Cosmos, Medicine, Aerospace, Climate Change, Urban, Quantum, DNA.
+- **Device:** controls, portals and transitions confirmed on Quest 3. Everything after that is **NOT verified on device**; no Quest 3S session yet.
 
 ## What Is Next
-1. Input service extraction + tests; verify and commit.
-2. Design tokens + dark-academia hub + brand (`assets/brand/maarify-logo.png`) + credits plaque; verify and commit.
-3. Await device results before panels v2 / Explodable Assembly.
+1. Content-as-data schema + audit script (24 anchors/module, page minimums, glossary, objectives, sources, practitioner section).
+2. Information Panels v2 (tier tabs, paging, collapse, 90-word pages, 3D demo).
+3. Explodable Assembly primitive + tests; SETTING framework; sections; hosting readiness.
+4. Modules in the revised order; commit and tag each ready module.
 
 ## Blockers
-- Information Panels v2 and the Explodable Assembly are blocked on the user's on-device grab and teleport results.
+- None. On-device results are not blocking by user instruction; everything is tested in one device pass later.
 - All Quest 3/3S performance numbers remain NOT measured on device.
 
 ## Last Green Commit
-- `ecbbf8b` — `feat(platform): target Meta Quest 3 and 3S only with one quality baseline` (verify exit 0). Section 1 cleanup: `541e562`; input rework: `7e3b8ab`.
+- `711f242` — `feat(design): dark-academia tokens, brand plaque and generated credits` (verify exit 0). Input extraction: `86ecce4`; Quest 3/3S baseline: `ecbbf8b`.
 
 ## Which Tool/Session Last Worked
 - DeepSeek Harness, 2026-11-12T08:30 EAT. Section 1 complete and pushed. Next: section 2 foundation (design tokens, dark-academia hub/brand, credits, panels v2, content schema + audit, Explodable Assembly, settings, sections, hosting).
