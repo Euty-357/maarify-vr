@@ -83,10 +83,19 @@ _All items here cannot be verified in headless CI or emulator and are strictly l
 - **First tuning target if failed:** `src/config/tuning.ts` (`comfort.*`, `haptics.*`, `input.rotatorDetentStepDeg`) and `src/main.ts` stick deadzones.
 - **Status:** NOT verified on headset
 
-## DT-010 � Quest 3S Legibility and MR Fallback
+## DT-010 — Quest 3S Legibility and MR Fallback
 - **What:** On Quest 3S, read anchor text and panels at 1 m and 2 m and confirm nothing depends on a Quest 3-only depth or mixed-reality feature.
 - **Why device needed:** Quest 3S uses a lower-density panel and Fresnel optics than Quest 3 and has no depth projector; only the device shows the real legibility and MR behaviour.
 - **Module / System:** Core / spatial anchors, panels v2, optional MR
 - **How to test:** Run the same module on Quest 3 and 3S; compare text legibility at the 1 m and 2 m marks; disable MR and confirm every lesson remains completable.
 - **Pass criteria:** 24 pt-equivalent text legible at 2 m on 3S; no lesson blocks without MR; no Quest 3-only feature is required.
+- **Status:** NOT verified on headset
+
+## DT-011 — M5 Explodable Engine and Wind-Tunnel Flow
+- **What:** Verify that the five liquid-engine parts can each be grabbed, inspected and magnetically snapped back; confirm the wind tunnel enters with clear flow visible, the flow on/off and density levers are reachable seated, and high angle of attack visibly changes the flow to separated/stall behaviour.
+- **Why device needed:** Hand reach, individual-grab reliability, haptic snap feel, stereo visibility of particles/lines, perceived streamline density and stall readability cannot be established by Playwright or an emulator.
+- **Module / System:** M5 Aerospace (`src/modules/aerospace/scene.ts`, `src/core/input/primitives/explodable-assembly.ts`)
+- **How to test:** From the seated default position on Quest 3, pull the amber explode lever, grab and release injector, chamber, turbopump, cooling jacket and nozzle near their slots, then operate both wind-tunnel levers and move the pitch slider from attached flow through stall.
+- **Pass criteria:** All five parts are reachable and snap predictably without accidental grabs; streamlines and tracer particles are clear on entry; levers work with Touch Plus and hands; stall is visually distinct; no forced motion or unsafe/obscured controls.
+- **First tuning target if failed:** engine and lever positions in `src/modules/aerospace/scene.ts`; interaction thresholds in `src/config/tuning.ts`.
 - **Status:** NOT verified on headset

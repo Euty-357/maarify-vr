@@ -25,6 +25,10 @@
 - [x] `MED-02a` Shared SETTING/sections framework in `ModuleDefinition`; Cosmos setting; Medicine atrium + six declared wings (settings, entrances, e2e)
 - [ ] `MED-02b` Medicine source pack, 8 anchors per wing, practitioner desk, wing scene loading
 - [ ] `MED-03` Heart detail pass / licensed mesh + medical review
+- [x] `AERO-01a` Aerospace content-as-data migration: 24 anchors, 25 glossary terms, 10 objectives and practitioner desk; audit enforced
+- [x] `AERO-01b` Rocket engine uses the shared ExplodableAssembly with five independently grabbable, magnetic-snap parts
+- [x] `AERO-01c` Wind-tunnel flow defaults on with batched streamlines, particles, on/off and density levers, and screenshot-pixel E2E coverage
+- [ ] `AERO-02` Claim-level source review, four reviewer passes, headset checks and draw-call reduction toward the 108 working target
 
 ## Phase 0: Environment & Portability
 - [x] `P0-01` Verify node, npm, git versions

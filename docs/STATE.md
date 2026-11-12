@@ -15,14 +15,15 @@ _This file is the single source of truth for resuming any session. Update it aft
 7. **Git Source Control & GitHub Remote Sync:** Both `master` (GitHub default branch) and `main` are fully synchronized on [`https://github.com/Euty-357/maarify-vr`](https://github.com/Euty-357/maarify-vr) with dual-push refspecs active.
 
 ## In Progress
+- **Aerospace (v0.9-aerospace):** content-as-data migration is at 24 anchors with 25 glossary terms and 10 objectives; `audit-content-depth.mjs --enforce` passes. The rocket engine now uses five individually grabbable `ExplodableAssembly` parts and the wind tunnel has default-on batched streamlines, 200 particles, on/off and density levers, a visible simplified-model label, and screenshot-pixel coverage. It remains unready pending claim-level source review, reviewer passes, headset checks, and draw-call optimisation (178 / 180 hard ceiling; 108 working target).
 - **Medicine (v0.8-medicine):** 6 wings fully represented with 48 anchors (8 anchors per wing) generated under the strict Information Panels v2 schema.
 - **Content-as-data audit (`audit-content-depth.mjs --enforce`):** PASSES for both Cosmos (24 anchors) and Human Body & Medicine (48 anchors, 25 glossary terms, 10 learning objectives, practitioner desk).
 - **Human Body Scene:** 48 anchors placed radially across the 6 wing entrances in the central atrium, with batched leader lines; budget measures 14,636 triangles / 142 draw calls (comfortably within the 180 ceiling; 108 working target exceeded due to anchor tag geometry).
-- **All 7 Playwright specs & 100 unit tests:** PASS green (`npm run verify` exit 0). NOT verified on headset.
+- **All 7 Playwright specs & 101 unit tests:** PASS green (`npm run verify` exit 0). NOT verified on headset.
 
 ## What Is Next
-1. Aerospace: complete exploded views (ExplodableAssembly primitive already built and integrated), fluid dynamics visible streamlines fix (section 4.3).
-2. Climate Change (new outdoors Kenya setting) & Urban Planning (new living city model table).
+1. Aerospace: complete claim-level source review, reviewer passes, headset checks, and trim its 178 draw calls toward the 108 working target.
+2. Climate Change (new outdoors Kenya setting) after Aerospace is ready; then Urban Planning (new living city model table).
 3. Quantum upgrade, then DNA upgrade.
 4. Final integration & polish.
 
@@ -30,8 +31,8 @@ _This file is the single source of truth for resuming any session. Update it aft
 - None. All Quest 3/3S performance numbers remain NOT measured on device.
 
 ## Last Green Commit
-- `ac40350` — `fix(input): resolve frozen pointer and hand/controller switch bugs` (verify exit 0).
+- `e9aea96` — `feat(aerospace): add explodable engine and visible flow` (verify exit 0; 101 unit tests, 7 Playwright specs).
 
 
 ## Which Tool/Session Last Worked
-- DeepSeek Harness, 2026-11-12T08:30 EAT. Section 1 complete and pushed. Next: section 2 foundation (design tokens, dark-academia hub/brand, credits, panels v2, content schema + audit, Explodable Assembly, settings, sections, hosting).
+- Codex, 2026-11-13T02:00 EAT. Aerospace technical upgrade committed; next: Aerospace evidence/review and draw-call optimisation.

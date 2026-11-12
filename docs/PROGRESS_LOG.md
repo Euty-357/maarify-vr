@@ -413,3 +413,12 @@ _Never delete entries. Append only._
 - Wired Human Body anchors dynamically via `getSpatialAnchors()` with radial placement around the six atrium wing portals and batched leader line segments (`anchorPrimitive.batchLeaderLines()`).
 - Updated `m4-human-body.spec.ts` asserting 48 registered anchors and verifying all 48 anchors expand and collapse cleanly via `__MAARIFY_TOGGLE_ANCHOR__`.
 - Verified whole repository pipeline with `npm run verify` (exit 0): 100/100 unit tests, 7/7 Playwright specs, budget checks green (M4: 14,636 triangles, 142 draw calls, well below 250k/180 ceilings).
+
+---
+## 2026-11-13T02:00 EAT | Session 33 | Codex | Aerospace Explodable Engine + Visible Flow
+- Added Aerospace content-as-data: 24 anchors, 25 glossary terms, 10 objectives and practitioner desk; `audit-content-depth.mjs --enforce` now passes for Aerospace, Cosmos and Human Body.
+- Integrated the reusable `ExplodableAssembly` into the rocket engine: injector, chamber, turbopump, cooling jacket and nozzle are individually grabbable and can snap back to their assembly slots. Unit evidence explicitly covers every part.
+- Rebuilt the wind-tunnel visualisation as one batched `LineSegments` flow field plus 200 particles, default-on flow and density levers, attached/separated flow colour response, and the required simplified-model label. The M5 E2E test now verifies the scene data and cyan non-background pixels from the actual screenshot PNG.
+- The first implementation measured 191 draw calls; batching flow lines reduced it to 178. This passes the 180 hard ceiling but exceeds the 108 working target, so Aerospace remains in progress and must be optimised before readiness.
+- Stabilised a Cosmos E2E test that relied on a toggle direction after auditing all anchors; it now explicitly establishes the desired expanded state.
+- Full `npm run verify` passed: 101 unit tests, 7 Playwright specs and all budget checks. M5: 2,388 triangles / 178 draw calls, **verified in Playwright/emulator** and **NOT verified on headset**. Commit: `e9aea96`.
