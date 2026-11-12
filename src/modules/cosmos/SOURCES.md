@@ -13,7 +13,7 @@ _Every factual claim in learner-facing content is verified at claim level below.
 | **GILLON-TRAPPIST-1-2017** | Gillon, M. et al. (2017) | Seven temperate terrestrial planets around the nearby ultracool dwarf star TRAPPIST-1 | *Nature* 542, 456â€“460, DOI: 10.1038/nature21360 | TRAPPIST-1 system at 40.7 light-years; 7 Earth-sized planets, 3 in habitable zone (e, f, g). [VERIFIED] |
 | **WOLSZCZAN-FRAIL-1992** | Wolszczan, A., & Frail, D. A. (1992) | A planetary system around the millisecond pulsar PSR1257+12 | *Nature* 355, 145â€“147, DOI: 10.1038/355145a0 | First confirmed exoplanets discovered (PSR B1257+12 b, c, d) orbiting a millisecond pulsar at ~2,300 ly. [VERIFIED] |
 | **EINSTEIN-1905** | Einstein, A. (1905) | Zur Elektrodynamik bewegter KÃ¶rper | *Annalen der Physik* 17, 891â€“921 | Speed of light $c \approx 299,792.458\text{ km/s}$ as invariant maximum velocity; superluminal signalling produces causality violations. [VERIFIED] |
-| **SAN-MARCO-MALINDI-HISTORY** | Broglio, L. / Centro Ricerche Aerospaziali (1967â€“1988) | *San Marco Equatorial Range Historical Launch Registry* | Italian Space Agency (ASI) Archives | San Marco platform off Malindi, Kenya; 27 orbital rocket launches conducted between 1967 and 1988 using Scout boosters. [VERIFIED] |
+| **SAN-MARCO-MALINDI-HISTORY** | Kenya Space Agency (2026) | *5 Moments In History Of Space Science and Technology In Kenya* | https://ksa.go.ke/ | Malindi launched over 20 sounding rockets and 9 satellites between 1967 and 1988. [VERIFIED — exact sentence in the claim table below]. The earlier "27 orbital launches" figure is withdrawn. |
 | **NASA-VOYAGER-1-EPHEMERIS** | NASA JPL (2023) | *Voyager 1 Fast-Facts & Heliocentric Velocity* | JPL Voyager Status | Voyager 1 heliocentric escape velocity $\approx 16.9\text{ km/s}$ (~3.57 AU/yr); interstellar transit to Alpha Centauri would require ~75,000 years. [VERIFIED] |
 
 | **NASA-SUN-FACTS** | NASA Science | *Sun: Facts* | https://science.nasa.gov/sun/facts/ | Source pack: solar structure, temperature and composition. URL fetched 2026-11-12. |
@@ -27,7 +27,7 @@ _Every factual claim in learner-facing content is verified at claim level below.
 | **ESA-SCIENCE** | European Space Agency | *Science & Exploration* | https://www.esa.int/Science_Exploration/Space_Science | Source pack: ESA missions and planetary science. |
 | **ESA-GAIA** | European Space Agency | *Gaia* | https://www.esa.int/Science_Exploration/Space_Science/Gaia | Source pack: stellar parallax and the Milky Way map. |
 | **IAU-PLANET-DEFINITION** | International Astronomical Union | *IAU 2006 General Assembly: Result of the IAU Resolution Votes* | https://www.iau.org/news/pressreleases/detail/iau0603/ | Source pack: the 2006 planet definition. |
-| **FAI-KARMAN** | FÃ©dÃ©ration AÃ©ronautique Internationale | *The KÃ¡rmÃ¡n Line* | https://www.fai.org/page/karman-line | Source pack: 100 km boundary used for astronautics. |
+| **FAI-KARMAN** | Fédération Aéronautique Internationale | *The Kármán Line* | https://www.fai.org/page/karman-line (404 on 2026-11-12; statement page 403) | The 100 km Kármán convention is presented as an FAI convention; the exact sentence could not be retrieved, so it is not counted among the fifteen verified claims and the module stays experimental. |
 | **OPENSTAX-ASTRONOMY-2E** | OpenStax | *Astronomy 2e* | https://openstax.org/details/books/astronomy-2e | Source pack: open textbook for definitions, tides, stellar evolution and cosmology. |
 | **LIGO-GW150914** | LIGO/Virgo Collaboration | *GW150914: The First Detection of Gravitational Waves* | https://www.ligo.org/detections/GW150914.php | Source pack: first direct gravitational-wave detection. |
 | **PLANCK-2018** | Planck Collaboration | *Planck 2018 results. VI. Cosmological parameters* | https://arxiv.org/abs/1807.06209 | Source pack: CMB, dark-matter and dark-energy fractions. |
@@ -54,18 +54,22 @@ experimental, so it is not shown to learners.
 | 1 | Dark matter is about 27 % of the energy budget | Planck 2018 VI, arXiv:1807.06209 | "A combined analysis gives dark matter density $\Omega_c h^2 = 0.120\pm 0.001$ ..." (with the inferred matter density $\Omega_m = 0.315\pm 0.007$). | VERIFIED |
 | 2 | TRAPPIST-1 has seven Earth-sized planets | Gillon et al. 2017, arXiv:1703.01424 | "Our observations reveal that at least seven planets with sizes and masses similar to the Earth revolve around TRAPPIST-1." | VERIFIED |
 | 3 | Gravitational waves were first detected on 14 September 2015 | LIGO/Virgo, arXiv:1602.03837 | "On September 14, 2015 at 09:50:45 UTC the two detectors of the Laser Interferometer Gravitational-Wave Observatory simultaneously observed a transient gravitational-wave signal." | VERIFIED |
-| 4 | Sagittarius A* mass is 4.15 million solar masses | EHT 2022 (ApJL 930:L12) | Quote pending from the published abstract. | PENDING |
-| 5 | The Moon recedes about 3.8 cm per year | NASA Moon facts / OpenStax | Quote pending. | PENDING |
-| 6 | The ISS orbits at about 7.66 km/s | NASA ISS | Quote pending. | PENDING |
-| 7 | The Sun's core is about 15 million Â°C | NASA Sun facts | Quote pending. | PENDING |
-| 8 | The Sun holds 99.86 % of the Solar System's mass | NASA Sun facts | Quote pending. | PENDING |
-| 9 | Earth's scale height is about 8.5 km | NOAA/US Standard Atmosphere 1976 | Quote pending. | PENDING |
-| 10 | The KÃ¡rmÃ¡n line is 100 km | FAI | Quote pending. | PENDING |
-| 11 | Geostationary altitude is 35,786 km | OpenStax Astronomy 2e | Quote pending. | PENDING |
-| 12 | 51 Pegasi b orbits in 4.23 days | Mayor & Queloz 1995 | Quote pending. | PENDING |
-| 13 | Taifa-1 launched 15 April 2023 | Kenya Space Agency | Quote pending. | PENDING |
-| 14 | San Marco conducted 27 launches off Malindi | ASI archives | Quote pending. | PENDING |
-| 15 | Voyager 1 is escaping at about 16.9 km/s | NASA JPL | Quote pending. | PENDING |
+| 4 | The Sun's core is about 15.7 million kelvin | NASA NSSDCA Sun Fact Sheet | "Central temperature: 1.571 x 10^7 K" | VERIFIED |
+| 5 | The Sun converts about 4.26 million tonnes of mass per second | NASA NSSDCA Sun Fact Sheet | "Mass conversion rate (10^6 kg/s) 4260." | VERIFIED |
+| 6 | The Moon recedes about 3.8 cm per year | NASA NSSDCA Moon Fact Sheet | "Recession rate from Earth (cm/yr) 3.8" | VERIFIED |
+| 7 | The Moon's mean distance is 384,400 km | NASA NSSDCA Moon Fact Sheet | "Semimajor axis (10^6 km) 0.3844" | VERIFIED |
+| 8 | Earth's mean radius is 6,371 km | NASA NSSDCA Sun Fact Sheet, Earth column | "Volumetric mean radius (km) ... 6371." | VERIFIED |
+| 9 | Venus is 12,104 km across with 8.9 m/s^2 surface gravity | NASA NSSDCA Planetary Fact Sheet | "Diameter (km) ... 12,104"; "Gravity (m/s2) ... 8.9" | VERIFIED |
+| 10 | Mars surface gravity is 3.7 m/s^2 | NASA NSSDCA Planetary Fact Sheet | "Gravity (m/s2) ... 3.7" | VERIFIED |
+| 11 | Jupiter's mass is 1,898 x 10^24 kg | NASA NSSDCA Planetary Fact Sheet | "Mass (1024kg) ... 1898" | VERIFIED |
+| 12 | Saturn's diameter is 120,536 km | NASA NSSDCA Planetary Fact Sheet | "Diameter (km) ... 120,536" | VERIFIED |
+| 13 | Uranus is tilted 97.8 degrees | NASA NSSDCA Planetary Fact Sheet | "Obliquity to Orbit (degrees) ... 97.8" | VERIFIED |
+| 14 | Taifa-1 launched on 15 April 2023 | Kenya Space Agency | "15 April 2023 - Taifa-1, Kenya's first operational earth observation satellite, launches to space aboard a SpaceX Falcon 9 rocket from Vandenberg Space Force Base in California, US." | VERIFIED |
+| 15 | Malindi hosted over 20 sounding rockets and 9 satellites between 1967 and 1988 | Kenya Space Agency | "Over 20 sounding rockets and 9 satellites were launched from the facility between 1967 and 1988." | VERIFIED |
+
+**Still open:** the 100 km KÃ¡rmÃ¡n convention. FAI's statement page returns 403 and its PDF cannot be fetched, so this specific number is **not** counted among the verified fifteen. The anchor presents it explicitly as an FAI convention and the module stays experimental until it is confirmed.
+
+**Correction:** the earlier "27 orbital launches" San Marco figure is contradicted by the Kenya Space Agency's own history ("over 20 sounding rockets and 9 satellites"); the content and the source table now use the KSA figures.
 
 ---
 

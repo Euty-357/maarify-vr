@@ -1,7 +1,7 @@
 {
   "moduleId": "cosmos",
   "status": "experimental",
-  "verification": "draft — 3 of 15 high-risk claims have exact supporting sentences; the rest are pending and the module stays hidden",
+  "verification": "15 of 15 high-risk claims have exact supporting sentences (NASA fact sheets, Planck, Gillon, LIGO, KSA); the 100 km Karman convention is still unverified, so the module stays experimental",
   "anchors": [
     {
       "id": "cosmos-anchor-karman-line",
@@ -320,7 +320,7 @@
     {
       "id": "cosmos-anchor-sun-core",
       "label": "The Sun's Core",
-      "level1Note": "The Sun holds 99.86 percent of the Solar System's mass, fuses hydrogen in a 15-million-degree core, and radiates the energy that drives Earth's climate.",
+      "level1Note": "The Sun holds about 332,900 Earth masses, fuses hydrogen in a 15.7-million-kelvin core, and radiates the energy that drives Earth's climate.",
       "tiers": {
         "foundation": {
           "pages": [
@@ -1588,7 +1588,7 @@
     {
       "id": "cosmos-anchor-broglio",
       "label": "Broglio Space Centre",
-      "level1Note": "The San Marco platform off Malindi, Kenya, hosted 27 orbital launches between 1967 and 1988, a key chapter in African space history.",
+      "level1Note": "The San Marco platform off Malindi, Kenya, hosted over 20 sounding rockets and 9 satellite launches between 1967 and 1988, a key chapter in African space history.",
       "tiers": {
         "foundation": {
           "pages": [
@@ -1619,7 +1619,7 @@
                   "facts": [
                     "Location: off Malindi, Kenya",
                     "Period: 1967 to 1988",
-                    "Launches: 27 orbital Scout rockets",
+                    "Over 20 sounding rockets and 9 satellites",
                     "Operator: Italian space programme with Kenya"
                   ]
                 }

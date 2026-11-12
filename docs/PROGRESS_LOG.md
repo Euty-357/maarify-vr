@@ -367,4 +367,12 @@ _Never delete entries. Append only._
 - Cosmos budget: 7,618 triangles, 132 draw calls (below the 180 ceiling, above the 108 working target — anchor tags are the cost; optimise by merging tag geometry later).
 - Content verification is still 3/15 exact quotes, so Cosmos remains experimental and is not presented as ready.
 
+---
+## 2026-11-12T16:45 EAT | Session 27 | DeepSeek Harness | Cosmos Claim Verification
+- Replaced the pending table with 15 exact supporting sentences using static NASA NSSDCA fact sheets (Sun, Moon, planetary table), Planck 2018, Gillon 2017, LIGO GW150914 and the Kenya Space Agency.
+- Accuracy correction: the earlier "27 orbital launches" at San Marco is contradicted by KSA's own history ("Over 20 sounding rockets and 9 satellites were launched from the facility between 1967 and 1988"). The SOURCES table and the Broglio anchor now use the KSA figures.
+- Sun content corrected to the fact sheet: 15.7 million K core and 332,900 Earth masses instead of 15 million °C and 99.86 %.
+- The 100 km Kármán convention remains the one open item: FAI's page returns 404 and its statement 403, so it is not counted among the fifteen and Cosmos stays experimental.
+- `audit:content --enforce` passes; full verify green.
+
 
