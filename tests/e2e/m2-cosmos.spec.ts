@@ -47,6 +47,37 @@ test.describe('M2 Cosmos & Astronomy Full Spec Playthrough', () => {
     await page.evaluate(() => (window as any).__MAARIFY_FOLIO_ACTION__('expert'));
     await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_FOLIO__?.tier)).toBe('expert');
 
+    // 2c. VR tap path: the folio is a world-space overlay, so a controller ray must
+    // reach its controls. __MAARIFY_TAP__ aims from the camera and runs the same
+    // dispatch order as a trigger press.
+    const tapFolio = (name: string) => page.evaluate((target) => (window as any).__MAARIFY_TAP__(target), name);
+    const folioState = () => page.evaluate(() => (window as any).__MAARIFY_FOLIO__);
+    const collapsed = async () => (await folioState())?.collapsed;
+
+    // Switching tier opens the panel by design, so establish a collapsed start explicitly.
+    await page.evaluate(() => (window as any).__MAARIFY_FOLIO_ACTION__('collapse'));
+    await expect.poll(collapsed).toBe(true);
+
+    expect(await tapFolio('folio-header')).toBe('folio');
+    await expect.poll(collapsed).toBe(false);
+
+    expect(await tapFolio('folio-tab-advanced')).toBe('folio');
+    await expect.poll(async () => (await folioState())?.tier).toBe('advanced');
+
+    expect(await tapFolio('folio-prev')).toBe('folio');
+    await expect.poll(async () => (await folioState())?.page).toBe(0);
+    expect(await tapFolio('folio-next')).toBe('folio');
+    await expect.poll(async () => (await folioState())?.page).toBe(1);
+
+    // Collapsed controls are hidden geometry; three still raycasts them, so the tap
+    // filter must skip them and the body must not fall through to an anchor behind.
+    await tapFolio('folio-header');
+    await expect.poll(collapsed).toBe(true);
+    const controls = await page.evaluate(() => (window as any).__MAARIFY_FOLIO_CONTROLS__());
+    expect(controls.find((control: { name: string }) => control.name === 'folio-next').visible).toBe(false);
+    expect(await tapFolio('folio-body')).toBe('folio');
+    expect(await collapsed()).toBe(true);
+
     // 3. Capture multi-pose screenshot matrix for visual layout verification
     const { captureMultiPoseMatrix } = await import('./helpers/screenshot-matrix.js');
     const screenshots = await captureMultiPoseMatrix(page, 'm2-cosmos');

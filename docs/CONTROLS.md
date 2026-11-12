@@ -12,8 +12,9 @@ This is the single reference for every control in the build. If a binding is not
 |---|---|
 | Desktop | `npm run dev` → open `http://localhost:5173` |
 | Headset (Quest 3 / 3S / 2) | Enable Developer Mode, `adb reverse tcp:5173 tcp:5173`, open `http://localhost:5173` in the Quest browser, press **Enter WebXR** |
-| Jump straight to a module | `?module=cosmos` (add `&dev=true` for experimental modules) |
-| Return to the hub | M6's exit portal, the console hook `__MAARIFY_RETURN_TO_HUB__()`, or reload. M2–M5 have no exit portal yet |
+| Jump straight to a module | `?module=cosmos` (add `&dev=true` for experimental modules). The parameter is consumed on load and stripped from the URL, so a reload starts in the hub |
+| Entering VR | The hub spawn is recentred under you, so a play area that starts off-centre does not drop you inside a portal. Proximity walk-in is ignored for the first 2 s |
+| Return to the hub | The red return ring (every module), B/Y, the console hook `__MAARIFY_RETURN_TO_HUB__()`, or reload |
 
 ---
 
@@ -32,13 +33,14 @@ This is the single reference for every control in the build. If a binding is not
 
 | Control | Result |
 |---|---|
-| **Trigger press** | Controller ray (up to 4.5 m): activate portals/tier buttons/anchors/sliders/rotators/console buttons, and grab any grabbable object within ~30 cm that is also within the 14 cm grab radius |
+| **Trigger press** | Controller ray (up to 4.5 m): activate portals/tier buttons/anchors/sliders/rotators/console buttons, tap the folio (tier tabs, page arrows, collapse header), and grab any grabbable object within ~30 cm that is also within the 14 cm grab radius |
 | **Trigger release** | Release a held object; slot checks (base pairing, tRNA docking, causal chain) run on release |
-| **Left thumbstick** | Hold past ~55 % to aim a teleport arc; release to land (max 8 m, vignette flash) |
+| **Left thumbstick** | Hold past ~55 % to aim a teleport arc; release to land (up to 3.5 m, and no further than 4 m from the rig origin; vignette flash) |
 | **Right thumbstick** | Snap turn 30° per push (edge-triggered, vignette pulse) |
 | **B / Y** | Return to the hub from any module |
+| **A / X** | In the hub only: enter the portal inside the aim cone |
 | **Haptics** | Fired on grab, release, snap, detent, error and success |
-| **Not wired** | Grip/squeeze, A/B/X/Y, menu, thumbstick click. These do nothing today. |
+| **Not wired** | Grip/squeeze, menu, thumbstick click. These do nothing today. |
 
 Seated play is fully supported: every module control is reachable from a seated position with teleport and snap turn.
 
@@ -61,7 +63,8 @@ Seated play is fully supported: every module control is reachable from a seated 
 | 7 portals | Hub ring, 3.5 m radius | Enter a module |
 | Depth-tier plinth | Hub centre | Foundation / Advanced / Expert |
 | TUNING console | Hub, left of the plinth at ~(−0.95, 1.08, −1.55) | Opens the tuning panel in front of you |
-| Diegetic anchors | Every module | Tap to expand the micro-simulation |
+| Diegetic anchors | Every module | Tap to expand the micro-simulation; the folio opens beside it |
+| Folio panel | Every module, 1.1 m from you | Tap the header to collapse/expand, the three brass tabs to switch depth tier, the ‹ › arrows to page. It is drawn as an overlay, so it wins the ray and a tap on the board never falls through to the world behind |
 | Sliders / rotators | Every module | Drag / step; each has a seated reach |
 | Grabbables | Every module | Pick up, release into a socket |
 | Badge plinth + exit portal | M6 only | Badge unlocks at 5/5 challenges; portal returns to the hub |
@@ -115,6 +118,8 @@ The three tier *descriptions* exist per anchor, but the micro-simulation geometr
 | `__MAARIFY_SET_TIER__('advanced')` | Set the depth tier |
 | `__MAARIFY_TUNING__.open()` / `.close()` / `.press(u, v)` / `.state()` | Drive the tuning panel |
 | `__MAARIFY_TOGGLE_ANCHOR__(id)` | Expand/collapse an anchor |
+| `__MAARIFY_TAP__('folio-next')` | Aim from the camera at a folio control (`folio-header`, `folio-prev`, `folio-next`, `folio-tab-foundation|advanced|expert`) and run the same dispatch as a trigger press. Returns the reason code |
+| `__MAARIFY_FOLIO_CONTROLS__()` | World positions and visibility of each folio control |
 | `__MAARIFY_MODULE_STATE__`, `__MAARIFY_CHALLENGES__`, `__MAARIFY_METRICS__`, `__MAARIFY_LOCOMOTION__` | Live state readouts |
 
 ---
@@ -129,7 +134,7 @@ Open the app with **`?debug=1`** to show the panel. It is hidden by default and 
 | `VIS` / `XR` | `XRSession.visibilityState` and whether an immersive session is presenting. |
 | `SCENE` / `FRAME` | Current hub or module, and the last frame time in ms. |
 | `SRC` | Live `session.inputSources`, e.g. `L:ctl:gp R:hand:h` (`ctl` controller, `hand`, `gp` gamepad). `none` means no sources are bound. |
-| `RET` | Last reason code an activation stopped: `no-session`, `blurred`, `loading`, `debounce`, `panel`, `module-ray`, `module-near`, `hub-hit`, `hub-miss`. |
+| `RET` | Last reason code an activation stopped: `no-session`, `blurred`, `loading`, `debounce`, `panel`, `folio`, `activate`, `anchor`, `slider`, `rotator`, `ray-grab`, `module-near`, `hub-hit`, `hub-miss`. Hook taps log `tap:<code>`. |
 | `HIT` | Last ray hit (`portal:<id>`, object name, or `none`). |
 | `EV` | Last three input/scene events with timestamps. |
 | `ERR` | Newest of the last ten errors (`window.error`, `unhandledrejection`, frame errors). |

@@ -65,6 +65,7 @@ export class FolioPanel extends THREE.Group {
       lines: 1,
     });
     this.header.position.set(0, 0.33, 0.01);
+    this.header.name = 'folio-header';
     this.header.userData.activate = () => this.toggleCollapse();
     this.add(this.header);
 
@@ -83,6 +84,7 @@ export class FolioPanel extends THREE.Group {
         lines: 1,
       });
       tab.position.set(-0.27 + index * 0.27, 0.255, 0.012);
+      tab.name = `folio-tab-${tier}`;
       tab.userData.activate = () => this.switchTier(tier);
       this.tabs.push(tab);
       this.add(tab);
@@ -109,12 +111,15 @@ export class FolioPanel extends THREE.Group {
       );
     }
     this.bodyMesh.position.set(0, -0.04, 0.01);
+    this.bodyMesh.name = 'folio-body';
     this.add(this.bodyMesh);
 
     const left = this.makeArrow('‹');
+    left.name = 'folio-prev';
     left.position.set(-0.4, -0.335, 0.012);
     left.userData.activate = () => this.goPrev();
     const right = this.makeArrow('›');
+    right.name = 'folio-next';
     right.position.set(0.4, -0.335, 0.012);
     right.userData.activate = () => this.goNext();
     this.arrows.push(left, right);
@@ -133,6 +138,7 @@ export class FolioPanel extends THREE.Group {
       lines: 1,
     });
     this.footer.position.set(0, -0.335, 0.012);
+    this.footer.name = 'folio-footer';
     this.add(this.footer);
 
     this.grab = new SpatialGrabPrimitive(this, { constrainY: false });

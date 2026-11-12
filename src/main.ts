@@ -99,6 +99,10 @@ const errorLog: string[] = [];
 let lastReason = 'boot';
 let walkInTimer = 0;
 let walkInPortal: string | null = null;
+/** Proximity entry is ignored for this long after XR starts, so the head pose can settle. */
+const WALK_IN_GRACE_MS = 2000;
+let xrEnteredAt = 0;
+let xrRecenterPending = false;
 let moduleEnteredAt = 0;
 let moduleLoadInProgress = false;
 let returnGate: THREE.Group;
@@ -317,7 +321,10 @@ function initApp() {
   // Direct module launch: ?module=cosmos (add &dev=true for experimental modules)
   if (typeof window !== 'undefined') {
     const modParam = new URLSearchParams(window.location.search).get('module');
-    if (modParam) loadModule(modParam);
+    if (modParam) {
+      loadModule(modParam);
+      stripModuleParamFromUrl();
+    }
   }
 
   setupDesktopInteraction();
@@ -491,6 +498,21 @@ function resetRigToOrigin(): void {
   cameraRig.rotation.set(0, 0, 0);
 }
 
+/**
+ * ?module= is a dev shortcut, not learner state. Drop it after use so a reload — or a
+ * tab the headset browser restores on launch — starts in the hub, not in a module.
+ */
+function stripModuleParamFromUrl(): void {
+  try {
+    const url = new URL(window.location.href);
+    if (!url.searchParams.has('module')) return;
+    url.searchParams.delete('module');
+    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`);
+  } catch {
+    /* history can be unavailable in restricted contexts */
+  }
+}
+
 // --- Desktop fallback -----------------------------------------------------
 function setupDesktopInteraction() {
   const raycaster = new THREE.Raycaster();
@@ -596,6 +618,13 @@ function updateDebugPanel(): void {
 /** Walking through a portal ring enters it; no button required. */
 function updateWalkInEntry(deltaSeconds: number): void {
   if (!renderer.xr.isPresenting || activeModuleRoot) {
+    walkInTimer = 0;
+    walkInPortal = null;
+    return;
+  }
+  // A session can start with the head anywhere in the play area, and the portal ring is
+  // only 3.5 m out. Ignore proximity until the recentre and the first poses have landed.
+  if (performance.now() - xrEnteredAt < WALK_IN_GRACE_MS) {
     walkInTimer = 0;
     walkInPortal = null;
     return;
@@ -813,19 +842,31 @@ function onControllerTrigger(controller: THREE.XRTargetRaySpace, via = 'select')
   const origin = new THREE.Vector3();
   const direction = new THREE.Vector3();
   getPointerRay(entry, controller, origin, direction);
+  reason(dispatchRayInteraction(controller, origin, direction, source));
+}
 
-  // The tuning console overlays everything, so test it before the world.
-  if (handleTuningPanelRay(origin, direction, source)) { reason('panel'); return; }
+/**
+ * One dispatch order for every tap, whether it came from a trigger, a pinch or the
+ * console hook. Overlays are tested first because they are drawn on top of the world.
+ */
+function dispatchRayInteraction(
+  controller: THREE.Object3D,
+  origin: THREE.Vector3,
+  direction: THREE.Vector3,
+  source?: XRInputSource
+): string {
+  if (handleTuningPanelRay(origin, direction, source)) return 'panel';
 
   if (activeModuleRoot) {
-    if (handleModuleRayInteraction(controller, origin, direction, source)) return;
+    if (handleFolioRay(origin, direction, source)) return 'folio';
+    const moduleReason = handleModuleRayInteraction(controller, origin, direction, source);
+    if (moduleReason) return moduleReason;
     handleModuleProximityInteraction(controller, origin, source);
-    reason('module-near');
-    return;
+    return 'module-near';
   }
 
-  if (handleHubRayInteraction(origin, direction, source)) { reason('hub-hit'); return; }
-  reason('hub-miss');
+  if (handleHubRayInteraction(origin, direction, source)) return 'hub-hit';
+  return 'hub-miss';
 }
 
 function findInputSource(controller: THREE.XRTargetRaySpace): XRInputSource | undefined {
@@ -976,18 +1017,18 @@ function tryLoadModule(moduleId: string, source?: XRInputSource): boolean {
 }
 
 function handleModuleRayInteraction(
-  controller: THREE.XRTargetRaySpace,
+  controller: THREE.Object3D,
   origin: THREE.Vector3,
   direction: THREE.Vector3,
   source?: XRInputSource
-): boolean {
-  if (!activeModuleRoot) return false;
+): string | null {
+  if (!activeModuleRoot) return null;
   xrRaycaster.set(origin, direction);
   xrRaycaster.far = 4.5;
   const targets: THREE.Object3D[] = [activeModuleRoot];
   if (returnGate.visible) targets.push(returnGate);
   const hits = xrRaycaster.intersectObjects(targets, true);
-  if (hits.length === 0) return false;
+  if (hits.length === 0) return null;
 
   // Dispatch on the CLOSEST hit only. Previously every anchor anywhere along the ray
   // could consume the press, so aiming at a grabbable near an anchor tag toggled the
@@ -997,8 +1038,7 @@ function handleModuleRayInteraction(
   const activate = findUserDataPrimitive(hit.object, 'activate');
   if (typeof activate === 'function') {
     (activate as () => void)();
-    reason('activate');
-    return true;
+    return 'activate';
   }
 
   const anchor = findDiegeticAnchor(hit.object);
@@ -1006,33 +1046,61 @@ function handleModuleRayInteraction(
     anchor.toggleExpansion();
     syncFolioForAnchor(anchor);
     triggerHapticPulse(source, ActiveTuning.haptics.snap.intensity, ActiveTuning.haptics.snap.durationMs);
-    reason('anchor');
-    return true;
+    return 'anchor';
   }
 
   const slider = findUserDataPrimitive(hit.object, 'sliderPrimitive') as SpatialSliderPrimitive | null;
   if (slider) {
     slider.updateDrag(hit.point, source);
-    reason('slider');
-    return true;
+    return 'slider';
   }
 
   const rotator = findUserDataPrimitive(hit.object, 'rotatorPrimitive') as SpatialRotatorPrimitive | null;
   if (rotator) {
     rotator.addDeltaDeg(ActiveTuning.input.rotatorDetentStepDeg);
-    reason('rotator');
-    return true;
+    return 'rotator';
   }
 
   const grab = findUserDataPrimitive(hit.object, 'grabPrimitive') as SpatialGrabPrimitive | null;
   if (grab && !grab.isGrabbed && grab.tryGrab(hit.point, new THREE.Quaternion(), source)) {
     activeGrabs.set(controller, grab);
     grabDistances.set(controller, Math.max(0.35, hit.distance));
-    reason('ray-grab');
-    return true;
+    return 'ray-grab';
   }
 
-  return false;
+  return null;
+}
+
+/**
+ * Tap routing for the folio. It is drawn on top of the world at 1.1 m, so it must win
+ * the ray before any anchor behind it — and a tap on the board must not fall through
+ * to whatever the panel is covering.
+ */
+function handleFolioRay(origin: THREE.Vector3, direction: THREE.Vector3, source?: XRInputSource): boolean {
+  if (!folioPanel?.visible) return false;
+  xrRaycaster.set(origin, direction);
+  xrRaycaster.far = 3;
+  const hits = xrRaycaster.intersectObject(folioPanel, true);
+  // three raycasts hidden children too, so a collapsed panel would still page.
+  const hit = hits.find((candidate) => isVisibleTowardFolio(candidate.object));
+  if (!hit) return false;
+
+  const activate = findUserDataPrimitive(hit.object, 'activate');
+  if (typeof activate === 'function') {
+    (activate as () => void)();
+    triggerHapticPulse(source, ActiveTuning.haptics.detent.intensity, ActiveTuning.haptics.detent.durationMs);
+  }
+  return true;
+}
+
+/** True when the object and every folio ancestor below the panel itself is visible. */
+function isVisibleTowardFolio(object: THREE.Object3D): boolean {
+  let candidate: THREE.Object3D | null = object;
+  while (candidate && candidate !== folioPanel) {
+    if (!candidate.visible) return false;
+    candidate = candidate.parent;
+  }
+  return true;
 }
 
 function findUserDataPrimitive(object: THREE.Object3D, key: string): unknown | null {
@@ -1045,7 +1113,7 @@ function findUserDataPrimitive(object: THREE.Object3D, key: string): unknown | n
 }
 
 function handleModuleProximityInteraction(
-  controller: THREE.XRTargetRaySpace,
+  controller: THREE.Object3D,
   pos: THREE.Vector3,
   source?: XRInputSource
 ): void {
@@ -1103,6 +1171,9 @@ async function onEnterVR() {
     renderer.xr.setFoveation(0.4);
     inputMode = 'WebXR Immersive Session';
     activeTier = 'Quest 3 / 3S (90 Hz target)';
+    // Move the hub/module spawn under the learner and hold proximity entry until it lands.
+    xrEnteredAt = performance.now();
+    xrRecenterPending = true;
 
     if (session.supportedFrameRates && session.updateTargetFrameRate) {
       const rates: number[] = session.supportedFrameRates;
@@ -1129,8 +1200,32 @@ async function onEnterVR() {
 }
 
 // --- Per-frame XR locomotion ---------------------------------------------
+/**
+ * Align the scene spawn with where the learner actually stands. XR poses are relative
+ * to the play area, so a session started off-centre put the head inside the hub's 3.5 m
+ * portal ring — and the walk-in radius then entered whichever module was in front.
+ */
+function recenterRigToViewer(frame?: XRFrame): void {
+  if (!frame) return;
+  const referenceSpace = renderer.xr.getReferenceSpace();
+  if (!referenceSpace) return;
+  const viewer = frame.getViewerPose(referenceSpace);
+  if (!viewer) return;
+  // XRRigidTransform.matrix is a raw 16-float array, not a Matrix4.
+  const head = new THREE.Vector3();
+  poseFromMatrix(viewer.transform.matrix, head, new THREE.Quaternion());
+  cameraRig.position.set(-head.x, 0, -head.z);
+  cameraRig.rotation.set(0, 0, 0);
+  cameraRig.updateWorldMatrix(true, false);
+  xrRecenterPending = false;
+  logDebug(`xr recentre ${head.x.toFixed(2)},${head.z.toFixed(2)}`);
+}
+
 function updateXRLocomotion(frame?: XRFrame, deltaSeconds = 0): void {
   if (!renderer.xr.isPresenting) return;
+
+  // Recentre before poses are composed, so the pointer is correct on the first frame.
+  if (xrRecenterPending) recenterRigToViewer(frame);
 
   // Re-read session.inputSources every frame and rebind by handedness. Three reuses
   // controller slots when the Quest switches between hands and controllers, so cached
@@ -1323,10 +1418,12 @@ function updateControllerRays(): void {
     getPointerRay(entry, entry.controller, origin, direction);
 
     let end = origin.clone().addScaledVector(direction, 1.8);
-    const target = activeModuleRoot ?? hubWorld;
+    const targets: THREE.Object3D[] = [activeModuleRoot ?? hubWorld];
+    // The folio is an overlay in front of the world; the beam should stop on it.
+    if (folioPanel?.visible) targets.push(folioPanel);
     xrRaycaster.set(origin, direction);
     xrRaycaster.far = 4.5;
-    const hits = xrRaycaster.intersectObject(target, true);
+    const hits = xrRaycaster.intersectObjects(targets, true);
     if (hits.length > 0) {
       end = hits[0].point;
       if (!bestHit || hits[0].distance < bestHit.distance) bestHit = hits[0];
@@ -1527,6 +1624,39 @@ function publishTestHooks() {
       return false;
     }
     return true;
+  };
+  // Tap simulation for the emulator: aims from the camera at a folio control and runs
+  // the same dispatch order as a trigger press, so the VR hit path is testable.
+  (window as any).__MAARIFY_FOLIO_CONTROLS__ = () => {
+    if (!folioPanel) return [];
+    const names = [
+      'folio-header',
+      'folio-prev',
+      'folio-next',
+      'folio-tab-foundation',
+      'folio-tab-advanced',
+      'folio-tab-expert',
+    ];
+    return names.map((name) => {
+      const object = folioPanel?.getObjectByName(name);
+      if (!object) return { name, visible: false, point: null };
+      return {
+        name,
+        visible: isVisibleTowardFolio(object),
+        point: object.getWorldPosition(new THREE.Vector3()).toArray(),
+      };
+    });
+  };
+  (window as any).__MAARIFY_TAP__ = (name: string) => {
+    const object = folioPanel?.getObjectByName(name);
+    if (!object) return null;
+    const origin = camera.getWorldPosition(new THREE.Vector3());
+    const point = object.getWorldPosition(new THREE.Vector3());
+    const direction = point.sub(origin).normalize();
+    const entry = xrControllers[0] ?? null;
+    const code = dispatchRayInteraction(entry?.controller ?? camera, origin, direction, entry?.source ?? undefined);
+    reason(`tap:${code}`);
+    return code;
   };
 }
 
