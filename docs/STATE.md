@@ -17,21 +17,21 @@ _This file is the single source of truth for resuming any session. Update it aft
 ## In Progress
 - **Input** now lives in `src/core/input/input-state.ts` (edges, pinch hysteresis, handedness/source selection, pose maths) with 8 unit tests; `main.ts` consumes it.
 - **Design foundation** is in: `src/core/design/tokens.ts`, warm oak/brass/oxblood hub, brand plaque with automatic logo wiring, generated credits plaque. The full Reading Room architecture is still to build.
-- **Next (goal continues):** content schema + `audit-content-depth.mjs`, Information Panels v2, Explodable Assembly, per-scene SETTING framework, sections in `ModuleDefinition`, hosting readiness; then Cosmos, Medicine, Aerospace, Climate Change, Urban, Quantum, DNA.
+- **Cosmos content (experimental):** source pack at 36 entries; first batch has 7/24 anchors, 25 glossary terms ×3 tiers, 10 mapped objectives and a 3-tool Observatory Desk. Every page/glossary/objective/practitioner rule passes; only the anchor count blocks the audit. 3/15 highest-risk claims have exact quoted sentences; the other 12 are PENDING and the module is hidden from learners.
+- **Next (goal continues):** Cosmos anchors 8–24, the remaining 12 verified sentences, the Panels v2 folio renderer, then `audit:content --enforce` for Cosmos; after that the other modules in order, Explodable Assembly, settings/sections and hosting.
 - **Device:** controls, portals and transitions confirmed on Quest 3. Everything after that is **NOT verified on device**; no Quest 3S session yet.
 
 ## What Is Next
-1. Content-as-data schema + audit script (24 anchors/module, page minimums, glossary, objectives, sources, practitioner section).
-2. Information Panels v2 (tier tabs, paging, collapse, 90-word pages, 3D demo).
-3. Explodable Assembly primitive + tests; SETTING framework; sections; hosting readiness.
-4. Modules in the revised order; commit and tag each ready module.
+1. Cosmos anchors 8–24 + remaining claim quotes + folio renderer; make Cosmos the first audit-passing, ready module.
+2. Then Medicine (six wings), Aerospace, Climate Change, Urban, Quantum, DNA.
+3. Cross-cutting: Explodable Assembly, SETTING framework, sections, hosting readiness, panels integration.
 
 ## Blockers
-- None. On-device results are not blocking by user instruction; everything is tested in one device pass later.
+- None. Content policy decided: verified-only, thresholds unchanged, source pack first.
 - All Quest 3/3S performance numbers remain NOT measured on device.
 
 ## Last Green Commit
-- `711f242` — `feat(design): dark-academia tokens, brand plaque and generated credits` (verify exit 0). Input extraction: `86ecce4`; Quest 3/3S baseline: `ecbbf8b`.
+- `d598259` — source pack and first Cosmos content batch (data-only; code verify green at `40c5719`). Input: `86ecce4`; design: `711f242`; baseline: `ecbbf8b`.
 
 ## Which Tool/Session Last Worked
 - DeepSeek Harness, 2026-11-12T08:30 EAT. Section 1 complete and pushed. Next: section 2 foundation (design tokens, dark-academia hub/brand, credits, panels v2, content schema + audit, Explodable Assembly, settings, sections, hosting).
