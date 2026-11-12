@@ -10,7 +10,9 @@
 - [x] `HW-06b` Brand plaque with automatic logo wiring, page title/favicon
 - [x] `HW-06c` Credits plaque generated from module SOURCES
 - [ ] `HW-06d` Full Reading Room architecture (shelves, arched windows, orrery, lectern)
-- [ ] `HW-07` Information Panels v2 + content schema + audit script
+- [x] `HW-07a` Content schema (`src/core/content/schema.ts`) + 5 unit tests
+- [x] `HW-07b` `audit-content-depth.mjs` and `npm run audit:content` (report-only; `--enforce` fails on gaps)
+- [ ] `HW-07c` Content-as-data migration per module + Panels v2 renderer (blocked on the content-policy decision)
 - [ ] `HW-08` Explodable Assembly primitive + settings/sections framework
 - [ ] `HW-09` Hosting readiness (build/preview, _headers, lazy modules, size report)
 

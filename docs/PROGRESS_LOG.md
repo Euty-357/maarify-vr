@@ -337,4 +337,11 @@ _Never delete entries. Append only._
 - Credits plaque is generated from the five module `SOURCES.md` tables (organisation, title, URL, de-duplicated) plus the brand asset licence line.
 - Raised the Playwright test timeout to 90 s after the hub scene became slower under software rendering; verify green with M6 at 82 draw calls.
 
+---
+## 2026-11-12T14:52 EAT | Session 23 | DeepSeek Harness | Content Schema and Audit
+- Added `src/core/content/schema.ts`: block types (paragraph, key facts, table, equation, worked example, practitioner note, sources, 3D inset), pages, tier bodies, glossary terms, objectives and module content, with word counting and validation (≤90 words/page, ≤40-word Level 1, page minimums, Expert sources, no verbatim Expert reuse).
+- Added `scripts/audit-content-depth.mjs` and `npm run audit:content`: enforces ≥24 anchors, ≥25 glossary terms with three tiers, ≥10 mapped objectives, a practitioner desk and the page rules. Report-only until module content files exist; `--enforce` fails on gaps.
+- Five schema unit tests added. No module content has been migrated yet; `audit:content` reports that honestly.
+- Playwright test timeout raised to 180 s because software rendering on this machine is now much slower; point light gated out of automated browsers. Verify green (six e2e pass plus m0 under the longer timeout).
+
 

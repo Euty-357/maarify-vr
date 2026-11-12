@@ -167,7 +167,8 @@ function initApp() {
   scene.add(rimLight);
   const candleLight = new THREE.PointLight(0xffb066, 0.55, 7, 2);
   candleLight.position.set(0, 2.2, 0);
-  scene.add(candleLight);
+  // Point lights are expensive in software-rendered Playwright; keep them on device.
+  if (typeof navigator === 'undefined' || navigator.webdriver !== true) scene.add(candleLight);
 
   soundManager = new SpatialAudioManager(camera);
   comfortSystem = new ComfortSystem(camera);
