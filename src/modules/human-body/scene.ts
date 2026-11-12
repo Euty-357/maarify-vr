@@ -406,6 +406,7 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   anchorDefs.forEach((def) => {
     anchorPrimitive.registerAnchor(def, 'foundation');
   });
+  anchorPrimitive.batchLeaderLines();
   root.add(anchorContainer);
 
   // Animation / Render tick handler

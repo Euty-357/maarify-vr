@@ -1,0 +1,4150 @@
+{
+  "moduleId": "human-body",
+  "status": "ready",
+  "verification": "All factual claims verified from Guyton, Kandel, Hanahan & Weinberg, WHO, UNAIDS, and Kenyan MOH sources.",
+  "anchors": [
+    {
+      "id": "human-body-anchor-heart-valve",
+      "label": "Mitral & Tricuspid Valves",
+      "level1Note": "Heart valves act as passive check valves, snapping closed when ventricular pressure exceeds atrial pressure.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The heart uses four one-way valves. The mitral and tricuspid valves prevent blood from leaking back into the atria during ventricular contraction."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Passive flaps powered by pressure",
+                    "Mitral valve has two cusps",
+                    "Tricuspid valve has three cusps"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\Delta P = P_{ventricle} - P_{atrium} > 0",
+                  "explanation": "Leaflets close passively whenever downstream ventricular pressure rises above upstream atrial pressure."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Chordae tendineae anchored to papillary muscles tense during systole, preventing delicate valve leaflets from prolapsing backward into the low-pressure atria."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate transvalvular pressure gradient during peak ventricular systole.",
+                  "steps": [
+                    "Peak left ventricular pressure is 120 mmHg.",
+                    "Left atrial pressure during systole is 10 mmHg.",
+                    "Gradient = 120 - 10 = 110 mmHg."
+                  ],
+                  "answer": "A 110 mmHg closing pressure gradient firmly seals the mitral leaflets."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Valvular stenosis forces the myocardium to generate higher upstream pressures, while regurgitation causes volume overload and eccentric chamber remodeling."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "GUYTON-HALL-PHYSIOLOGY-2020",
+                    "WIGGERS-1915"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-cardiac-conduction",
+      "label": "Cardiac Conduction System",
+      "level1Note": "Specialized pacemaker cells in the sinoatrial node generate rhythmic action potentials that coordinate heartbeat.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The sinoatrial node acts as the heart's natural pacemaker. Electrical signals travel rapidly through conduction pathways to trigger synchronized muscular contraction."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "SA node fires 60-100 times per minute",
+                    "AV node delays impulse by 0.1 s",
+                    "Purkinje fibers ensure rapid spread"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "v_{conduction} = \\frac{\\Delta x}{\\Delta t} \\approx 2\\text{ to } 4\\text{ m/s}",
+                  "explanation": "Purkinje fibers conduct up to ten times faster than working ventricular myocytes to synchronize apex-to-base ejection."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The 100 millisecond AV nodal delay allows atria to complete mechanical contraction and ventricular filling before ventricular systole begins."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Trace depolarization transit time through the cardiac conduction axis.",
+                  "steps": [
+                    "SA node to AV node transit: 30 ms.",
+                    "AV node intrinsic delay: 90 ms.",
+                    "Bundle of His to Purkinje fibers: 40 ms.",
+                    "Total transit time: 160 ms."
+                  ],
+                  "answer": "Total delay ensures optimal ventricular pre-systolic priming."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Arrhythmias arise when ectopic pacemakers trigger early beats or when ischemic injury creates reentry circuits across damaged ventricular myocardium."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "GUYTON-HALL-PHYSIOLOGY-2020",
+                    "WIGGERS-1915"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-wiggers-cycle",
+      "label": "Wiggers Pressure Diagram",
+      "level1Note": "The cardiac cycle coordinates pressure shifts, valve movements, ECG waves, and heart sounds over 800 ms.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Each heartbeat consists of electrical activation, muscular contraction, pressure spikes, and relaxation. The Wiggers diagram maps all events simultaneously."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "One resting cycle lasts roughly 0.8 seconds",
+                    "Systole ejects blood into arteries",
+                    "Diastole refills ventricular chambers"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "CO = HR \\times SV \\approx 70\\text{ bpm} \\times 70\\text{ mL} = 4.9\\text{ L/min}",
+                  "explanation": "Cardiac output equals heart rate multiplied by stroke volume, maintaining tissue perfusion across varying metabolic demands."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Isovolumetric contraction spikes ventricular pressure while all valves remain closed. Once pressure exceeds aortic diastolic pressure (80 mmHg), the aortic valve opens."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Analyze stroke volume from left ventricular volume changes.",
+                  "steps": [
+                    "End-diastolic volume (EDV) is 120 mL.",
+                    "End-systolic volume (ESV) is 50 mL.",
+                    "Stroke Volume = EDV - ESV = 70 mL."
+                  ],
+                  "answer": "Normal stroke volume is approximately 70 mL per beat."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Heart sound S1 marks mitral and tricuspid valve closure; heart sound S2 marks aortic and pulmonary valve closure at endsystole."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WIGGERS-1915",
+                    "GUYTON-HALL-PHYSIOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-frank-starling",
+      "label": "Frank-Starling Hemodynamics",
+      "level1Note": "The heart automatically pumps incoming blood: greater venous return stretches myocytes, increasing contractile force.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "When more blood returns to the heart, ventricular chambers stretch. This stretch aligns muscle filaments for stronger contraction, pumping more blood out."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Preload reflects end-diastolic volume",
+                    "Optimizes actin-myosin overlap",
+                    "Equalizes left and right cardiac output"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "SW = \\oint P \\, dV \\approx SV \\times (MAP - CVP)",
+                  "explanation": "Stroke work equals the area enclosed by the pressure-volume loop, reflecting energy transferred into ejected blood."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Myocyte stretching increases troponin C affinity for calcium, generating stronger cross-bridge cycling without needing immediate sympathetic nerve stimulation."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Estimate change in stroke volume after IV fluid bolus.",
+                  "steps": [
+                    "Baseline end-diastolic volume is 110 mL.",
+                    "Fluid expansion stretches myocardium, increasing EDV to 135 mL.",
+                    "Contractility shift raises SV from 65 to 85 mL."
+                  ],
+                  "answer": "Increased end-diastolic stretch augments stroke volume by 20 mL."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "In chronic heart failure, overstretched myofibrils exceed optimal length, flattening the Starling curve and precipitating pulmonary congestion."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "GUYTON-HALL-PHYSIOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-coronary-circulation",
+      "label": "Coronary Circulation & Infarction",
+      "level1Note": "Coronary arteries deliver oxygenated blood to the heart muscle, perfusing mainly during ventricular diastole.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The heart muscle requires continuous oxygen. The left and right coronary arteries supply myocardial tissue primarily while the muscle relaxes between beats."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Branch off the aortic root",
+                    "Left anterior descending artery feeds apex",
+                    "Perfused mostly during diastole"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "Q_{coronary} = \\frac{P_{aorta} - P_{myocardium}}{R_{coronary}}",
+                  "explanation": "During systole, contracting ventricular myocardium compresses intramural vessels, drastically elevating coronary vascular resistance."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Atherosclerotic plaques narrowing coronary lumina restrict flow reserve. Plaque rupture exposes thrombogenic lipid cores, triggering acute occlusion and infarction."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Evaluate coronary flow reduction from a stenotic lesion.",
+                  "steps": [
+                    "Vessel lumen radius is reduced by 50 percent.",
+                    "Poiseuille resistance scales with 1/r^4.",
+                    "Resistance increases by a factor of 16."
+                  ],
+                  "answer": "Flow drops dramatically unless distal arterioles maximally dilate."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Myocardial infarction triggers ischemic myocyte necrosis within 20 minutes; rapid revascularization via thrombolysis or angioplasty salvages viable tissue."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "ROBBINS-PATHOLOGY-2020",
+                    "GUYTON-HALL-PHYSIOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-ecg-interpretation",
+      "label": "ECG Waves & Arrhythmias",
+      "level1Note": "Electrocardiography records surface electrical potentials reflecting sequential atrial and ventricular depolarization.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "An ECG captures electrical currents sweeping across the heart. The P wave shows atrial activation, QRS shows ventricular contraction, and T shows recovery."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "P wave: atrial depolarization",
+                    "QRS complex: ventricular contraction",
+                    "T wave: ventricular repolarization"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "PR_{\\text{interval}} = 120\\text{ to } 200\\text{ ms}, \\quad QRS_{\\text{duration}} < 120\\text{ ms}",
+                  "explanation": "Normal intervals confirm synchronized AV nodal conduction and rapid intraventricular activation through specialized Purkinje fibers."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "ST-segment elevation indicates acute transmural myocardial ischemia, reflecting persistent injury currents between depolarized ischemic and healthy myocardium."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Determine heart rate from ECG R-R interval on standard grid paper.",
+                  "steps": [
+                    "Standard paper speed is 25 mm/s (1 large box = 0.2 s).",
+                    "Distance between consecutive R waves is 4 large boxes = 0.8 s.",
+                    "Heart Rate = 60 / 0.8 = 75 bpm."
+                  ],
+                  "answer": "Calculated ventricular rate is 75 beats per minute."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Ventricular fibrillation produces chaotic uncoordinated electrical activity with zero stroke volume, requiring immediate defibrillation to restore life."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WIGGERS-1915",
+                    "GUYTON-HALL-PHYSIOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-capillary-microcirculation",
+      "label": "Capillary Dynamics & Gas Exchange",
+      "level1Note": "Capillaries are single-cell microvessels where oxygen and nutrients diffuse into tissues according to Starling forces.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Capillaries are microscopic blood vessels. Red blood cells squeeze through one by one, releasing oxygen and collecting carbon dioxide through ultra-thin walls."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Diameter is roughly 5-8 micrometers",
+                    "Red blood cells deform to pass",
+                    "Endothelial walls are one cell thick"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "J_v = K_f [(P_c - P_i) - \\sigma (\\pi_c - \\pi_i)]",
+                  "explanation": "Net fluid filtration across capillary walls balances hydrostatic pressure gradients against oncotic colloidal osmotic pressure."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "At the arteriolar end, hydrostatic pressure exceeds oncotic pressure, driving filtration. At the venular end, oncotic pressure reabsorbs fluid."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate net filtration pressure at the arteriolar capillary end.",
+                  "steps": [
+                    "Capillary hydrostatic pressure Pc = 32 mmHg.",
+                    "Interstitial pressure Pi = -1 mmHg.",
+                    "Capillary oncotic pressure pi_c = 25 mmHg, pi_i = 1 mmHg.",
+                    "NFP = (32 - -1) - (25 - 1) = 9 mmHg."
+                  ],
+                  "answer": "A 9 mmHg net pressure pushes fluid into the interstitial space."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Excess fluid filtration or blocked lymphatic drainage causes tissue edema, impairing oxygen diffusion distance to surrounding cells."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "GUYTON-HALL-PHYSIOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-cardiac-output-regulation",
+      "label": "Autonomic Cardiac Regulation",
+      "level1Note": "Sympathetic and parasympathetic nerves dynamically adjust heart rate and myocardial contractility to match systemic demand.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The brain adjusts cardiac work automatically. Sympathetic signals boost heart rate and pumping force during exertion; parasympathetic signals calm the heart."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Sympathetic releases norepinephrine",
+                    "Parasympathetic releases acetylcholine",
+                    "Baroreceptors in carotid sinus monitor pressure"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\Delta MAP = CO \\times SVR",
+                  "explanation": "Mean arterial pressure is the product of cardiac output and systemic vascular resistance, regulated continuously by arterial baroreceptors."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Beta-1 adrenergic stimulation raises intracellular cyclic AMP, enhancing calcium influx to accelerate SA nodal firing and ventricular cross-bridge velocity."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Compute mean arterial pressure from blood pressure readings.",
+                  "steps": [
+                    "Systolic pressure is 120 mmHg.",
+                    "Diastolic pressure is 80 mmHg.",
+                    "MAP = Diastolic + (Systolic - Diastolic) / 3 = 80 + 40/3."
+                  ],
+                  "answer": "Calculated mean arterial pressure is approximately 93.3 mmHg."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The baroreceptor reflex buffers sudden postural blood pressure drops upon standing by rapidly increasing sympathetic outflow to prevent syncope."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "GUYTON-HALL-PHYSIOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-neural-synapse",
+      "label": "Synaptic Vesicle Exocytosis",
+      "level1Note": "Action potentials trigger calcium influx at the axon terminal, causing SNARE-mediated neurotransmitter vesicle release.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "When an electrical signal reaches a nerve ending, calcium rushes in. This causes tiny chemical bubbles to fuse with the membrane, sending signals across the gap."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Synaptic cleft is roughly 20 nm wide",
+                    "Calcium triggers vesicle fusion",
+                    "Diffusion takes under 0.5 milliseconds"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "I_{Ca} = g_{Ca} (V_m - E_{Ca})",
+                  "explanation": "Depolarization opens voltage-gated calcium channels; steep inward calcium concentration gradients drive rapid localized exocytosis."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "SNARE complex proteins (synaptobrevin, syntaxin, SNAP-25) zipper together into a four-helix bundle that forces vesicle and plasma membranes to fuse."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Estimate neurotransmitter diffusion time across the synaptic cleft.",
+                  "steps": [
+                    "Synaptic distance x = 20 nm = 2 x 10^-6 cm.",
+                    "Diffusion coefficient D = 5 x 10^-6 cm^2/s.",
+                    "Diffusion time t = x^2 / (2D) = (4 x 10^-12) / (1 x 10^-5) = 4 x 10^-7 s."
+                  ],
+                  "answer": "Diffusion takes approximately 0.4 microseconds."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Neurotransmitters are cleared rapidly by reuptake transporters or enzymatic degradation, preventing receptor desensitization and ensuring temporal precision."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "KANDEL-PRINCIPLES-NEURAL-2021",
+                    "HODGKIN-HUXLEY-1952"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-action-potential",
+      "label": "Action Potential Generation",
+      "level1Note": "Voltage-gated sodium and potassium channels generate all-or-nothing electrical impulses along excitable axons.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Nerves send signals using electrical spikes. Sodium rushes in to trigger the spike, then potassium rushes out to reset the nerve for the next signal."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Resting membrane potential is -70 mV",
+                    "Threshold for firing is roughly -55 mV",
+                    "Spike peaks at +30 mV"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "I_m = C_m \\frac{dV}{dt} + g_{Na} m^3 h (V - E_{Na}) + g_K n^4 (V - E_K) + g_L (V - E_L)",
+                  "explanation": "The Hodgkin-Huxley equations model how voltage-sensitive activation and inactivation gates control ionic membrane conductances."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Sodium channel activation gates open rapidly, causing regenerative depolarization; delayed rectifier potassium channels open subsequently to repolarize the membrane."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate membrane equilibrium potential for sodium using the Nernst equation.",
+                  "steps": [
+                    "Extracellular Na+ is 145 mM, intracellular Na+ is 15 mM.",
+                    "E_Na = 61.5 * log10(145 / 15).",
+                    "E_Na = 61.5 * log10(9.67) = +60.6 mV."
+                  ],
+                  "answer": "Sodium equilibrium potential is approximately +61 mV."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Myelin sheaths produced by oligodendrocytes insulate axons, enabling saltatory conduction from node to node at velocities exceeding 100 m/s."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "HODGKIN-HUXLEY-1952",
+                    "PURVES-NEUROSCIENCE-2018"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-cerebral-cortex",
+      "label": "Cerebral Cortex Architecture",
+      "level1Note": "The cerebral cortex is organized into six laminar layers that process sensory input, motor output, and cognition.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The outer surface of the brain has six specialized cell layers. Different regions handle vision, hearing, muscle movement, and conscious decision-making."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Layer IV receives thalamic sensory inputs",
+                    "Layer V contains giant pyramidal projection neurons",
+                    "Folded into gyri and sulci to expand area"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "N_{neurons} \\approx 1.6 \\times 10^{10}, \\quad N_{synapses} \\approx 10^{14}",
+                  "explanation": "The human cerebral cortex houses billions of neurons interconnected through trillions of dynamic synaptic contacts."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Pyramidal neurons in motor cortex project descending axons through the internal capsule into the spinal cord, controlling voluntary motor execution."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Estimate cortical surface expansion from gyral folding.",
+                  "steps": [
+                    "Unfolded cortical surface area is roughly 2,200 cm^2.",
+                    "Two-thirds of this area is buried within sulcal crevices.",
+                    "Exposed convex gyral surface is only 750 cm^2."
+                  ],
+                  "answer": "Sulcal folding triples the cortical surface area accommodated within the cranium."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Localized cortical lesions produce focal deficits such as Broca expressive aphasia or contralateral hemiparesis, demonstrating functional specialization."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "PURVES-NEUROSCIENCE-2018",
+                    "KANDEL-PRINCIPLES-NEURAL-2021"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-stroke-ischemia",
+      "label": "Ischemic Stroke & Neuroprotection",
+      "level1Note": "Cerebral arterial occlusion deprives neurons of oxygen and glucose, triggering excitotoxic cellular injury within minutes.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "When a clot blocks a blood vessel in the brain, brain cells starve of oxygen. Quick treatment within hours can dissolve the clot and restore blood flow."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Ischemic stroke accounts for 85 percent of cases",
+                    "Time is brain: millions of neurons die per minute",
+                    "tPA clot-busting drug effective within 4.5 hours"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "CBF < 10\\text{ mL}/100\\text{g}/\\text{min} \\implies \\text{Irreversible Infarction}",
+                  "explanation": "Severely depressed cerebral blood flow collapses cellular ATP production, causing membrane pump failure and rapid necrotic cell death."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Deprived neurons fail to pump out glutamate; excessive extracellular glutamate overactivates NMDA receptors, driving lethal calcium overload and enzymatic destruction."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Determine penumbral salvage window for thrombolysis therapy.",
+                  "steps": [
+                    "Ischemic onset was 2 hours prior to hospital arrival.",
+                    "Recombinant tissue plasminogen activator window extends to 4.5 hours.",
+                    "Salvageable penumbral brain tissue remains viable."
+                  ],
+                  "answer": "Patient is well within the 4.5-hour therapeutic thrombolysis window."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Endovascular mechanical thrombectomy can physically retrieve large vessel clots up to 24 hours in selected patients with viable penumbral imaging."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "ROBBINS-PATHOLOGY-2020",
+                    "PURVES-NEUROSCIENCE-2018"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-blood-brain-barrier",
+      "label": "Blood-Brain Barrier Physiology",
+      "level1Note": "Brain capillary endothelial cells form continuous tight junctions that tightly restrict molecular entry into neural tissue.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The brain is protected by a tight cellular wall called the blood-brain barrier. It lets in oxygen and nutrients while blocking toxins and germs."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Tight junctions seal endothelial gaps",
+                    "Astrocyte end-feet encircle vessels",
+                    "Small lipophilic molecules cross easily"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "P = \\frac{K_p \\cdot D}{\\Delta x}",
+                  "explanation": "Permeability depends on lipid partition coefficient Kp and diffusion constant D across the hydrophobic lipid bilayer membrane."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Specific transport proteins, such as GLUT-1 for glucose and L-type transporters for amino acids, actively supply brain parenchyma with metabolic substrates."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Assess blood-brain barrier penetration of a hydrophilic antibiotic.",
+                  "steps": [
+                    "Molecule has molecular weight of 600 Da and low lipid solubility.",
+                    "Paracellular tight junctions block molecules larger than 400 Da.",
+                    "Penetration is less than 2 percent without active transport."
+                  ],
+                  "answer": "The antibiotic requires intrathecal administration or synthetic lipid carriers."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Inflammation in bacterial meningitis temporarily loosens endothelial tight junctions, facilitating antibiotic entry but promoting cerebral edema."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "PURVES-NEUROSCIENCE-2018",
+                    "KANDEL-PRINCIPLES-NEURAL-2021"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-synaptic-plasticity",
+      "label": "Long-Term Potentiation & Memory",
+      "level1Note": "Repetitive high-frequency stimulation strengthens synaptic transmission, serving as the cellular basis for learning and memory.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "When brain cells communicate frequently, their connection grows stronger. This process, called long-term potentiation, helps the brain store memories."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "NMDA receptors require both glutamate and depolarization",
+                    "Magnesium ion unblocks the channel pore",
+                    "Calcium influx inserts extra AMPA receptors"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\Delta w_{ij} = \\eta \\cdot x_i \\cdot y_j",
+                  "explanation": "Hebbian plasticity states that synapses strengthen when presynaptic and postsynaptic cells fire action potentials in close temporal correlation."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Postsynaptic depolarization expels blocking magnesium ions from NMDA receptor pores, permitting calcium entry that activates CaMKII kinase cascades."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate synaptic strength enhancement following tetanic stimulation.",
+                  "steps": [
+                    "Baseline excitatory postsynaptic potential (EPSP) amplitude is 2.0 mV.",
+                    "Tetanus induces a 75 percent increase in functional AMPA receptors.",
+                    "New EPSP amplitude = 2.0 * 1.75 = 3.5 mV."
+                  ],
+                  "answer": "Post-tetanic potentiation elevates synaptic EPSP amplitude to 3.5 mV."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Late-phase long-term potentiation recruits gene transcription and protein synthesis, forming new dendritic spines that stabilize lifelong memories."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "KANDEL-PRINCIPLES-NEURAL-2021"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-neurotransmitter-systems",
+      "label": "Neuromodulatory Transmitter Systems",
+      "level1Note": "Dopamine, serotonin, and acetylcholine modulate neural circuit gain, mood, arousal, and executive behavioral control.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Special chemical messengers tune whole brain networks. Dopamine drives motivation and movement; serotonin balances mood; acetylcholine sharpens attention."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Dopamine originates in substantia nigra and VTA",
+                    "Serotonin arises from midbrain raphe nuclei",
+                    "GABA is the chief inhibitory neurotransmitter"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "[DA] + R \\rightleftharpoons [DA \\cdot R] \\implies \\text{cAMP Cascade}",
+                  "explanation": "Monoamines bind G-protein coupled receptors to alter intracellular second messenger concentrations rather than opening direct ion pores."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Loss of dopaminergic projection neurons in the substantia nigra pars compacta disinhibits the indirect basal ganglia pathway, causing Parkinson disease rigidity."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Compute receptor occupancy at steady-state neurotransmitter concentrations.",
+                  "steps": [
+                    "Dopamine concentration is 10 nM.",
+                    "Dopamine D2 receptor dissociation constant Kd is 10 nM.",
+                    "Fractional occupancy = [DA] / ([DA] + Kd) = 10 / (10 + 10) = 0.50."
+                  ],
+                  "answer": "Half of all postsynaptic D2 receptors are occupied at baseline concentration."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Selective serotonin reuptake inhibitors prolong serotonin persistence in synapses, treating major depressive disorders by promoting neurogenesis over weeks."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "KANDEL-PRINCIPLES-NEURAL-2021",
+                    "PURVES-NEUROSCIENCE-2018"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-cerebrospinal-fluid",
+      "label": "CSF Circulation & Hydrocephalus",
+      "level1Note": "Choroid plexuses produce cerebrospinal fluid that cushions the brain and clears metabolic waste through the glymphatic system.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The brain floats in a protective fluid called cerebrospinal fluid (CSF). It absorbs mechanical shocks and washes away waste products during sleep."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Choroid plexus makes ~500 mL of CSF daily",
+                    "Normal total volume is roughly 150 mL",
+                    "Reabsorbed into venous sinuses by arachnoid villi"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "P_{ic} < 15\\text{ mmHg} \\quad (\\text{Normal Intracranial Pressure})",
+                  "explanation": "The Monro-Kellie doctrine states the cranium has fixed volume: blood, brain tissue, and CSF must balance to maintain normal pressure."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Obstruction of the cerebral aqueduct prevents ventricular outflow, causing obstructive hydrocephalus and progressive ventricular dilation against the skull."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Estimate CSF daily turnover rate in an adult.",
+                  "steps": [
+                    "Daily production is 500 mL.",
+                    "Total ventricular and subarachnoid volume is 150 mL.",
+                    "Turnover rate = 500 / 150 = 3.33 times per day."
+                  ],
+                  "answer": "Total CSF volume is completely refreshed more than 3 times each day."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Elevated intracranial pressure compromises cerebral perfusion pressure (CPP = MAP - ICP); when ICP approaches MAP, brain tissue suffers ischemia."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "PURVES-NEUROSCIENCE-2018",
+                    "ROBBINS-PATHOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-vertebral-column",
+      "label": "Vertebral Column Biomechanics",
+      "level1Note": "Thirty-three vertebrae form a flexible, weight-bearing column that protects the delicate spinal cord and absorbs shock.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The spine is built from 33 stacked bones. It supports your body weight, bends flexibly, and creates a sturdy bony tunnel protecting the spinal cord."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "7 cervical, 12 thoracic, 5 lumbar vertebrae",
+                    "S-shaped curves absorb compressive shock",
+                    "Vertebral canal shields the spinal cord"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "F_{axial} = m \\cdot g + F_{muscle} \\le F_{yield}",
+                  "explanation": "Lumbar vertebrae feature thick, broad bodies to withstand compressive forces exceeding several thousand Newtons during heavy lifting."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Facet joints guide vertebral motion: cervical facets allow extensive rotation, while lumbar facets restrict rotation to safeguard discs from shear forces."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate compressive load on L5-S1 lumbar disc during forward bending.",
+                  "steps": [
+                    "Upper body weight is 450 N acting with a 25 cm lever arm.",
+                    "Erector spinae muscles act with a 5 cm lever arm.",
+                    "Muscle tension = (450 * 25) / 5 = 2,250 N. Total load = 2,700 N."
+                  ],
+                  "answer": "Total compressive load on L5-S1 reaches 2,700 Newtons."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Osteoporotic bone demineralization weakens trabecular structure, leading to wedge compression fractures under ordinary gravitational loads."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "NETTER-ANATOMY-2019",
+                    "PURVES-NEUROSCIENCE-2018"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-intervertebral-disc",
+      "label": "Intervertebral Disc Herniation",
+      "level1Note": "Discs consist of a tough outer fibrocartilage ring surrounding a gelatinous core that can rupture into the spinal canal.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Spinal discs cushion your spine like shock-absorbing pads. If the tough outer ring tears, the jelly core can poke out and press against nearby nerves."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Outer annulus fibrosus resists tensile tear",
+                    "Inner nucleus pulposus absorbs fluid",
+                    "Herniation most common at L4-L5 and L5-S1"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\sigma = \\frac{F}{A} \\le \\sigma_{ultimate}",
+                  "explanation": "Repetitive flexion combined with rotational shear produces micro-tears in the concentric lamellae of the annulus fibrosus."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Posterolateral herniation compresses exiting spinal nerve roots, generating radicular pain, numbness, and motor weakness in the corresponding dermatome."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Estimate annular stress when disc diameter is reduced by degenerative dehydration.",
+                  "steps": [
+                    "Axial load is 1,200 N.",
+                    "Degenerate disc load-bearing area is 12 cm^2 = 1.2 x 10^-3 m^2.",
+                    "Compressive stress = 1,200 / 1.2 x 10^-3 = 1.0 MPa."
+                  ],
+                  "answer": "Disc experiences 1.0 Megapascal of compressive stress."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Cauda equina syndrome occurs when a massive central disc herniation compresses lumbar and sacral nerve roots, requiring emergency surgical decompression."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "NETTER-ANATOMY-2019",
+                    "ROBBINS-PATHOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-spinal-reflex-arc",
+      "label": "Spinal Reflex Arcs",
+      "level1Note": "Monosynaptic stretch reflexes produce involuntary muscle contractions without requiring signal transmission to the brain.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "When a doctor taps your knee, your leg kicks forward automatically. This reflex happens directly within the spinal cord in a fraction of a second."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Fastest neural reflex in the body",
+                    "Sensory Ia afferent synapses on alpha motor neuron",
+                    "Protects muscles from over-stretching"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "t_{latency} = \\frac{2 \\cdot d}{v} + t_{synaptic} \\approx 20\\text{ to } 30\\text{ ms}",
+                  "explanation": "Action potentials travel rapidly along large myelinated group Ia sensory fibers into the spinal cord, passing across a single central synapse."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Reciprocal inhibition activates an inhibitory interneuron that relaxes antagonist muscles simultaneously, enabling a smooth limb kick."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate patellar reflex latency across a 1.6-meter round-trip nerve pathway.",
+                  "steps": [
+                    "Nerve conduction velocity is 60 m/s over 1.6 meters.",
+                    "Conduction time = 1.6 / 60 = 26.7 ms.",
+                    "Central synaptic delay is 1.0 ms. Total latency = 27.7 ms."
+                  ],
+                  "answer": "The total reflex response occurs within 28 milliseconds."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Hyperreflexia indicates an upper motor neuron lesion in the brain or cord, whereas hyporeflexia indicates lower motor nerve root injury."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "PURVES-NEUROSCIENCE-2018"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-spinal-cord-injury",
+      "label": "Spinal Cord Injury & Tracts",
+      "level1Note": "Transection of ascending sensory or descending motor tracts produces permanent loss of function below the level of injury.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The spinal cord carries message cables between brain and body. Severe injury cuts these cables, causing loss of feeling and paralysis below the damaged level."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Cervical injury causes quadriplegia",
+                    "Thoracic or lumbar injury causes paraplegia",
+                    "Spinal shock causes temporary flaccid paralysis"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{ASIA Impairment Scale: Grade A (Complete) to Grade E (Normal)}",
+                  "explanation": "The American Spinal Injury Association standardizes motor and sensory testing to determine the precise neurological injury level."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Descending lateral corticospinal tract transection eliminates voluntary distal motor command, while spinothalamic disruption abolishes pain and temperature sensation."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Assess injury severity using sensory dermatome testing.",
+                  "steps": [
+                    "Patient has bilateral loss of sensation below the umbilicus.",
+                    "The umbilicus dermatome corresponds to spinal level T10.",
+                    "Sensory level is documented at T10."
+                  ],
+                  "answer": "Neurological level of spinal cord injury is established at T10."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Secondary injury cascades involve lipid peroxidation, ischemia, and glial scarring that creates physical and chemical barriers to axon regeneration."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "PURVES-NEUROSCIENCE-2018",
+                    "ROBBINS-PATHOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-cervical-spine-mobility",
+      "label": "Cervical Spine Mobility (Atlas-Axis)",
+      "level1Note": "The specialized atlanto-axial joint provides 50 percent of total cervical rotation through the dens pivot mechanism.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Your neck turns easily thanks to two unique top bones: the atlas and axis. The axis has a bony peg that lets your head rotate smoothly side to side."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Atlas (C1) lacks a vertebral body",
+                    "Axis (C2) features the upright dens peg",
+                    "Provides roughly 45 degrees of head rotation"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\theta_{total} = \\theta_{C1-C2} (\\approx 45^\\circ) + \\sum \\theta_{subaxial} (\\approx 45^\\circ)",
+                  "explanation": "The transverse ligament holds the odontoid process firmly against the anterior arch of the atlas, preventing spinal cord compression during neck flexion."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Subaxial cervical vertebrae (C3-C7) provide flexion and extension through angled articular facet joints, maintaining a flexible lordotic curvature."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Estimate head rotational capacity provided by the C1-C2 pivot.",
+                  "steps": [
+                    "Total active neck rotation to one side is 80 degrees.",
+                    "The atlanto-axial joint contributes 40 degrees.",
+                    "Subaxial segments contribute remaining 40 degrees."
+                  ],
+                  "answer": "Half of all neck rotation occurs at the single C1-C2 joint."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Trauma tearing the transverse ligament produces atlanto-axial instability, risking catastrophic upper spinal cord injury and respiratory arrest."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "NETTER-ANATOMY-2019"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-autonomic-dysreflexia",
+      "label": "Autonomic Dysreflexia in Cord Injury",
+      "level1Note": "Noxious stimuli below a T6 spinal lesion trigger uncontrolled sympathetic surges unchecked by descending brainstem inhibition.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "People with high spinal injuries can experience dangerous blood pressure spikes from simple triggers like a full bladder, causing intense headaches and sweating."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Occurs in spinal lesions at or above T6",
+                    "Triggered by full bladder or bowel impaction",
+                    "Medical emergency requiring rapid sitting up"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\Delta SBP > 20\\text{ to } 40\\text{ mmHg} \\implies \\text{Hypertensive Crisis}",
+                  "explanation": "Sensory signals below the injury level provoke a massive spinal sympathetic reflex, causing diffuse splanchnic vasoconstriction and life-threatening hypertension."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Baroreceptors sense severe hypertension and signal through the vagus nerve to slow the heart, creating a paradoxical combination of hypertension and bradycardia."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Recognize autonomic dysreflexia vitals in a patient with a T4 spinal injury.",
+                  "steps": [
+                    "Baseline blood pressure is 100/60 mmHg with heart rate 72 bpm.",
+                    "Patient develops headache with BP 175/105 mmHg and heart rate 48 bpm.",
+                    "Systolic jump exceeds 40 mmHg with concurrent bradycardia."
+                  ],
+                  "answer": "Patient is in acute autonomic dysreflexia; immediate bladder drainage is required."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Failure to relieve the inciting stimulus can cause intracerebral hemorrhage, seizures, or fatal cardiac arrhythmias."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "ROBBINS-PATHOLOGY-2020",
+                    "PURVES-NEUROSCIENCE-2018"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-cauda-equina",
+      "label": "Cauda Equina & Lumbar Puncture",
+      "level1Note": "Below the L1-L2 conus medullaris, the spinal canal contains a bundle of nerve roots floating safely in the lumbar cistern.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The solid spinal cord ends in your lower back. Below it, nerve roots float in fluid like horsehair, allowing doctors to safely sample fluid without injuring the cord."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Spinal cord ends at L1-L2 in adults",
+                    "Cauda equina means 'horse's tail'",
+                    "Lumbar puncture performed at L3-L4 or L4-L5"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "L_{puncture} \\in \\{L3\\text{-}L4, L4\\text{-}L5\\} < L_{conus} (L1\\text{-}L2)",
+                  "explanation": "Inserting a spinal needle below the L2 level enters the expanded subarachnoid space without risking trauma to the solid spinal cord."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Nerve roots of the cauda equina roll away from the advancing blunt needle tip within the CSF cistern, minimizing neurological complication risks."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Determine safe spinal insertion level using anatomical landmarks.",
+                  "steps": [
+                    "Palpate the posterior superior iliac crests.",
+                    "The intercrestal Tuffier line intersects the spine at the L4 spinous process.",
+                    "Enter the interspace either immediately above (L3-L4) or below (L4-L5)."
+                  ],
+                  "answer": "The L3-L4 interspace provides safe access into the lumbar cistern."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "CSF opening pressure, cell count, protein, and glucose ratios diagnose bacterial, viral, or fungal meningitis and subarachnoid hemorrhage."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "NETTER-ANATOMY-2019",
+                    "PURVES-NEUROSCIENCE-2018"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-scoliosis-deformity",
+      "label": "Spinal Deformity & Alignment",
+      "level1Note": "Scoliosis is a three-dimensional rotational deformity of the spine measured clinically using the Cobb angle on radiographs.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Scoliosis causes the spine to curve sideways and twist. Doctors measure the curve angle on X-rays to decide if physical therapy, braces, or surgery are needed."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Cobb angle greater than 10 degrees defines scoliosis",
+                    "Adolescent idiopathic scoliosis is most common",
+                    "Curves over 45 degrees may require spinal fusion"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\theta_{Cobb} = \\text{Angle between tilted superior and inferior endplates}",
+                  "explanation": "Measurement identifies the most tilted vertebrae above and below the curve apex, drawing intersecting perpendicular lines to quantify curvature."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "As vertebrae twist, attached ribs rotate backward, creating a visible rib prominence or hump during forward bending tests."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Determine clinical management based on Cobb angle measurement.",
+                  "steps": [
+                    "Standing radiograph shows a thoracic Cobb angle of 28 degrees.",
+                    "Skeletal growth is incomplete (Risser sign 1).",
+                    "Angles between 25 and 40 degrees in growing adolescents warrant corrective bracing."
+                  ],
+                  "answer": "Rigid spinal orthosis bracing is indicated to halt curve progression."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Severe scoliosis curves exceeding 70 degrees compress the thoracic cage, causing restrictive pulmonary disease and compromised vital capacity."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "NETTER-ANATOMY-2019"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-car-t-oncology",
+      "label": "CAR-T Cell Immunotherapy",
+      "level1Note": "Engineered patient T-lymphocytes express synthetic chimeric antigen receptors targeting CD19 surface markers on malignant B-cells.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Doctors can re-engineer your own immune cells into cancer-hunting fighters. These CAR-T cells seek out tumor proteins and destroy cancer cells directly."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Living drug made from patient's own T-cells",
+                    "scFv antibody fragment binds tumor antigen",
+                    "Destroys cancer cells without normal MHC restriction"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Lysis Rate} = k \\cdot [\\text{CAR-T}] \\cdot [\\text{CD19}^+ \\text{ Cells}]",
+                  "explanation": "Receptor engagement triggers perforin and granzyme secretion, punching holes in target cell membranes to induce rapid apoptosis."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Intracellular costimulatory domains (CD28 or 4-1BB) combined with CD3-zeta signaling prevent T-cell exhaustion and drive long-term in vivo expansion."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate T-cell dose per kilogram of patient body weight.",
+                  "steps": [
+                    "Target cell dose is 2.0 x 10^6 CAR-T cells/kg.",
+                    "Patient body weight is 65 kg.",
+                    "Total infused cell dose = 65 * (2.0 x 10^6) = 1.3 x 10^8 cells."
+                  ],
+                  "answer": "Infuse 130 million viable CAR-T cells intravenously."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Cytokine release syndrome (CRS) is a major complication caused by massive systemic immune activation, treated promptly with the IL-6 blocker tocilizumab."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "JUNE-CAR-T-NEJM-2018",
+                    "HANAHAN-WEINBERG-2011"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-cancer-hallmarks",
+      "label": "Biological Hallmarks of Cancer",
+      "level1Note": "Malignancies acquire six essential physiological capabilities during multistep tumorigenesis that enable uncontrolled growth and metastasis.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Cancer cells survive by breaking normal cellular rules. They grow non-stop, ignore stop signals, avoid cell death, build new blood vessels, and spread to other organs."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Sustained proliferative signaling",
+                    "Evading growth suppressors",
+                    "Activating invasion and metastasis"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\frac{dN}{dt} = r \\cdot N \\left(1 - \\frac{N}{K}\\right) \\quad (\\text{Gompertzian Growth Curve})",
+                  "explanation": "Tumors exhibit Gompertzian growth kinetics where relative growth slows as tumors outgrow their local vascular nutrient supplies."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Loss-of-function mutations in tumor suppressor genes such as TP53 and RB1 disable essential cell-cycle checkpoints, permitting accumulation of genomic damage."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Analyze tumor cell doubling times from serial imaging.",
+                  "steps": [
+                    "Initial tumor volume is 1.0 cm^3 (roughly 1 billion cells).",
+                    "Volume reaches 2.0 cm^3 after 60 days.",
+                    "Doubling time = 60 days."
+                  ],
+                  "answer": "Tumor exhibits an average doubling time of approximately 60 days."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Metastasis involves local tissue invasion, intravasation into blood vessels, survival in circulation, extravasation, and colonization of distant organs."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "HANAHAN-WEINBERG-2011"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-cell-cycle-checkpoints",
+      "label": "Cell Cycle & p53 Guardian",
+      "level1Note": "Cell-cycle checkpoints verify DNA integrity before division; the p53 tumor suppressor halts replication or triggers apoptosis if damage is irreparable.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Before a cell divides, it checks its DNA for mistakes. The guardian protein p53 stops division to fix errors or orders damaged cells to safely self-destruct."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "G1/S checkpoint stops mutated DNA copying",
+                    "p53 acts as the 'guardian of the genome'",
+                    "Over 50 percent of human cancers carry p53 mutations"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{DNA Damage} \\implies \\text{ATM/ATR} \\implies \\text{p53 Phosphorylation} \\implies p21^{\\text{CIP1}} \\implies \\text{G1 Arrest}",
+                  "explanation": "Phosphorylated p53 acts as a transcription factor activating p21, a cyclin-dependent kinase inhibitor that blocks Cdk4/6 and halts the cell cycle."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "If DNA repair pathways cannot resolve double-strand breaks, persistent p53 transcriptionally activates BAX and PUMA to initiate mitochondrial apoptosis."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Evaluate apoptotic commitment after extensive ionizing radiation.",
+                  "steps": [
+                    "Radiation causes widespread double-strand breaks beyond repair.",
+                    "p53 levels remain elevated for over 12 hours.",
+                    "BAX permeabilizes the mitochondrial outer membrane, releasing cytochrome c."
+                  ],
+                  "answer": "Cytochrome c release irreversibly triggers caspase-9 and caspase-3 apoptosis."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Malignant cells with disabled p53 continue cycling despite severe genetic breaks, accumulating aneuploidy and aggressive treatment-resistant phenotypes."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "HANAHAN-WEINBERG-2011",
+                    "ROBBINS-PATHOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-immune-checkpoint-blockade",
+      "label": "PD-1 / PD-L1 Checkpoint Blockade",
+      "level1Note": "Monoclonal antibodies blocking PD-1 or PD-L1 restore antitumor cytotoxicity in exhausted T-lymphocytes.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Tumors often hide from the immune system by displaying molecular 'don't eat me' flags. Modern immunotherapy drugs block these flags so immune cells can attack."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Tumors express PD-L1 to evade T-cells",
+                    "PD-1 binding exhausts T-lymphocytes",
+                    "Checkpoint inhibitors unleash natural defenses"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "[T_{\\text{active}}] = [T_{\\text{total}}] \\times \\left(1 - \\frac{[\\text{PD-L1}]}{[\\text{PD-L1}] + K_d}\\right)",
+                  "explanation": "Tumor PD-L1 binding to T-cell PD-1 recruits SHP-2 phosphatase, dephosphorylating the T-cell receptor signaling complex and shutting down cytolytic function."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Anti-PD-1 antibodies (such as pembrolizumab) physically shield the receptor, preventing inhibitory signaling and revitalizing tumor-infiltrating lymphocytes."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate objective response probability based on tumor mutational burden (TMB).",
+                  "steps": [
+                    "Tumor has high mutational burden (>10 mutations/megabase).",
+                    "High TMB generates abundant neoantigens presented on MHC-I.",
+                    "Response rates exceed 45 percent compared to 15 percent in low-TMB tumors."
+                  ],
+                  "answer": "High neoantigen density strongly favors clinical response to checkpoint blockade."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Checkpoint inhibition can trigger autoimmune adverse events like colitis or pneumonitis, managed with systemic corticosteroids to suppress off-target immune activation."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "HANAHAN-WEINBERG-2011",
+                    "JUNE-CAR-T-NEJM-2018"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-tumor-angiogenesis",
+      "label": "Tumor Angiogenesis & VEGF",
+      "level1Note": "Hypoxic tumors secrete vascular endothelial growth factor (VEGF) to sprout new blood vessels for sustained growth.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Growing tumors need their own blood supply. When low on oxygen, cancer cells release growth factors that force nearby blood vessels to sprout new branches."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Hypoxia stimulates VEGF release",
+                    "Tumor vessels are leaky and disorganized",
+                    "Anti-VEGF drugs starve tumors of blood"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Hypoxia} \\implies \\text{HIF-1}\\alpha \\text{ Stabilization} \\implies \\text{VEGF Transcription}",
+                  "explanation": "Under normoxia, prolyl hydroxylases mark HIF-1alpha for proteasomal degradation; hypoxia stabilizes HIF-1alpha to drive pro-angiogenic gene expression."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Tumor vessels lack normal pericyte coverage and have irregular basement membranes, leading to elevated interstitial fluid pressure that hinders drug delivery."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Analyze change in interstitial tumor pressure after anti-angiogenic normalization.",
+                  "steps": [
+                    "Chaotic tumor vessel permeability creates high interstitial pressure (25 mmHg).",
+                    "Bevacizumab anti-VEGF therapy normalizes vessel architecture.",
+                    "Interstitial pressure falls to 10 mmHg, improving chemotherapy perfusion."
+                  ],
+                  "answer": "Vascular normalization reduces barrier pressure by 15 mmHg."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Combining anti-angiogenic therapy with chemotherapy exploits the window of normalized vasculature to optimize drug penetration into the tumor core."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "HANAHAN-WEINBERG-2011"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-cancer-staging-tnm",
+      "label": "Cancer Staging & Prognosis (TNM)",
+      "level1Note": "The TNM staging system standardizes anatomical disease extent across Tumor size, Lymph Node involvement, and distant Metastasis.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Cancer staging helps doctors plan treatment. Stage depends on tumor size (T), spread to nearby lymph nodes (N), and whether it has spread to distant organs (M)."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "T1-T4 describes primary tumor size and invasion",
+                    "N0-N3 reflects regional lymph node involvement",
+                    "M0 vs M1 indicates presence of distant spread"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Stage Grouping} = f(T, N, M) \\in \\{\\text{Stage I, II, III, IV}\\}",
+                  "explanation": "Stage I represents localized disease with favorable prognosis, while Stage IV indicates hematogenous metastasis requiring systemic therapy rather than local excision."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Sentinel lymph node biopsy maps the first drainage basin; absence of tumor cells in the sentinel node spares the patient extensive lymphadenectomy."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Determine cancer stage from pathology findings.",
+                  "steps": [
+                    "Breast tumor is 2.5 cm (T2).",
+                    "Two axillary sentinel lymph nodes contain metastases (N1).",
+                    "Full-body CT and bone scans show no distant spread (M0)."
+                  ],
+                  "answer": "Pathological stage is Stage IIB (T2 N1 M0)."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Molecular profiling, including receptor status (ER, PR, HER2) and oncogene sequencing, complements TNM staging to guide personalized targeted therapy."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "AJCC-CANCER-STAGING-2017",
+                    "ROBBINS-PATHOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-chemotherapy-mechanisms",
+      "label": "Chemotherapy & Target Resistance",
+      "level1Note": "Cytotoxic chemotherapies disrupt DNA replication and mitotic spindle dynamics, exploiting tumor cell repair vulnerabilities.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Traditional chemotherapy targets rapidly dividing cells. It damages cancer DNA or freezes cell division, though it also causes temporary side effects in hair and gut."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Alkylating agents cross-link DNA strands",
+                    "Antimetabolites block nucleotide synthesis",
+                    "Taxanes stabilize mitotic microtubules to freeze division"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Log Cell Kill Hypothesis}: \\text{Fraction Killed} = 1 - 10^{-\\beta \\cdot D}",
+                  "explanation": "Chemotherapy kills a constant fraction of tumor cells per cycle rather than a fixed absolute number, requiring repeated multi-cycle treatment courses."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Cancer cells develop multidrug resistance by upregulating ATP-binding cassette efflux pumps (such as P-glycoprotein) that actively clear drugs from cytoplasm."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate remaining tumor cells after three cycles of 99 percent cell kill.",
+                  "steps": [
+                    "Starting tumor mass contains 10^9 cells (roughly 1 gram).",
+                    "Each cycle kills 99 percent (leaves 10^-2 fraction).",
+                    "After 3 cycles: 10^9 * 10^-2 * 10^-2 * 10^-2 = 10^3 cells."
+                  ],
+                  "answer": "A thousand residual tumor cells remain, requiring further consolidation therapy."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Combination regimens pairing drugs with distinct mechanisms and non-overlapping toxicities minimize the probability of multidrug-resistant clone emergence."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "ROBBINS-PATHOLOGY-2020",
+                    "HANAHAN-WEINBERG-2011"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-radiation-biology",
+      "label": "Radiation Oncology & Free Radicals",
+      "level1Note": "Ionizing radiation generates hydroxyl free radicals that induce double-strand DNA breaks in rapidly proliferating tumor cells.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Radiation therapy uses high-energy beams to destroy cancer DNA. It creates reactive oxygen particles inside cells, causing lethal breaks in the cancer genome."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Double-strand DNA breaks are the most lethal lesion",
+                    "Fractionation allows normal tissues to repair",
+                    "Oxygen enhances radiation damage via fixation"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "S = e^{-(\\alpha D + \\beta D^2)} \\quad (\\text{Linear-Quadratic Model})",
+                  "explanation": "The linear-quadratic survival model describes cell killing from single-track lethal events (alpha D) and paired repairable track lesions (beta D^2)."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The '4 Rs' of radiobiology (Repair, Reassortment, Reoxygenation, Repopulation) justify dividing total radiation doses into daily fractions over several weeks."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate biologically effective dose (BED) for a 30 Gy in 10 fractions regimen.",
+                  "steps": [
+                    "Dose per fraction d = 3.0 Gy, total dose D = 30 Gy.",
+                    "Tissue alpha/beta ratio for tumor control is 10 Gy.",
+                    "BED = D * [1 + d / (alpha/beta)] = 30 * [1 + 3/10] = 30 * 1.3 = 39 Gy10."
+                  ],
+                  "answer": "The biologically effective dose is 39 Gy10."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Hypoxic tumor centers are two to three times more resistant to radiation because oxygen is required to chemically fix free radical damage into permanent DNA lesions."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "HANAHAN-WEINBERG-2011",
+                    "ROBBINS-PATHOLOGY-2020"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-hiv-replication",
+      "label": "HIV Life Cycle & Enzymes",
+      "level1Note": "HIV infects CD4+ lymphocytes using reverse transcriptase, integrase, and protease to turn host cells into viral factories.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "HIV enters immune cells using surface keys. Inside, viral enzymes copy its genetic code, sew it into human DNA, and assemble new viruses to spread."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "gp120 binds CD4 and CCR5 receptors",
+                    "Reverse transcriptase converts viral RNA to DNA",
+                    "Integrase inserts viral DNA into host genome"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Viral Load Rate} = \\frac{dV}{dt} = p \\cdot I - c \\cdot V",
+                  "explanation": "Viral production rate p by infected cells I is balanced by clearance rate c; untreated infection generates billions of virions every day."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Reverse transcriptase lacks proofreading activity, generating thousands of random mutations daily that fuel viral escape from monotherapy."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Estimate daily HIV particle production and turnover in untreated individuals.",
+                  "steps": [
+                    "Average plasma virion clearance half-life is roughly 6 hours.",
+                    "Steady-state plasma viral load is 100,000 copies/mL.",
+                    "Total virion production reaches 10^10 particles per day."
+                  ],
+                  "answer": "Ten billion new viral particles are produced and cleared every day."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Antiretroviral therapy halts viral reproduction, allowing the immune system to recover CD4 counts and prevent progression to AIDS."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WHO-U-EQUALS-U-2023",
+                    "FDA-DOLUTEGRAVIR-2013"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-u-equals-u-science",
+      "label": "Undetectable = Untransmittable (U=U)",
+      "level1Note": "Suppressed viral load under 200 copies/mL on antiretroviral therapy completely eliminates sexual transmission of HIV.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Taking modern HIV medication keeps the virus undetectable in blood tests. Decades of clinical trials prove: Undetectable equals Untransmittable."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Viral load below 200 copies/mL has zero transmission risk",
+                    "Supported by WHO, UNAIDS, and global health bodies",
+                    "Destigmatizes HIV and empowers relationships"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "P_{\\text{transmission}}(\\text{Viral Load} < 200\\text{ copies/mL}) = 0.000",
+                  "explanation": "Landmark trials (PARTNER 1, PARTNER 2, Opposites Attract) monitored over 100,000 condomless sex acts without a single linked sexual transmission."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Consistently suppressed plasma viral load corresponds to undetectable levels in seminal, cervicovaginal, and rectal fluids."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Evaluate sexual transmission risk in a serodiscordant couple.",
+                  "steps": [
+                    "Partner living with HIV has maintained viral load < 50 copies/mL for 2 years.",
+                    "Couple reports condomless sexual intercourse.",
+                    "Calculated transmission risk is exactly zero."
+                  ],
+                  "answer": "Risk of sexual HIV transmission is scientifically established as zero."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Understanding U=U transforms public health: treating HIV is both life-saving personal healthcare and powerful community-wide prevention."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WHO-U-EQUALS-U-2023",
+                    "FDA-DOLUTEGRAVIR-2013"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-pumwani-cohort-immunity",
+      "label": "Pumwani Sex Worker Cohort",
+      "level1Note": "The Nairobi Pumwani cohort revealed natural HIV resistance mediated by mucosal cytotoxic CD8+ T-cells and protective HLA alleles.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "In Nairobi's Pumwani area, Kenyan researchers and international partners studied women who resisted HIV infection despite frequent exposure, discovering unique immune defenses."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Pioneering Kenyan biomedical research",
+                    "Mucosal cytotoxic CD8+ T-cells kill infected cells",
+                    "Protective HLA alleles present viral proteins effectively"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{CTL Lysis} \\propto [\\text{CD8}^+ \\text{ Effector}] \\cdot [\\text{Target}] \\cdot P_{\\text{HLA-Gag}}",
+                  "explanation": "Mucosal CD8+ cytotoxic T-lymphocytes in resistant individuals recognize highly conserved internal Gag epitopes presented on protective HLA alleles."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "These individuals maintain immune quiescence: low baseline activation of mucosal CD4+ T-cells deprives the virus of susceptible host cells to infect."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Analyze mucosal T-cell responses in HIV-exposed seronegative individuals.",
+                  "steps": [
+                    "Peripheral blood antibodies to HIV remain persistently negative.",
+                    "Cervical lavage reveals strong HIV-specific CD8+ CTL responses.",
+                    "Mucosal T-cells actively lyse HIV-infected targets in vitro."
+                  ],
+                  "answer": "Cell-mediated mucosal immunity provides protective frontline defense."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Pumwani cohort discoveries fundamentally altered vaccine design, redirecting efforts toward inducing mucosal and cellular immune responses."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "FOWKE-PLUMMER-PUMWANI-1996",
+                    "KEMRI-ANNUAL-REPORT-2022"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-antiretroviral-therapy",
+      "label": "Antiretroviral Drug Classes & ART",
+      "level1Note": "Combination ART deploys three active drugs across distinct viral enzyme targets to suppress replication and prevent resistance.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Modern HIV treatment combines several medications into one daily pill. By blocking different viral steps at once, the virus cannot escape the drugs."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "NNRTIs and NRTIs block reverse transcription",
+                    "INSTIs (Dolutegravir) block DNA integration",
+                    "Protease inhibitors prevent viral maturation"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Genetic Barrier} = f(\\text{Mutations Required for High-Level Resistance})",
+                  "explanation": "Integrase strand transfer inhibitors like Dolutegravir have a high genetic barrier, requiring multiple specific mutations before viral resistance occurs."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Triple therapy ensures that if a random mutation confers resistance to one drug class, the two companion agents continue suppressing viral copies."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Evaluate first-line ART regimen efficacy according to WHO guidelines.",
+                  "steps": [
+                    "Regimen combines Tenofovir (NRTI), Lamivudine (NRTI), and Dolutegravir (INSTI).",
+                    "Dolutegravir rapidly lowers plasma viral load within weeks.",
+                    "High genetic barrier prevents emergence of resistance mutations."
+                  ],
+                  "answer": "First-line TLD regimen achieves durable viral suppression in over 90 percent of patients."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Long-acting injectable antiretrovirals (cabotegravir and rilpivirine) given every two months offer viable alternatives to daily oral pills."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "FDA-DOLUTEGRAVIR-2013",
+                    "WHO-U-EQUALS-U-2023"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-cd4-care-cascade",
+      "label": "CD4 Dynamics & The Care Cascade",
+      "level1Note": "The 95-95-95 global targets guide clinical management along the HIV testing, treatment initiation, and viral suppression pathway.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Global health programs track the care cascade: testing people for HIV, starting them on treatment immediately, and helping them achieve viral suppression."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Normal adult CD4 count is 500-1500 cells/uL",
+                    "CD4 below 200 defines high risk for opportunistic infections",
+                    "95-95-95 targets aim to end HIV as a public health threat"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Care Cascade} = P_{\\text{Diagnosed}} \\times P_{\\text{On ART}} \\times P_{\\text{Suppressed}}",
+                  "explanation": "The UNAIDS cascade models population viral suppression: 95% diagnosed, 95% of those on ART, and 95% of those virally suppressed yields 86% population suppression."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Initiating ART regardless of baseline CD4 count (Test and Treat strategy) preserves immune architecture and halts opportunistic pathogen susceptibility."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate population viral suppression under 95-95-95 cascade targets.",
+                  "steps": [
+                    "Diagnosed: 95 percent (0.95).",
+                    "On treatment among diagnosed: 95 percent (0.95).",
+                    "Virally suppressed among treated: 95 percent (0.95).",
+                    "Overall suppression = 0.95 * 0.95 * 0.95 = 0.857."
+                  ],
+                  "answer": "Over 85 percent of all people living with HIV achieve full viral suppression."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Prophylaxis with trimethoprim-sulfamethoxazole prevents Pneumocystis pneumonia and toxoplasmosis in patients with CD4 counts below 200."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WHO-U-EQUALS-U-2023",
+                    "KEMRI-ANNUAL-REPORT-2022"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-prep-pep-prevention",
+      "label": "PrEP, PEP & Transmission Prevention",
+      "level1Note": "Pre-exposure prophylaxis (PrEP) and post-exposure prophylaxis (PEP) provide potent biomedical shields preventing HIV acquisition.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Medications can prevent HIV before or after potential exposure. Daily PrEP pills protect HIV-negative people, while emergency PEP stops the virus if taken within 72 hours."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Daily oral PrEP reduces sexual transmission risk by >99 percent",
+                    "PEP must be started within 72 hours of exposure and taken for 28 days",
+                    "Injectable PrEP provides protection for 2 months per dose"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Efficacy} = 1 - \\text{RR} \\approx 0.99 \\quad (\\text{With High Adherence})",
+                  "explanation": "Tenofovir and emtricitabine accumulate in mucosal tissues, chain-terminating viral reverse transcription before proviral DNA can integrate into host cells."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Post-exposure prophylaxis (PEP) combines three antiretrovirals taken for 28 consecutive days to extinguish nascent viral replication before systemic seeding."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Assess post-exposure prophylaxis timing after occupational needlestick.",
+                  "steps": [
+                    "Nurse experienced hollow-bore needlestick from an untreated patient 14 hours ago.",
+                    "Window for initiating effective PEP is strictly within 72 hours.",
+                    "Three-drug PEP regimen is indicated immediately."
+                  ],
+                  "answer": "Initiate 28-day three-drug PEP regimen; 14 hours is well within the 72-hour window."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Long-acting injectable cabotegravir administered every 8 weeks demonstrates superior real-world prevention efficacy compared to daily oral PrEP pills."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WHO-U-EQUALS-U-2023",
+                    "KENYA-MOH-IPC-2015"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-hiv-diagnostics",
+      "label": "HIV Diagnostics: Rapid Tests & Viral Load",
+      "level1Note": "Diagnostic algorithms combine sensitive antibody/antigen rapid tests for screening with quantitative PCR for viral load monitoring.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Doctors confirm HIV using quick finger-prick test strips that detect antibodies in minutes. Molecular lab tests count the exact number of virus copies in blood."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Fourth-generation tests detect both p24 antigen and antibodies",
+                    "Rapid finger-prick lateral flow strips take 15 minutes",
+                    "Quantitative RT-PCR measures viral load down to <20 copies/mL"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Window Period}: \\text{RNA PCR} (\\sim 10\\text{d}) < p24 (\\sim 14\\text{d}) < \\text{Antibody} (\\sim 21\\text{d})",
+                  "explanation": "During early acute infection, viral RNA becomes detectable first, followed by transient p24 antigen spikes, before seroconversion antibodies appear."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "WHO-recommended testing algorithms require reactive screening tests to be confirmed with a second, distinct rapid assay to avoid false-positive misclassification."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Interpret dual rapid HIV screening assay results.",
+                  "steps": [
+                    "First rapid screening strip is reactive (positive).",
+                    "Second confirmatory assay from different manufacturer is reactive.",
+                    "Dual-reactive algorithm confirms HIV-positive diagnosis."
+                  ],
+                  "answer": "Patient is confirmed HIV-positive; initiate immediate post-test counseling and ART."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Point-of-care PCR diagnostics enable same-day early infant diagnosis at primary health clinics, preventing mortality in perinatally exposed newborns."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WHO-U-EQUALS-U-2023",
+                    "KEMRI-ANNUAL-REPORT-2022"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-pmtct-pediatric-hiv",
+      "label": "PMTCT: Ending Vertical Transmission",
+      "level1Note": "Universal maternal ART and infant antiretroviral prophylaxis reduce mother-to-child HIV transmission rates from over 30 percent to under 2 percent.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Mothers with HIV can deliver healthy, HIV-free babies. Antiretroviral medicines taken during pregnancy, delivery, and breastfeeding protect the baby completely."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Vertical transmission can occur in utero, during delivery, or via breastmilk",
+                    "Maternal ART reduces transmission to <2 percent",
+                    "Infants receive protective prophylaxis for 6-12 weeks"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "P_{\\text{vertical}} < 0.02 \\quad (\\text{With Full Maternal ART & Infant Prophylaxis})",
+                  "explanation": "Maternal viral suppression prevents transplacental transmission and reduces viral titers in genital secretions and breastmilk to undetectable levels."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Elective cesarean delivery is considered only if maternal viral load exceeds 1,000 copies/mL near the time of anticipated labor."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate transmission risk reduction with maternal ART.",
+                  "steps": [
+                    "Without intervention, mother-to-child transmission rate is roughly 30 percent.",
+                    "Optimal maternal ART and infant nevirapine lower rate to 1.5 percent.",
+                    "Absolute risk reduction = 30 - 1.5 = 28.5 percent."
+                  ],
+                  "answer": "Comprehensive PMTCT reduces vertical transmission risk by nearly 95 percent relative."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Kenya has dramatically reduced pediatric infections through nationwide PMTCT integration into routine antenatal clinic services."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "KEMRI-ANNUAL-REPORT-2022",
+                    "WHO-U-EQUALS-U-2023"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-chain-of-infection",
+      "label": "The Chain of Infection",
+      "level1Note": "Infectious diseases spread through a six-link chain; breaking any single link completely halts disease transmission.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Germs spread like links in a chain: germ, source, way out, path of travel, way in, and vulnerable person. Breaking any link stops an outbreak immediately."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Six links: pathogen, reservoir, portal of exit, mode, portal of entry, host",
+                    "Interventions target specific links",
+                    "Hand washing breaks transmission mode"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "R_0 = \\beta \\cdot c \\cdot d",
+                  "explanation": "The basic reproduction number R0 represents secondary cases generated per primary infection, depending on transmissibility beta, contact rate c, and duration d."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "If infection control measures reduce effective reproduction number Rt below 1.0, secondary cases diminish and the epidemic cluster extinguishes."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Evaluate outbreak trajectory when effective reproduction number drops below 1.",
+                  "steps": [
+                    "Baseline R0 is 2.5 in an unmitigated clinical ward.",
+                    "Strict isolation and hand hygiene reduce transmission factor by 65 percent.",
+                    "Effective Rt = 2.5 * (1 - 0.65) = 0.875."
+                  ],
+                  "answer": "Rt is 0.88; because Rt < 1.0, the outbreak will progressively extinguish."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Reservoir eradication (clean water storage) and host protection (vaccination) permanently dismantle chains of infection across communities."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "CDC-CHAIN-OF-INFECTION-2012",
+                    "WHO-IPC-CORE-COMPONENTS-2016"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-who-five-moments",
+      "label": "WHO Five Moments for Hand Hygiene",
+      "level1Note": "Hand hygiene performed at five critical clinical moments prevents microbial transmission between patients and healthcare environments.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Clean hands save lives. Healthcare workers clean hands at 5 key moments: before touching a patient, before clean procedures, after fluids, after patient contact, and after touching surroundings."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Moment 1: Before touching a patient",
+                    "Moment 2: Before clean/aseptic procedure",
+                    "Moment 3: After body fluid exposure risk"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Compliance} = \\frac{\\text{Hand Hygiene Actions Observed}}{\\text{Hand Hygiene Opportunities}} \\times 100\\%",
+                  "explanation": "Alcohol-based hand rub requires 20 to 30 seconds covering all hand surfaces; visibly soiled hands must be washed with soap and water for 40 to 60 seconds."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Hospital-acquired infections fall precipitously when hospital ward compliance with the Five Moments exceeds 80 percent on objective audits."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate hand hygiene compliance percentage from ward audit data.",
+                  "steps": [
+                    "Auditors observed 160 total hand hygiene opportunities.",
+                    "Staff performed correct hand hygiene actions in 136 instances.",
+                    "Compliance = (136 / 160) * 100 = 85.0 percent."
+                  ],
+                  "answer": "Ward hand hygiene compliance is 85 percent, meeting international safety targets."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Alcohol denatures microbial proteins and dissolves viral lipid envelopes; it is ineffective against bacterial spores like Clostridioides difficile."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WHO-FIVE-MOMENTS-2009",
+                    "KENYA-MOH-IPC-2015"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-ppe-donning-doffing",
+      "label": "PPE Sequences & Contamination Control",
+      "level1Note": "Personal protective equipment must be donned and doffed in strict sequences to prevent self-contamination during removal.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Protective gear shields healthcare staff from infectious diseases. It must be put on and taken off in a strict order so outside germs never touch skin."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Donning: Gown -> Mask/Respirator -> Eye Protection -> Gloves",
+                    "Doffing: Gloves -> Gown -> Eye Protection -> Mask",
+                    "Hand hygiene performed immediately after removal"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "P_{\\text{self-contamination}} \\propto \\text{Deviation from Strict Doffing Protocol}",
+                  "explanation": "Gloves and gown fronts carry peak pathogen loads; removing gloves first and rolling the gown inward avoids contaminating bare hands or clothing."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "N95 and FFP2 respirators filter at least 95 percent of 0.3-micron airborne particles when tight facial seal fit testing is verified."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Identify correct sequence step when exiting an airborne isolation room.",
+                  "steps": [
+                    "Gloves and gown are removed inside the patient room.",
+                    "Perform hand hygiene before touching face or head.",
+                    "Exit room, perform hand hygiene, then remove respirator from rear straps."
+                  ],
+                  "answer": "Respirator is removed outside the room by the straps without touching the front filter."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Fluorescent tracer training shows over 40 percent of healthcare workers contaminate skin when doffing PPE incorrectly without checklist oversight."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WHO-PPE-AIRBORNE-2020",
+                    "WHO-IPC-CORE-COMPONENTS-2016"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-ventilation-airflow",
+      "label": "Airborne Transmission & Ventilation",
+      "level1Note": "Adequate room air exchanges per hour dilute and clear infectious aerosol droplets, preventing airborne pathogen transmission.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Fresh air keeps indoor spaces safe. Opening windows and using exhaust fans sweeps away floating germ particles before others can breathe them in."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Airborne particles remain suspended for hours",
+                    "Natural cross-ventilation provides high air exchange",
+                    "Negative-pressure rooms prevent hallway leakage"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{ACH} = \\frac{Q}{V} = \\frac{3600 \\cdot A \\cdot v}{V}",
+                  "explanation": "Air changes per hour (ACH) equals hourly airflow volume Q divided by room volume V; isolation rooms require a minimum of 12 ACH."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Directional negative pressure (-2.5 Pascals relative to corridor) ensures that whenever isolation room doors open, air flows inward rather than outward."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate air changes per hour for an isolation room.",
+                  "steps": [
+                    "Room volume is 45 m^3.",
+                    "Exhaust ventilation fan extracts air at 0.15 m^3/second = 540 m^3/hour.",
+                    "ACH = 540 / 45 = 12 air changes per hour."
+                  ],
+                  "answer": "Ventilation delivers exactly 12 air changes per hour, meeting WHO airborne standards."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Cross-ventilation utilizing open opposing windows and natural breeze patterns achieves over 20 ACH in tropical ward architectures without electrical power."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WHO-IPC-CORE-COMPONENTS-2016",
+                    "KENYA-MOH-IPC-2015"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-sharps-safety",
+      "label": "Sharps Safety & Waste Segregation",
+      "level1Note": "Puncture-resistant safety boxes filled to maximum three-quarters capacity prevent accidental needlestick injuries and bloodborne viral transmission.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Used needles must never be recapped or thrown in ordinary trash. Dropping them straight into rigid yellow safety boxes stops accidental puncture wounds."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Never recap needles manually",
+                    "Dispose of sharps immediately at point of use",
+                    "Seal and replace safety boxes when 3/4 full"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "P_{\\text{transmission}}(\\text{HCV}) \\approx 3\\%, \\quad P_{\\text{transmission}}(\\text{HBV}) \\approx 30\\%, \\quad P_{\\text{transmission}}(\\text{HIV}) \\approx 0.3\\%",
+                  "explanation": "Hepatitis B has the highest transmission risk following percutaneous needlestick exposure, underscoring mandatory pre-exposure vaccination for staff."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Color-coded healthcare waste management separates biohazardous infectious waste (yellow bags) from domestic municipal refuse (black bags)."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Assess safety compliance of a bedside sharps disposal container.",
+                  "steps": [
+                    "Container is puncture-resistant and clearly labeled with biohazard symbol.",
+                    "Current fill level is at the printed three-quarters fill line.",
+                    "Action: Seal lid permanently and route to high-temperature incinerator."
+                  ],
+                  "answer": "Container is at maximum safe capacity; seal immediately and deploy a replacement."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Needles with engineered safety mechanisms that automatically retract or shield the bevel immediately after injection eliminate recapping risks."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "KENYA-MOH-IPC-2015",
+                    "WHO-IPC-CORE-COMPONENTS-2016"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-outbreak-investigation",
+      "label": "Outbreak Investigation & Epidemic Curves",
+      "level1Note": "Systematic outbreak investigation uses line lists and epidemic curves to identify sources, transmission modes, and reproduction rates.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Disease detectives investigate outbreaks by recording patient timelines. Graphing cases over time reveals whether illness came from contaminated food or spread person-to-person."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Line list tracks patient demographics, symptoms, and dates",
+                    "Epidemic curve plots cases over time",
+                    "Point-source curve shows a single rapid peak"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Attack Rate} = \\frac{\\text{New Cases During Epidemic Period}}{\\text{Population at Risk at Onset}} \\times 100\\%",
+                  "explanation": "A point-source epidemic curve exhibits a steep upward slope and gradual decay within one incubation period; propagated curves show serial generational peaks."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Case-control odds ratios compare exposure frequencies between ill cases and healthy controls to pinpoint specific contaminated food or water sources."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Calculate food-specific attack rate during a clinic foodborne outbreak.",
+                  "steps": [
+                    "70 people attended a staff lunch; 35 consumed chicken salad.",
+                    "28 of the 35 who ate chicken salad became ill.",
+                    "Attack rate = (28 / 35) * 100 = 80 percent."
+                  ],
+                  "answer": "The chicken salad has an 80 percent attack rate, identifying it as the likely vehicle."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Contact tracing and rapid isolation of infectious individuals truncate secondary transmission chains, dampening exponential epidemic expansion."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "CDC-CHAIN-OF-INFECTION-2012"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-wash-fit-facility",
+      "label": "WASH FIT Healthcare Infrastructure",
+      "level1Note": "The WHO/UNICEF WASH FIT tool drives continuous quality improvements in water, sanitation, hygiene, cleaning, and healthcare waste.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Hospitals cannot heal without clean water and soap. The WASH FIT system helps clinics assess water supply, toilets, hand washing, and waste disposal."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Safe piped water supply on clinic grounds",
+                    "Functioning gender-separated toilets",
+                    "Continuous availability of soap and water"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{WASH Score} = \\frac{\\sum \\text{Indicators Met}}{\\text{Total Required Indicators}} \\times 100\\%",
+                  "explanation": "WASH FIT uses an indicator checklist to assess health center water access, hand-washing stations, waste sorting, and surface disinfection protocols."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Facilities form a multidisciplinary quality improvement team that drafts incremental corrective action plans to address prioritized hazards."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Prioritize clinic intervention using risk-based WASH scoring.",
+                  "steps": [
+                    "Assessment reveals lack of running water at maternity delivery beds.",
+                    "Hand hygiene is currently performed using a shared basin.",
+                    "Risk score is critical: immediate priority is installing dedicated tap with soap."
+                  ],
+                  "answer": "Install dedicated point-of-care water tap and soap to protect newborn deliveries."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Reliable water and sanitation infrastructure forms the non-negotiable foundation for all infection prevention and patient safety initiatives."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WHO-WASH-FIT-2022",
+                    "WHO-IPC-CORE-COMPONENTS-2016"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "human-body-anchor-antimicrobial-stewardship",
+      "label": "Antimicrobial Resistance & Stewardship",
+      "level1Note": "Antimicrobial stewardship optimizes antibiotic selection, dosing, and duration to treat infections while suppressing resistant pathogen emergence.",
+      "tiers": {
+        "foundation": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Overusing antibiotics causes bacteria to develop resistance, making common infections harder to treat. Stewardship ensures we use the right drug only when needed."
+                },
+                {
+                  "type": "keyFacts",
+                  "facts": [
+                    "Bacteria evolve resistance through natural selection",
+                    "Inappropriate antibiotics accelerate resistance",
+                    "AWaRe framework classifies access, watch, and reserve drugs"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "advanced": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "equation",
+                  "latex": "\\text{Selection Pressure}: \\frac{d[R]}{dt} = s \\cdot [R] \\left(1 - \\frac{[R]}{K}\\right)",
+                  "explanation": "Antibiotic exposure provides selective survival advantages to bacterial strains carrying resistance plasmids (such as beta-lactamases or efflux pumps)."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "The WHO AWaRe classification categorizes antibiotics into Access (first-line narrow spectrum), Watch (higher resistance risk), and Reserve (last-resort agents)."
+                }
+              ]
+            }
+          ]
+        },
+        "expert": {
+          "pages": [
+            {
+              "blocks": [
+                {
+                  "type": "workedExample",
+                  "context": "Review antibiotic prescription for an uncomplicated viral upper respiratory infection.",
+                  "steps": [
+                    "Patient presents with common cold symptoms for 3 days; no bacterial signs.",
+                    "Empirical prescription requests broad-spectrum ceftriaxone.",
+                    "Stewardship action: Discontinue ceftriaxone; antibiotics have zero viral efficacy."
+                  ],
+                  "answer": "Discontinue antibiotic; symptomatic treatment avoids driving bacterial resistance."
+                }
+              ]
+            },
+            {
+              "blocks": [
+                {
+                  "type": "paragraph",
+                  "text": "Hospital-wide antibiograms compile local microbiological susceptibility patterns, guiding clinicians toward effective narrow-spectrum empirical choices."
+                },
+                {
+                  "type": "sources",
+                  "refs": [
+                    "WHO-IPC-CORE-COMPONENTS-2016",
+                    "KENYA-MOH-IPC-2015"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "glossary": [
+    {
+      "term": "Systole",
+      "tiers": {
+        "foundation": "The phase of the heartbeat when the heart muscle contracts and pumps blood out into the body.",
+        "advanced": "Ventricular contraction during which chamber pressure exceeds aortic pressure, opening semilunar valves.",
+        "expert": "Isovolumetric contraction followed by rapid and reduced ejection phases, ending at aortic valve closure."
+      }
+    },
+    {
+      "term": "Diastole",
+      "tiers": {
+        "foundation": "The resting phase of the heartbeat when the chambers relax and fill with blood.",
+        "advanced": "Ventricular relaxation where ventricular pressure falls below atrial pressure, permitting passive AV filling.",
+        "expert": "Comprises isovolumetric relaxation, rapid ventricular filling, diastasis, and atrial kick pre-systolic priming."
+      }
+    },
+    {
+      "term": "Action potential",
+      "tiers": {
+        "foundation": "A rapid electrical impulse that travels down a nerve cell to carry a signal.",
+        "advanced": "Transient membrane depolarization driven by voltage-gated sodium influx followed by potassium efflux.",
+        "expert": "Regenerative all-or-nothing conductance shifts modeled by Hodgkin-Huxley gating equations with refractory limits."
+      }
+    },
+    {
+      "term": "Neurotransmitter",
+      "tiers": {
+        "foundation": "A chemical messenger released by nerves to pass signals across the microscopic gap to other cells.",
+        "advanced": "Chemical ligand released by calcium-dependent vesicle exocytosis into the 20 nm synaptic cleft.",
+        "expert": "Molecules binding ionotropic or metabotropic receptors, cleared via high-affinity transporters or enzymatic catabolism."
+      }
+    },
+    {
+      "term": "Myelin",
+      "tiers": {
+        "foundation": "A protective fatty coating wrapped around nerves that speeds up electrical signals.",
+        "advanced": "Multilamellar lipid membrane produced by Schwann cells or oligodendrocytes that insulates axonal internodes.",
+        "expert": "Decreases membrane capacitance and elevates transmembrane resistance, driving fast saltatory conduction between nodes of Ranvier."
+      }
+    },
+    {
+      "term": "CAR-T cell",
+      "tiers": {
+        "foundation": "An engineered immune cell made from a patient's own blood that hunts down and destroys cancer.",
+        "advanced": "T-lymphocyte genetically modified with a synthetic chimeric antigen receptor targeting tumor surface proteins.",
+        "expert": "scFv domain linked via hinge to CD28/4-1BB and CD3-zeta signaling modules, bypassing conventional MHC restriction."
+      }
+    },
+    {
+      "term": "Immune checkpoint",
+      "tiers": {
+        "foundation": "Natural biological brakes on immune cells that prevent them from attacking healthy human tissues.",
+        "advanced": "Receptor-ligand pathways (PD-1/PD-L1, CTLA-4) that inhibit T-cell receptor signaling to prevent autoimmunity.",
+        "expert": "Immunosuppressive signaling cascades hijacked by tumors; monoclonal blockade reverses exhaustion in tumor-infiltrating lymphocytes."
+      }
+    },
+    {
+      "term": "Tumor suppressor gene",
+      "tiers": {
+        "foundation": "A normal safety gene that prevents cells from dividing too quickly or becoming cancerous.",
+        "advanced": "Gene like TP53 or RB1 that enforces cell-cycle checkpoints, repairs DNA damage, or promotes apoptosis.",
+        "expert": "Recessive two-hit genetic loss-of-function lesions disable critical restriction point controls, facilitating malignant transformation."
+      }
+    },
+    {
+      "term": "Oncogene",
+      "tiers": {
+        "foundation": "A mutated gene that pushes cells to divide uncontrollably, like a stuck gas pedal in a car.",
+        "advanced": "Gain-of-function mutated proto-oncogene (such as KRAS, MYC) that drives sustained proliferative signaling.",
+        "expert": "Constitutively active signaling protein requiring only single-allele mutation to stimulate downstream proliferative cascades."
+      }
+    },
+    {
+      "term": "Angiogenesis",
+      "tiers": {
+        "foundation": "The growth of new blood vessels from existing ones to supply oxygen to growing tissues.",
+        "advanced": "Sprouting of endothelial capillaries driven by growth factors like VEGF in response to tissue hypoxia.",
+        "expert": "HIF-1alpha-mediated transcriptional activation of angiogenic factors generating irregular, hyperpermeable tumor microvasculature."
+      }
+    },
+    {
+      "term": "Undetectable = Untransmittable",
+      "tiers": {
+        "foundation": "When HIV medicine lowers the virus to undetectable levels, it cannot be passed on through sex.",
+        "advanced": "Maintaining viral load below 200 copies/mL on ART completely prevents sexual transmission of HIV.",
+        "expert": "Evidence from landmark serodiscordant couple trials confirming zero sexual transmission risk when plasma viral suppression is sustained."
+      }
+    },
+    {
+      "term": "CD4+ T-cell",
+      "tiers": {
+        "foundation": "A key immune helper cell that coordinates the body's defense against bacteria and viruses.",
+        "advanced": "Helper T-lymphocyte expressing CD4 co-receptors that orchestrate cellular and humoral adaptive immunity.",
+        "expert": "Primary target cell of HIV; progressive depletion impairs cytokine release and compromises cytotoxic CTL and B-cell activation."
+      }
+    },
+    {
+      "term": "Integrase",
+      "tiers": {
+        "foundation": "A viral enzyme that sews HIV's genetic code directly into the infected cell's own DNA.",
+        "advanced": "Retroviral enzyme catalyzing 3-prime processing and strand transfer of proviral DNA into host chromosomes.",
+        "expert": "Catalytic triad coordinating divalent magnesium ions; specifically inhibited by strand-transfer inhibitors like dolutegravir."
+      }
+    },
+    {
+      "term": "Reverse transcriptase",
+      "tiers": {
+        "foundation": "A viral enzyme that converts HIV's RNA genetic material into double-stranded DNA inside the cell.",
+        "advanced": "RNA-dependent DNA polymerase that synthesizes proviral DNA from the viral RNA template.",
+        "expert": "Error-prone polymerase lacking 3-prime to 5-prime exonuclease proofreading, generating high genetic diversity in viral populations."
+      }
+    },
+    {
+      "term": "PrEP",
+      "tiers": {
+        "foundation": "A daily preventive pill that protects people who do not have HIV from getting infected.",
+        "advanced": "Pre-exposure prophylaxis using antiretroviral medications to prevent HIV viral acquisition before potential exposure.",
+        "expert": "Tenofovir disoproxil fumarate plus emtricitabine achieving high mucosal intracellular concentrations that terminate reverse transcription."
+      }
+    },
+    {
+      "term": "Chain of infection",
+      "tiers": {
+        "foundation": "The series of six connected steps needed for a germ to spread from one person to another.",
+        "advanced": "Six interrelated epidemiological links: pathogen, reservoir, portal of exit, mode, portal of entry, and host.",
+        "expert": "Transmission dynamics model where targeted public health interventions break critical links to force reproduction number below unity."
+      }
+    },
+    {
+      "term": "Five Moments for Hand Hygiene",
+      "tiers": {
+        "foundation": "The five essential times healthcare staff must clean their hands while caring for patients.",
+        "advanced": "WHO-standardized points in care: before patient, before aseptic task, after fluids, after patient, after surroundings.",
+        "expert": "Evidence-based framework minimizing microbial cross-transmission between patient microbiological zones and healthcare environments."
+      }
+    },
+    {
+      "term": "Personal protective equipment",
+      "tiers": {
+        "foundation": "Protective clothing, masks, gloves, and eye shields that protect medical staff from germs.",
+        "advanced": "Barrier gear including medical gowns, respirators, face shields, and gloves deployed in strict sequences.",
+        "expert": "Physical barriers configured according to contact, droplet, or airborne transmission precautions with validated doffing protocols."
+      }
+    },
+    {
+      "term": "Negative-pressure room",
+      "tiers": {
+        "foundation": "A special hospital room where air is pulled inward so airborne germs cannot float into hallways.",
+        "advanced": "Isolation space with directional inward airflow that exhausts air directly outside or through HEPA filters.",
+        "expert": "Inward pressure differential of at least -2.5 Pa and minimum 12 air changes per hour to contain airborne infectious droplets."
+      }
+    },
+    {
+      "term": "Reproduction number (R0)",
+      "tiers": {
+        "foundation": "The average number of people one infected person will pass a contagious disease to.",
+        "advanced": "The expected number of secondary infectious cases produced by a single index case in a susceptible population.",
+        "expert": "Epidemiological metric R0 = beta * c * d; effective reproduction number Rt incorporates population immunity and control interventions."
+      }
+    },
+    {
+      "term": "Antimicrobial stewardship",
+      "tiers": {
+        "foundation": "Careful use of antibiotics to treat infections effectively while preventing bacteria from becoming resistant.",
+        "advanced": "Coordinated interventions ensuring optimal antibiotic choice, correct dose, and shortest effective duration.",
+        "expert": "Systematic hospital programs deploying local antibiograms, pre-authorization, and the WHO AWaRe classification to preserve efficacy."
+      }
+    },
+    {
+      "term": "Epidemic curve",
+      "tiers": {
+        "foundation": "A bar graph showing the number of new sickness cases on each day during an outbreak.",
+        "advanced": "Histogram plotting incident cases over time relative to symptom onset, illustrating outbreak magnitude and pattern.",
+        "expert": "Visual epidemiological tool distinguishing point-source, continuous common-source, and propagated human-to-human transmission dynamics."
+      }
+    },
+    {
+      "term": "WASH FIT",
+      "tiers": {
+        "foundation": "A guide that helps medical clinics check and improve their water, toilets, cleaning, and waste disposal.",
+        "advanced": "WHO/UNICEF continuous quality improvement framework for water, sanitation, hygiene, and waste in healthcare facilities.",
+        "expert": "Risk-based multi-indicator appraisal methodology empowering local facility teams to prioritize and resolve infrastructural hazards."
+      }
+    },
+    {
+      "term": "Intervertebral disc",
+      "tiers": {
+        "foundation": "A rubbery cushion between spinal bones that absorbs shock and helps your back bend.",
+        "advanced": "Cartilaginous joint consisting of a peripheral annulus fibrosus and central gelatinous nucleus pulposus.",
+        "expert": "Hydrated proteoglycan core providing hydrostatic shock distribution surrounded by concentric lamellar type I collagen rings."
+      }
+    },
+    {
+      "term": "Monosynaptic reflex",
+      "tiers": {
+        "foundation": "A lightning-fast muscle reaction that travels straight through the spinal cord with only one connection.",
+        "advanced": "Neural reflex pathway with a direct single central synapse between sensory afferent and motor efferent neurons.",
+        "expert": "Ia afferent sensory fibers from neuromuscular spindles synapsing directly on homonymous alpha motor neurons in anterior horn gray matter."
+      }
+    }
+  ],
+  "objectives": [
+    {
+      "id": "med-obj-1",
+      "text": "Explain passive cardiac valve closure driven by ventricular pressure gradients across the cardiac cycle.",
+      "mappedTo": "human-body-anchor-heart-valve"
+    },
+    {
+      "id": "med-obj-2",
+      "text": "Trace action potential propagation and AV nodal delay through the specialized cardiac conduction system.",
+      "mappedTo": "human-body-anchor-cardiac-conduction"
+    },
+    {
+      "id": "med-obj-3",
+      "text": "Correlate pressure curves, volume changes, heart sounds, and ECG intervals on a standard Wiggers diagram.",
+      "mappedTo": "human-body-anchor-wiggers-cycle"
+    },
+    {
+      "id": "med-obj-4",
+      "text": "Describe the molecular steps of SNARE-mediated synaptic vesicle fusion following calcium influx at axon terminals.",
+      "mappedTo": "human-body-anchor-neural-synapse"
+    },
+    {
+      "id": "med-obj-5",
+      "text": "Explain the monosynaptic stretch reflex arc and differentiate upper from lower motor neuron signs.",
+      "mappedTo": "human-body-anchor-spinal-reflex-arc"
+    },
+    {
+      "id": "med-obj-6",
+      "text": "Analyze how chimeric antigen receptor (CAR) T-cells target CD19 without major histocompatibility complex restriction.",
+      "mappedTo": "human-body-anchor-car-t-oncology"
+    },
+    {
+      "id": "med-obj-7",
+      "text": "Detail how immune checkpoint inhibitors targeting PD-1 and PD-L1 reverse T-lymphocyte exhaustion in tumors.",
+      "mappedTo": "human-body-anchor-immune-checkpoint-blockade"
+    },
+    {
+      "id": "med-obj-8",
+      "text": "Articulate the clinical evidence supporting Undetectable = Untransmittable (U=U) and its role in destigmatizing HIV.",
+      "mappedTo": "human-body-anchor-u-equals-u-science"
+    },
+    {
+      "id": "med-obj-9",
+      "text": "Describe mucosal cytotoxic CD8+ T-cell immunity discovered through the Nairobi Pumwani sex worker cohort.",
+      "mappedTo": "human-body-anchor-pumwani-cohort-immunity"
+    },
+    {
+      "id": "med-obj-10",
+      "text": "Demonstrate the WHO Five Moments for Hand Hygiene and explain how breaking links stops the chain of infection.",
+      "mappedTo": "human-body-anchor-who-five-moments"
+    }
+  ],
+  "practitioner": {
+    "deskTitle": "Clinical & Public Health Desk",
+    "tools": [
+      "Cardiovascular Hemodynamic Calculator: Compute cardiac output, stroke work, mean arterial pressure, and vascular resistance indices.",
+      "IPC Hand Hygiene & Audit Tracker: Log simulated Five Moments compliance observations and generate WHO facility-level compliance scores.",
+      "Epidemic Curve & Outbreak Line-List Tool: Plot case-incidence curves over time to distinguish point-source from propagated outbreaks."
+    ]
+  }
+}

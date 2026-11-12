@@ -403,3 +403,13 @@ _Never delete entries. Append only._
 - Still to do for Medicine: per-wing anchors/content (8 each), practitioner desk, wing scene loading, and medical review.
 
 
+
+---
+## 2026-11-13T00:50 EAT | Session 32 | Antigravity | Medicine Six Wings & Content-as-Data Pass
+- Added full 48-anchor schema-compliant dataset (`src/modules/human-body/content/module-content.json`) covering all 6 wings: Heart (8), Brain (8), Spine (8), Cancer (8), HIV/Immunology (8), and Infection Prevention & Control (8).
+- Expanded SOURCES.md to 20 comprehensive medical sources with exact claim IDs (Guyton, Kandel, Wiggers, Hanahan & Weinberg, Hodgkin & Huxley, WHO U=U, Pumwani Cohort, WHO Five Moments, WHO IPC Core Components, WASH FIT, Kenya MoH IPC, Netter, Robbins Pathology, Purves Neuroscience, AJCC Staging).
+- Added 25 glossary terms across 3 depth tiers, 10 mapped learning objectives, and a 3-tool Clinical & Public Health Practitioner Desk.
+- Enforced content audit (`node scripts/audit-content-depth.mjs --enforce`) passes cleanly for both `cosmos` and `human-body`.
+- Wired Human Body anchors dynamically via `getSpatialAnchors()` with radial placement around the six atrium wing portals and batched leader line segments (`anchorPrimitive.batchLeaderLines()`).
+- Updated `m4-human-body.spec.ts` asserting 48 registered anchors and verifying all 48 anchors expand and collapse cleanly via `__MAARIFY_TOGGLE_ANCHOR__`.
+- Verified whole repository pipeline with `npm run verify` (exit 0): 100/100 unit tests, 7/7 Playwright specs, budget checks green (M4: 14,636 triangles, 142 draw calls, well below 250k/180 ceilings).

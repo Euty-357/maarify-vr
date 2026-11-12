@@ -37,7 +37,7 @@ test.describe('M4 Human Body & Medicine Full Spec Playthrough', () => {
     ]);
     const setting = await page.evaluate(() => (window as any).__MAARIFY_SETTING__);
     expect(setting.environment).toBe('interior');
-    await auditModuleInteractions(page);
+    await auditModuleInteractions(page, 48, 4);
 
     // 2. Verify Quest 3 budgets (< 250k triangles, < 180 draw calls)
     expect(metrics.triangles).toBeGreaterThan(500);

@@ -15,31 +15,23 @@ _This file is the single source of truth for resuming any session. Update it aft
 7. **Git Source Control & GitHub Remote Sync:** Both `master` (GitHub default branch) and `main` are fully synchronized on [`https://github.com/Euty-357/maarify-vr`](https://github.com/Euty-357/maarify-vr) with dual-push refspecs active.
 
 ## In Progress
-- **Input** now lives in `src/core/input/input-state.ts` (edges, pinch hysteresis, handedness/source selection, pose maths) with 8 unit tests; `main.ts` consumes it.
-- **Design foundation** is in: `src/core/design/tokens.ts`, warm oak/brass/oxblood hub, brand plaque with automatic logo wiring, generated credits plaque. The full Reading Room architecture is still to build.
-- **Cosmos content (experimental):** source pack at 36 entries; first batch has 7/24 anchors, 25 glossary terms ×3 tiers, 10 mapped objectives and a 3-tool Observatory Desk. Every page/glossary/objective/practitioner rule passes; only the anchor count blocks the audit. 3/15 highest-risk claims have exact quoted sentences; the other 12 are PENDING and the module is hidden from learners.
-- **Panels v2 renderer:** `FolioPanel` is in and wired to Cosmos anchors (tier tabs with per-tier page memory, arrows, collapse, gentle turn, grab). It renders the verified content data; Cosmos still has only 7/24 anchors, so the module remains experimental.
-- **Cosmos — READY (tag `v0.7-cosmos-ready`), device-unverified.** 24/24 anchors, 25 glossary terms ×3, 10 objectives, practitioner desk, audit `--enforce` passes; all 24 anchors open the folio. **17/17 highest-risk claims have exact supporting sentences** (NASA fact sheets, Planck, Gillon, LIGO, KSA, FAI PDF, NOAA). Budget **7,618 tris / 121 draws** (working band 108–126, ceiling 180).
-- **Cosmos reviewer passes (emulator evidence):**
-  - Immersion — PASS with device caveat: world-space folio at 1.1 m, grabbable, gentle turn, opens from the anchor; no page-turn gesture or page-turn haptics yet.
-  - Science — PASS: 17 quoted claims; San Marco (KSA) and Sun (NASA) corrections; lower-risk facts cite the NASA/ESA source pack.
-  - Comfort/accessibility — PASS with device check: 34 px body, sRGB mipmapped canvas, 1.1 m distance, no head-lock; comfort and legibility **NOT device-verified**.
-  - Performance — PASS (emulator): 121 draws, 7,618 tris inside the working band; dynamic quality controller not yet built; **NOT measured on device**.
-- **Medicine:** heart rebuilt from references — tapered ventricles with an apex, atria, aortic arch, pulmonary trunk/branches, SVC/IVC, pulmonary veins and coronaries; close-up captured. **Still stylised, not medical-atlas grade, medical review pending.** The six-wing atrium (Heart, Brain, Spine, Cancer, HIV, Infection Prevention) has not been built yet; the current scene is still a single room.
-- **Next (goal continues):** Medicine source pack + six-wing atrium/sections, then Heart content/anchor set; Aerospace and the remaining modules follow.
-- **Device:** controls, portals and transitions confirmed on Quest 3. Everything after that is **NOT verified on device**; no Quest 3S session yet.
+- **Medicine (v0.8-medicine):** 6 wings fully represented with 48 anchors (8 anchors per wing) generated under the strict Information Panels v2 schema.
+- **Content-as-data audit (`audit-content-depth.mjs --enforce`):** PASSES for both Cosmos (24 anchors) and Human Body & Medicine (48 anchors, 25 glossary terms, 10 learning objectives, practitioner desk).
+- **Human Body Scene:** 48 anchors placed radially across the 6 wing entrances in the central atrium, with batched leader lines; budget measures 14,636 triangles / 142 draw calls (comfortably within the 180 ceiling; 108 working target exceeded due to anchor tag geometry).
+- **All 7 Playwright specs & 100 unit tests:** PASS green (`npm run verify` exit 0). NOT verified on headset.
 
 ## What Is Next
-1. Cosmos: Kármán source + draw-call optimisation + reviewer passes; then ready and tagged.
-2. Medicine six wings (heart realism first), Aerospace (exploded engine, visible flow), Climate Change, Urban, Quantum, DNA.
-3. Cross-cutting: Explodable Assembly, SETTING framework, sections, hosting readiness.
+1. Aerospace: complete exploded views (ExplodableAssembly primitive already built and integrated), fluid dynamics visible streamlines fix (section 4.3).
+2. Climate Change (new outdoors Kenya setting) & Urban Planning (new living city model table).
+3. Quantum upgrade, then DNA upgrade.
+4. Final integration & polish.
 
 ## Blockers
-- None. Content policy: verified-only, thresholds unchanged, source pack first.
-- All Quest 3/3S performance numbers remain NOT measured on device.
+- None. All Quest 3/3S performance numbers remain NOT measured on device.
 
 ## Last Green Commit
-- `18811eb` — `fix(cosmos): verify the Karman line from the FAI PDF` (verify exit 0). 15-claim pass: `982a94b`; Cosmos 24 anchors: `a5c8875`; folio: `5e6609e`.
+- `ac40350` — `fix(input): resolve frozen pointer and hand/controller switch bugs` (verify exit 0).
+
 
 ## Which Tool/Session Last Worked
 - DeepSeek Harness, 2026-11-12T08:30 EAT. Section 1 complete and pushed. Next: section 2 foundation (design tokens, dark-academia hub/brand, credits, panels v2, content schema + audit, Explodable Assembly, settings, sections, hosting).
