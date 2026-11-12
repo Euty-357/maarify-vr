@@ -23,7 +23,7 @@ test.describe('M2 Cosmos & Astronomy Full Spec Playthrough', () => {
     const metrics = await page.evaluate(() => (window as any).__MAARIFY_METRICS__);
     expect(metrics).toBeDefined();
     expect(metrics.currentModule).toBe('cosmos');
-    await auditModuleInteractions(page);
+    await auditModuleInteractions(page, 24, 4);
 
     // 2. Verify Quest 3 budgets (< 250k triangles, < 180 draw calls)
     expect(metrics.triangles).toBeGreaterThan(1000);

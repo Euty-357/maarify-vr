@@ -359,4 +359,12 @@ _Never delete entries. Append only._
 - e2e: Cosmos spec opens the Karman anchor and asserts the folio label, tier and expanded state. Screenshot helper no longer swallows capture errors and allows 120 s per screenshot under software rendering.
 - Full verify green: 82 unit tests, 7 Playwright specs, M6 20,374 tris / 82 draws. The folio is emitter/Playwright-verified only, **NOT verified on device**.
 
+---
+## 2026-11-12T16:30 EAT | Session 26 | DeepSeek Harness | Cosmos Reaches 24 Anchors
+- Cosmos content is complete at 24/24 anchors (added rocky/gas/ice planets, asteroids/Kuiper, comets, stellar life cycle, supernovae, Milky Way, gravitational waves, Big Bang/CMB, dark matter, dark energy, light speed/interstellar, Taifa-1, Broglio, telescopes, distance ladder). 25 glossary terms, 10 objectives and the Observatory Desk still pass.
+- `node scripts/audit-content-depth.mjs --enforce` now passes for Cosmos.
+- All 24 anchors are real scene anchors: the four legacy definitions keep their positions and the other 20 are generated from the content data on two arcs (2.1–2.8 m). The e2e audit now checks 24 anchors and 4 challenges and toggles every anchor.
+- Cosmos budget: 7,618 triangles, 132 draw calls (below the 180 ceiling, above the 108 working target — anchor tags are the cost; optimise by merging tag geometry later).
+- Content verification is still 3/15 exact quotes, so Cosmos remains experimental and is not presented as ready.
+
 

@@ -1,10 +1,14 @@
 import { expect, type Page } from '@playwright/test';
 
 /** Exercises every registered spatial anchor and verifies all physical challenges are exposed. */
-export async function auditModuleInteractions(page: Page, expectedCount = 4): Promise<void> {
+export async function auditModuleInteractions(
+  page: Page,
+  expectedAnchors = 4,
+  expectedChallenges = expectedAnchors
+): Promise<void> {
   const audit = await page.evaluate(() => (window as any).__MAARIFY_AUDIT__);
-  expect(audit.anchors).toHaveLength(expectedCount);
-  expect(audit.challenges).toHaveLength(expectedCount);
+  expect(audit.anchors).toHaveLength(expectedAnchors);
+  expect(audit.challenges).toHaveLength(expectedChallenges);
 
   for (const anchorId of audit.anchors) {
     const expanded = await page.evaluate((id) => (window as any).__MAARIFY_TOGGLE_ANCHOR__(id), anchorId);

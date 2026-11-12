@@ -1,8 +1,59 @@
 import * as THREE from 'three';
 import type { SpatialAnchorDefinition } from '../../core/types.js';
+import { getModuleContent } from '../../core/content/loader.js';
+import type { AnchorContent, TierId } from '../../core/content/schema.js';
+
+function firstParagraph(anchor: AnchorContent, tier: TierId): string {
+  const block = anchor.tiers[tier]?.pages[0]?.blocks.find((candidate) => candidate.type === 'paragraph');
+  return block && block.type === 'paragraph' ? block.text : anchor.level1Note;
+}
+
+function sourceRefs(anchor: AnchorContent): string[] {
+  const refs = new Set<string>();
+  for (const page of anchor.tiers.expert?.pages ?? []) {
+    for (const block of page.blocks) {
+      if (block.type === 'sources') block.refs.forEach((ref) => refs.add(ref));
+    }
+  }
+  return [...refs];
+}
+
+/** Place the extra content anchors on two arcs in front of the observer. */
+function extraAnchorPosition(index: number): THREE.Vector3 {
+  const angle = -Math.PI / 3 + (index * Math.PI * 2) / 20;
+  const radius = 2.1 + (index % 3) * 0.35;
+  return new THREE.Vector3(Math.sin(angle) * radius, 1.0 + (index % 4) * 0.14, -Math.cos(angle) * radius);
+}
+
+function toDefinition(anchor: AnchorContent, index: number): SpatialAnchorDefinition {
+  return {
+    id: anchor.id,
+    anchorPosition: extraAnchorPosition(index),
+    label: anchor.label,
+    level1Note: anchor.level1Note,
+    level2Simulation: {
+      foundation: {
+        type: 'scrubbable-mechanism',
+        description: firstParagraph(anchor, 'foundation'),
+        caption: anchor.tiers.foundation.pages[0]?.blocks[0]?.type ?? 'concept',
+      },
+      advanced: {
+        type: 'exploded-view',
+        description: firstParagraph(anchor, 'advanced'),
+        caption: anchor.tiers.advanced.pages[0]?.blocks[0]?.type ?? 'mechanism',
+      },
+      expert: {
+        type: 'cross-section-flux',
+        description: firstParagraph(anchor, 'expert'),
+        caption: 'Expert tier: open the folio for the worked mathematics and sources.',
+      },
+    },
+    sourceRefs: sourceRefs(anchor),
+  };
+}
 
 export function getSpatialAnchors(): SpatialAnchorDefinition[] {
-  return [
+  const base: SpatialAnchorDefinition[] = [
     {
       id: 'cosmos-anchor-karman-line',
       anchorPosition: new THREE.Vector3(0, 1.3, -1.2),
@@ -116,5 +167,13 @@ export function getSpatialAnchors(): SpatialAnchorDefinition[] {
       sourceRefs: ['MAYOR-QUELOZ-1995', 'GILLON-TRAPPIST-1-2017', 'EINSTEIN-1905'],
     },
   ];
+
+  // Every content anchor becomes a real spatial anchor, not just the four legacy ones.
+  const content = getModuleContent('cosmos');
+  const existing = new Set(base.map((anchor) => anchor.id));
+  const extras = (content?.anchors ?? [])
+    .filter((anchor) => !existing.has(anchor.id))
+    .map((anchor, index) => toDefinition(anchor, index));
+  return [...base, ...extras];
 }
 

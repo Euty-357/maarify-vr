@@ -14,7 +14,9 @@
 - [x] `HW-07b` `audit-content-depth.mjs` and `npm run audit:content` (report-only; `--enforce` fails on gaps)
 - [x] `HW-07c1` Cosmos source pack (36 entries) + first content batch: 7/24 anchors, 25 glossary, 10 objectives, practitioner desk; verified quotes for 3/15 high-risk claims
 - [x] `HW-07c2a` Panels v2 folio renderer (tier tabs, paging, collapse, gentle turn, grab) + 3 state tests + Cosmos e2e assertion
-- [ ] `HW-07c2b` Cosmos anchors 8–24 + remaining 12 verified sentences + add the new anchors to the scene
+- [x] `HW-07c2b` Cosmos 24/24 anchors + all anchors placed in the scene + `audit:content --enforce` passes
+- [ ] `HW-07c2c` Remaining 12 of 15 exact claim quotes; then Cosmos can leave experimental
+- [ ] `HW-07c2d` Cosmos draw-call optimisation (132 -> ≤108 working target)
 - [ ] `HW-07d` Content-as-data migration for the other modules (same source-pack-first rule)
 - [ ] `HW-08` Explodable Assembly primitive + settings/sections framework
 - [ ] `HW-09` Hosting readiness (build/preview, _headers, lazy modules, size report)
