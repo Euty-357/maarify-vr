@@ -20,6 +20,9 @@
 - [x] `HW-07c2d` Cosmos draw calls 132 -> 121 via batched leader lines (working band 108–126)
 - [x] `HW-07c2e` Cosmos four reviewer passes recorded with evidence; ready to tag
 - [ ] `HW-07d` Content-as-data migration for the other modules (same source-pack-first rule)
+- [x] `MED-01a` Heart rebuilt with tapered ventricles, atria, great vessels, vena cavae, pulmonary veins and coronaries; close-up evidence captured
+- [ ] `MED-01b` Heart detail pass (appendages, valves, surface) or licensed mesh; medical review
+- [ ] `MED-02` Medicine source pack + six-wing atrium/sections (Heart, Brain, Spine, Cancer, HIV, Infection Prevention)
 - [ ] `HW-08` Explodable Assembly primitive + settings/sections framework
 - [ ] `HW-09` Hosting readiness (build/preview, _headers, lazy modules, size report)
 

@@ -32,60 +32,138 @@ export const HIV_STRUCTURAL_COMPONENTS: HIVViralProtein[] = [
 ];
 
 /**
- * Creates the stylized 4-chamber heart mesh with aorta and pulmonary trunk.
+ * Creates an anatomically oriented heart: tapered left/right ventricles, atria,
+ * aortic arch, pulmonary trunk, vena cavae, pulmonary veins and the main coronary
+ * arteries. Stylised PBR, but the chambers, great vessels and apex direction match
+ * standard anatomy references (apex inferolateral, RV anterior, aorta posterior-left).
  */
 export function createHeartAnatomyMesh(): THREE.Group {
   const heart = new THREE.Group();
   heart.name = 'heart-anatomy-root';
+  heart.rotation.z = -0.22;
+  heart.rotation.y = 0.12;
 
-  // Left Ventricle (thick muscular wall)
-  const lvGeo = new THREE.SphereGeometry(0.24, 16, 16);
-  lvGeo.scale(1.0, 1.3, 0.9);
-  const lvMat = new THREE.MeshStandardMaterial({
-    color: 0xb91c1c,
-    roughness: 0.6,
-    metalness: 0.2,
-  });
-  const lv = new THREE.Mesh(lvGeo, lvMat);
-  lv.position.set(0.08, 0, 0);
-  lv.name = 'chamber-left-ventricle';
-  heart.add(lv);
+  const myocardium = (color: number, roughness = 0.55) =>
+    new THREE.MeshStandardMaterial({ color, roughness, metalness: 0.08 });
 
-  // Right Ventricle (anterior crescentic wall)
-  const rvGeo = new THREE.SphereGeometry(0.20, 16, 16);
-  rvGeo.scale(0.9, 1.2, 0.8);
-  const rvMat = new THREE.MeshStandardMaterial({
-    color: 0x1d4ed8,
-    roughness: 0.6,
-    metalness: 0.2,
-  });
-  const rv = new THREE.Mesh(rvGeo, rvMat);
-  rv.position.set(-0.12, -0.04, 0.06);
-  rv.name = 'chamber-right-ventricle';
-  heart.add(rv);
+  const chamber = (
+    name: string,
+    radiusScale: [number, number, number],
+    position: [number, number, number],
+    color: number,
+    taper = 0
+  ): THREE.Mesh => {
+    const geometry = new THREE.SphereGeometry(1, 28, 22);
+    const positionAttribute = geometry.getAttribute('position');
+    for (let index = 0; index < positionAttribute.count; index += 1) {
+      const y = positionAttribute.getY(index);
+      if (y < 0 && taper > 0) {
+        const factor = Math.max(0.15, 1 + y * taper);
+        positionAttribute.setX(index, positionAttribute.getX(index) * factor);
+        positionAttribute.setZ(index, positionAttribute.getZ(index) * factor);
+      }
+    }
+    geometry.scale(...radiusScale);
+    geometry.computeVertexNormals();
+    const mesh = new THREE.Mesh(geometry, myocardium(color));
+    mesh.position.set(...position);
+    mesh.name = name;
+    heart.add(mesh);
+    return mesh;
+  };
 
-  // Left & Right Atria
-  const la = new THREE.Mesh(
-    new THREE.SphereGeometry(0.12, 12, 12),
-    new THREE.MeshStandardMaterial({ color: 0xdc2626 })
-  );
-  la.position.set(0.1, 0.24, -0.06);
-  heart.add(la);
+  const vessel = (
+    name: string,
+    points: [number, number, number][],
+    radius: number,
+    color: number
+  ): THREE.Mesh => {
+    const curve = new THREE.CatmullRomCurve3(points.map((point) => new THREE.Vector3(...point)));
+    const geometry = new THREE.TubeGeometry(curve, 28, radius, 10, false);
+    const mesh = new THREE.Mesh(
+      geometry,
+      new THREE.MeshStandardMaterial({ color, roughness: 0.45, metalness: 0.05 })
+    );
+    mesh.name = name;
+    heart.add(mesh);
+    return mesh;
+  };
 
-  const ra = new THREE.Mesh(
-    new THREE.SphereGeometry(0.13, 12, 12),
-    new THREE.MeshStandardMaterial({ color: 0x2563eb })
-  );
-  ra.position.set(-0.14, 0.22, 0);
-  heart.add(ra);
+  // Ventricles: the left is thicker and reaches the apex; the right wraps anteriorly.
+  chamber('chamber-left-ventricle', [0.165, 0.26, 0.155], [0.055, -0.02, 0], 0x9f1239, 0.55);
+  chamber('chamber-right-ventricle', [0.135, 0.205, 0.12], [-0.075, 0.01, 0.105], 0x7f1d1d, 0.35);
+  chamber('chamber-left-atrium', [0.105, 0.09, 0.10], [0.09, 0.20, -0.10], 0xb91c1c);
+  chamber('chamber-right-atrium', [0.12, 0.10, 0.105], [-0.12, 0.18, -0.02], 0xa21c1c);
 
-  // Aorta arch (red, curving up and back)
-  const aortaGeo = new THREE.TorusGeometry(0.14, 0.04, 12, 24, Math.PI);
-  const aortaMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.4 });
-  const aorta = new THREE.Mesh(aortaGeo, aortaMat);
-  aorta.position.set(0.02, 0.28, -0.04);
-  aorta.rotation.y = Math.PI / 4;
-  heart.add(aorta);
+  // Aorta: ascending, arch and descending limb.
+  vessel('vessel-aorta', [
+    [0.03, 0.18, -0.03],
+    [0.02, 0.38, -0.06],
+    [0.10, 0.50, -0.10],
+    [0.20, 0.42, -0.16],
+    [0.20, 0.18, -0.20],
+  ], 0.050, 0xd62828);
+
+  // Pulmonary trunk crosses in front of the aorta and bifurcates.
+  vessel('vessel-pulmonary-trunk', [
+    [-0.02, 0.14, 0.13],
+    [-0.01, 0.28, 0.14],
+    [0.04, 0.35, 0.10],
+  ], 0.030, 0x2563eb);
+  vessel('vessel-pulmonary-artery-left', [
+    [0.04, 0.35, 0.10],
+    [0.12, 0.34, 0.04],
+    [0.18, 0.30, -0.01],
+  ], 0.024, 0x2563eb);
+  vessel('vessel-pulmonary-artery-right', [
+    [0.04, 0.35, 0.10],
+    [-0.06, 0.34, 0.08],
+    [-0.13, 0.30, 0.04],
+  ], 0.024, 0x2563eb);
+
+  // Superior and inferior vena cavae enter the right atrium.
+  vessel('vessel-svc', [
+    [-0.14, 0.42, -0.03],
+    [-0.14, 0.30, -0.03],
+    [-0.13, 0.23, -0.02],
+  ], 0.032, 0x1e3a8a);
+  vessel('vessel-ivc', [
+    [-0.13, -0.08, -0.04],
+    [-0.13, 0.02, -0.03],
+    [-0.13, 0.12, -0.02],
+  ], 0.032, 0x1e3a8a);
+
+  // Four pulmonary veins enter the left atrium posteriorly.
+  vessel('vessel-pulmonary-vein-right', [
+    [0.24, 0.20, -0.20],
+    [0.17, 0.20, -0.16],
+    [0.12, 0.20, -0.12],
+  ], 0.018, 0x3b82f6);
+  vessel('vessel-pulmonary-vein-left', [
+    [-0.02, 0.16, -0.24],
+    [0.04, 0.18, -0.18],
+    [0.08, 0.19, -0.13],
+  ], 0.018, 0x3b82f6);
+
+  // Coronary arteries: LAD down the anterior interventricular groove, circumflex
+  // around the left border, right coronary in the right atrioventricular groove.
+  vessel('coronary-lad', [
+    [0.02, 0.13, 0.13],
+    [0.00, 0.02, 0.15],
+    [0.01, -0.12, 0.12],
+    [0.02, -0.24, 0.08],
+  ], 0.009, 0xef4444);
+  vessel('coronary-circumflex', [
+    [0.02, 0.13, 0.13],
+    [0.13, 0.10, 0.02],
+    [0.16, 0.02, -0.08],
+    [0.12, -0.04, -0.13],
+  ], 0.008, 0xef4444);
+  vessel('coronary-right', [
+    [-0.10, 0.14, 0.09],
+    [-0.16, 0.05, 0.04],
+    [-0.16, -0.05, -0.02],
+  ], 0.008, 0xef4444);
 
   return heart;
 }

@@ -30,8 +30,8 @@
   "m4-human-body": {
     "states": {
       "hiv-exploded-geometry-preloaded": {
-        "triangles": 5320,
-        "drawCalls": 49
+        "triangles": 14120,
+        "drawCalls": 59
       }
     }
   },

@@ -35,6 +35,11 @@ test.describe('M4 Human Body & Medicine Full Spec Playthrough', () => {
     const screenshots = await captureMultiPoseMatrix(page, 'm4-human-body');
     expect(screenshots.length).toBeGreaterThan(0);
 
+    // 3b. Heart close-up for the hero-object review
+    await page.evaluate(() => (window as any).__MAARIFY_SET_CAMERA__?.([0, 1.3, -0.25], [0, 0, 0]));
+    await page.waitForTimeout(150);
+    await page.screenshot({ path: 'reports/history/screenshots/m4-heart-closeup.png', timeout: 120000 });
+
     // 4. Update reports/budget-data.json with per-scene metrics
     const fs = await import('fs/promises');
     let budgetData: Record<string, unknown> = {};

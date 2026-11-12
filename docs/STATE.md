@@ -25,7 +25,8 @@ _This file is the single source of truth for resuming any session. Update it aft
   - Science — PASS: 17 quoted claims; San Marco (KSA) and Sun (NASA) corrections; lower-risk facts cite the NASA/ESA source pack.
   - Comfort/accessibility — PASS with device check: 34 px body, sRGB mipmapped canvas, 1.1 m distance, no head-lock; comfort and legibility **NOT device-verified**.
   - Performance — PASS (emulator): 121 draws, 7,618 tris inside the working band; dynamic quality controller not yet built; **NOT measured on device**.
-- **Next (goal continues):** close the Kármán source, trim Cosmos draws toward ≤108, then run the four reviewer passes and mark Cosmos ready; after that Medicine, Aerospace, Climate Change, Urban, Quantum, DNA.
+- **Medicine:** heart rebuilt from references — tapered ventricles with an apex, atria, aortic arch, pulmonary trunk/branches, SVC/IVC, pulmonary veins and coronaries; close-up captured. **Still stylised, not medical-atlas grade, medical review pending.** The six-wing atrium (Heart, Brain, Spine, Cancer, HIV, Infection Prevention) has not been built yet; the current scene is still a single room.
+- **Next (goal continues):** Medicine source pack + six-wing atrium/sections, then Heart content/anchor set; Aerospace and the remaining modules follow.
 - **Device:** controls, portals and transitions confirmed on Quest 3. Everything after that is **NOT verified on device**; no Quest 3S session yet.
 
 ## What Is Next

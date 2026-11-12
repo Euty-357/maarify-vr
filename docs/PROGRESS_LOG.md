@@ -389,4 +389,10 @@ _Never delete entries. Append only._
 - Added `__MAARIFY_FOLIO_ACTION__` and expanded the Cosmos e2e: tier tab switches to Advanced/Expert, page arrow advances to page 2, header collapses, all asserted.
 - Reviewer passes recorded in STATE: immersion PASS (device caveat), science PASS (17 exact claim quotes after adding NOAA's geostationary sentence), comfort PASS (device check outstanding), performance PASS on emulator.
 
+---
+## 2026-11-12T17:55 EAT | Session 30 | DeepSeek Harness | Medicine: Heart Rebuild
+- Replaced the four-sphere heart with a deliberately oriented model: tapered left/right ventricles with an apical point, left/right atria, aortic arch and descending limb, pulmonary trunk with left/right branches, SVC/IVC, pulmonary veins and three coronary arteries, all named for future anchors.
+- Hero-object close-up added to the M4 Playwright spec (`reports/history/screenshots/m4-heart-closeup.png`) so the heart can be reviewed without the wide-scene cards.
+- Honest verdict: the silhouette and vessel layout now read as a heart, but it is still stylised — no atrial appendages, valve detail, epicardial fat or surface texture. It is **not** medical-atlas grade and has not passed a medical review. A licensed anatomical mesh remains the better long-term answer.
+
 
