@@ -4,7 +4,6 @@ import { FixedTimestepAccumulator } from './core/physics/fixed-timestep';
 import { SpatialAudioManager } from './core/audio/spatial-audio';
 import { ComfortSystem } from './core/comfort/comfort';
 import { HubWorld } from './hub/hub-world';
-import { SmokeTestZone } from './hub/smoke-test-zone';
 import { InMemoryProgressStore } from './core/store/progress-store';
 import { RuntimeTuningPanel } from './core/tuning-panel/tuning-panel';
 import { DiegeticSpatialAnchor } from './core/spatial-anchors/diegetic-anchor';
@@ -29,6 +28,10 @@ declare const __BUILD_ID__: string;
 
 /** Build id injected by Vite; shown in-world so a stale headset page is obvious. */
 const BUILD_ID = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'unknown-build';
+/** Dev tools (debug panel, stale notice) are opt-in via ?debug=1. */
+const DEV_TOOLS_ENABLED = typeof window !== 'undefined'
+  && import.meta.env.DEV
+  && new URLSearchParams(window.location.search).get('debug') === '1';
 
 // --- Core state -----------------------------------------------------------
 let renderer: THREE.WebGLRenderer;
@@ -39,7 +42,6 @@ let cameraRig: THREE.Group;
 let soundManager: SpatialAudioManager;
 export let comfortSystem: ComfortSystem;
 let hubWorld: HubWorld;
-let smokeTestZone: SmokeTestZone;
 let tuningPanel: RuntimeTuningPanel;
 let teleport: SpatialTeleportPrimitive;
 let snapTurn: SpatialSnapTurnPrimitive;
@@ -88,7 +90,6 @@ let lastHitLabel = 'none';
 const debugEvents: string[] = [];
 const errorLog: string[] = [];
 let lastReason = 'boot';
-let desktopDebugElem: HTMLElement | null = null;
 let walkInTimer = 0;
 let walkInPortal: string | null = null;
 let moduleEnteredAt = 0;
@@ -111,14 +112,7 @@ let currentFps = 0;
 let frameTimeMs = 0;
 let teleportAiming = false;
 
-// UI overlay elements
-const fpsElem = document.getElementById('metric-fps');
-const frameTimeElem = document.getElementById('metric-frame-time');
-const triElem = document.getElementById('metric-triangles');
-const dcElem = document.getElementById('metric-draw-calls');
-const tierElem = document.getElementById('metric-tier');
-const inputElem = document.getElementById('metric-input');
-const cubeStateElem = document.getElementById('metric-cube-state');
+// The canvas and the XR entry button are the only DOM the test harness needs.
 const enterXrBtn = document.getElementById('enter-xr-btn');
 
 // --- Boot -----------------------------------------------------------------
@@ -175,9 +169,6 @@ function initApp() {
   hubWorld = new HubWorld();
   scene.add(hubWorld);
 
-  smokeTestZone = new SmokeTestZone(soundManager);
-  scene.add(smokeTestZone);
-
   tuningPanel = new RuntimeTuningPanel(camera);
   scene.add(tuningPanel.panelGroup);
 
@@ -221,14 +212,8 @@ function initApp() {
   debugMaterial.depthTest = false;
   debugMaterial.transparent = true;
   debugMaterial.opacity = 0.6;
+  debugPanel.visible = DEV_TOOLS_ENABLED;
   camera.add(debugPanel);
-
-  desktopDebugElem = document.createElement('div');
-  desktopDebugElem.id = 'metric-debug';
-  desktopDebugElem.style.cssText =
-    'margin-top:6px;border-top:1px solid rgba(255,255,255,0.15);padding-top:6px;font-size:11px;white-space:pre-wrap;max-width:560px;';
-  const overlay = document.getElementById('debug-overlay');
-  if (overlay) overlay.appendChild(desktopDebugElem);
 
   window.addEventListener('error', (event) => recordError(`window.error: ${event.message}`));
   window.addEventListener('unhandledrejection', (event) => {
@@ -250,7 +235,7 @@ function initApp() {
   camera.add(staleNotice);
 
   const checkBuildFreshness = async () => {
-    if (!import.meta.env.DEV) return;
+    if (!import.meta.env.DEV || !DEV_TOOLS_ENABLED) return;
     try {
       const response = await fetch('/__build', { cache: 'no-store' });
       if (!response.ok) return;
@@ -405,7 +390,6 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
     const mod = MODULE_DEFINITIONS[id];
     if (!mod) return null;
     hubWorld.visible = false;
-    smokeTestZone.visible = false;
     tuningConsole.visible = false;
     activeModuleDef = mod;
     activeModuleRoot = await mod.load(scene);
@@ -439,7 +423,6 @@ function returnToHub(): void {
   currentModuleName = 'hub';
   completedChallenges.clear();
   hubWorld.visible = true;
-  smokeTestZone.visible = true;
   tuningConsole.visible = true;
   resetRigToOrigin();
 }
@@ -486,13 +469,6 @@ function setupDesktopInteraction() {
     } else if (hit.userData.grabPrimitive instanceof SpatialGrabPrimitive) {
       const grab = hit.userData.grabPrimitive as SpatialGrabPrimitive;
       if (grab.tryGrab(camera.position, camera.quaternion)) grab.release();
-    } else if (hit === smokeTestZone.chimeSphere) {
-      smokeTestZone.pokeChime();
-    } else if (hit === smokeTestZone.grabBlock) {
-      smokeTestZone.grabCalibrationBlock();
-      setTimeout(() => smokeTestZone.releaseCalibrationBlock(), 400);
-    } else if (hit.name.includes('anchor-tag-smoke-test-anchor')) {
-      smokeTestZone.testAnchor.toggleExpansion();
     } else if (findUserDataPrimitive(hit, 'activate')) {
       (findUserDataPrimitive(hit, 'activate') as () => void)();
     } else if (hit.name.startsWith('tier-btn-')) {
@@ -526,6 +502,7 @@ function recordError(message: string): void {
 }
 
 function updateDebugPanel(): void {
+  if (!DEV_TOOLS_ENABLED) return;
   const now = performance.now();
   if (now - lastDebugPaint < 250) return;
   lastDebugPaint = now;
@@ -562,7 +539,6 @@ function updateDebugPanel(): void {
     `HEAD ${head.x.toFixed(1)} ${head.z.toFixed(1)}`,
   ];
   setTextPanelText(debugPanel, lines.join('\n'));
-  if (desktopDebugElem) desktopDebugElem.textContent = lines.join('\n');
 }
 
 /** Walking through a portal ring enters it; no button required. */
@@ -774,18 +750,6 @@ function onControllerTrigger(controller: THREE.XRTargetRaySpace, via = 'select')
 
   if (handleHubRayInteraction(origin, direction, source)) { reason('hub-hit'); return; }
   reason('hub-miss');
-
-  // Physical proximity fallbacks at the smoke-test plinth.
-  const pos = controller.position;
-  if (pos.distanceTo(smokeTestZone.chimeSphere.position) < 0.3) {
-    smokeTestZone.pokeChime(source);
-  } else if (pos.distanceTo(smokeTestZone.grabBlock.position) < 0.3) {
-    smokeTestZone.grabCalibrationBlock(source);
-    window.setTimeout(() => smokeTestZone.releaseCalibrationBlock(), 400);
-  } else if (pos.distanceTo(smokeTestZone.testAnchor.position) < 0.4) {
-    smokeTestZone.testAnchor.toggleExpansion();
-    triggerHapticPulse(source, ActiveTuning.haptics.snap.intensity, ActiveTuning.haptics.snap.durationMs);
-  }
 }
 
 function findInputSource(controller: THREE.XRTargetRaySpace): XRInputSource | undefined {
@@ -1336,11 +1300,8 @@ function renderFrame(frame?: XRFrame) {
   updateDebugPanel();
 
   // Fixed-timestep simulation stays decoupled from display refresh.
-  physicsAccumulator.step(deltaSec, (dt) => {
-    if (smokeTestZone.testAnchor.isExpanded) {
-      const sim = smokeTestZone.testAnchor.getObjectByName('micro-sim-root-smoke-test-anchor');
-      if (sim) sim.rotation.y += 1.2 * dt;
-    }
+  physicsAccumulator.step(deltaSec, () => {
+    /* simulation ticks reserved for the shared systems */
   });
 
   // Module animation tick (helix sway, plume pulse, heart beat...).
@@ -1356,20 +1317,7 @@ function renderFrame(frame?: XRFrame) {
   });
 
   renderer.render(scene, camera);
-  updateMetricsOverlay();
   publishTestHooks();
-}
-
-function updateMetricsOverlay() {
-  if (fpsElem) fpsElem.textContent = `FPS: ${currentFps}`;
-  if (frameTimeElem) frameTimeElem.textContent = `Frame Time: ${frameTimeMs.toFixed(1)} ms`;
-  if (triElem) triElem.textContent = `Triangles: ${renderer.info.render.triangles}`;
-  if (dcElem) dcElem.textContent = `Draw Calls: ${renderer.info.render.calls}`;
-  if (tierElem) tierElem.textContent = `Quality Tier: ${activeTier}`;
-  if (inputElem) inputElem.textContent = `Input Mode: ${inputMode}`;
-  if (cubeStateElem) {
-    cubeStateElem.textContent = `Hub Plinth: Tier=${hubWorld.selectedTier.toUpperCase()} | Anchor=${smokeTestZone.testAnchor.isExpanded ? 'EXPANDED' : 'CLOSED'}`;
-  }
 }
 
 function publishTestHooks() {
@@ -1451,8 +1399,6 @@ function publishTestHooks() {
     activeTier,
     selectedTier: hubWorld.selectedTier,
     currentModule: currentModuleName,
-    anchorExpanded: smokeTestZone.testAnchor.isExpanded,
-    smokeTestEvents: smokeTestZone.eventLog.length,
   };
 }
 

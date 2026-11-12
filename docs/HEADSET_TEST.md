@@ -59,17 +59,18 @@ adb shell dumpsys SurfaceFlinger --latency
 
 ---
 
-## 4. Tuesday Headset Smoke-Test Procedure (Hub Smoke-Test Plinth)
-When testing Milestone M0 & M1 on Tuesday, immediately enter the **Hub Device Smoke-Test Zone** to validate the 8 hardware capabilities:
+## 4. Quest 3 Device Check Procedure
+Run after any input or scene change. Record results in `DEVICE_TEST_BACKLOG.md`; never record "pass" without a device run.
 
-1. **Direct Touch & Poking:** Poke the virtual chime sphere with your physical index finger (hand tracking). Confirm audio ping and visual pushback.
-2. **Controller Grabbing & Magnetic Detents:** Grab the test calibration block with Touch Plus grip trigger; translate and rotate in mid-air; release to test inertia.
-3. **Controller Haptics:** Trigger grab, tap, and limit stops; confirm distinct haptic pulses on Touch Plus controllers.
-4. **Locomotion & Vignette:** Teleport across the test room; execute snap-turns (30°); test smooth locomotion and verify peripheral radial vignette activates cleanly without nausea.
-5. **Spatial Audio Attenuation:** Walk in a complete circle around the spatial sound beacon; verify binaural HRTF panning (sound shifts cleanly from left to right ear and falls off as $1/r$).
-6. **Color Passthrough Toggle (Quest 3 MR):** Press the MR toggle on the spatial console. Confirm real-world environment appears in full color with transparent canvas background.
-7. **Frame-Rate Selection:** Toggle between 72Hz, 80Hz, 90Hz, and 120Hz; confirm display switches cleanly and fixed-timestep physics remain deterministic.
-8. **Text Legibility at 1–2 Meters:** Stand at the 1.0 m and 2.0 m floor distance marks; verify diegetic spatial tags are razor-sharp with no foveation blur.
+1. **Build freshness:** `npm run quest`, reload, and with `?debug=1` confirm the panel's `BUILD` matches `http://localhost:5173/__build`.
+2. **Input sources:** hold the controllers, then put them down and pinch. The panel must show `SRC` ctl/hand entries and `POSE 2/2`, and the rays must keep following after the switch.
+3. **Portals and transitions:** enter each ready portal by walking within 1 m or by trigger. `RET` should read `hub-hit`. Return with B/Y and with the red ring.
+4. **Grab and ray:** with `?grabhints=1`, point at a grabbable and press trigger. `RET` must read `ray-grab`; the object follows the ray and can be released into a socket.
+5. **Locomotion:** the teleport arc must land inside the hub radius; snap turn must pivot on the head; optional smooth locomotion must vignette comfortably.
+6. **Legibility and comfort:** read an anchor at 1 m and 2 m, then use a module for 10 minutes and note any discomfort.
+7. **Performance:** run OVR Metrics during the heaviest module and record fps, frame time, dropped frames and thermal status.
+
+Desktop and emulator results do not count for items 2, 5, 6 or 7.
 
 ---
 

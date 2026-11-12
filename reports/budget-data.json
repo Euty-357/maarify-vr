@@ -1,53 +1,53 @@
 {
   "m0-spatial-spike": {
-    "triangles": 6764,
-    "drawCalls": 45
+    "triangles": 4656,
+    "drawCalls": 33
   },
-  "m1-hub-and-smoke-test": {
+  "m1-hub": {
     "states": {
       "baseline": {
-        "triangles": 6764,
-        "drawCalls": 45
+        "triangles": 4656,
+        "drawCalls": 33
       }
     }
   },
   "m2-cosmos": {
     "states": {
       "all-destinations-preloaded": {
-        "triangles": 7526,
-        "drawCalls": 78
+        "triangles": 7522,
+        "drawCalls": 76
       }
     }
   },
   "m3-quantum": {
     "states": {
       "gallery-and-cryostat-preloaded": {
-        "triangles": 7226,
-        "drawCalls": 85
+        "triangles": 7222,
+        "drawCalls": 83
       }
     }
   },
   "m4-human-body": {
     "states": {
       "hiv-exploded-geometry-preloaded": {
-        "triangles": 5324,
-        "drawCalls": 51
+        "triangles": 5320,
+        "drawCalls": 49
       }
     }
   },
   "m5-aerospace": {
     "states": {
       "engine-exploded-and-plume-preloaded": {
-        "triangles": 1938,
-        "drawCalls": 66
+        "triangles": 1934,
+        "drawCalls": 64
       }
     }
   },
   "m6-dna-genetics": {
     "states": {
       "all-beats-unlocked": {
-        "triangles": 20378,
-        "drawCalls": 84
+        "triangles": 20374,
+        "drawCalls": 82
       }
     }
   }

@@ -5,7 +5,6 @@
  */
 
 export * from './grab.js';
-export * from './poke.js';
 export * from './slider.js';
 export * from './lever.js';
 export * from './rotator.js';

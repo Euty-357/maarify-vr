@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from 'vitest';
 import * as THREE from 'three';
 import {
   SpatialGrabPrimitive,
-  SpatialPokePrimitive,
   SpatialSliderPrimitive,
   SpatialLeverPrimitive,
   SpatialRotatorPrimitive,
@@ -37,33 +36,6 @@ describe('Spatial Interaction Primitives', () => {
       const grabbed = grab.tryGrab(farPos, new THREE.Quaternion());
       expect(grabbed).toBe(false);
       expect(grab.isGrabbed).toBe(false);
-    });
-  });
-
-  describe('SpatialPokePrimitive', () => {
-    it('depresses button when tip penetrates poke threshold', () => {
-      const button = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.02));
-      button.position.set(0, 1.0, 0);
-
-      const onPress = vi.fn();
-      const onRelease = vi.fn();
-      const poke = new SpatialPokePrimitive(button, { onPress, onRelease, depthLimitMeters: 0.02 });
-
-      // Poke close
-      const tipPos = new THREE.Vector3(0, 1.01, 0);
-      const pressed = poke.checkPoke(tipPos);
-
-      expect(pressed).toBe(true);
-      expect(poke.isPressed).toBe(true);
-      expect(onPress).toHaveBeenCalled();
-      expect(button.position.y).toBeCloseTo(0.98, 3);
-
-      // Move tip away -> spring release
-      const farTip = new THREE.Vector3(0, 1.5, 0);
-      poke.checkPoke(farTip);
-      expect(poke.isPressed).toBe(false);
-      expect(onRelease).toHaveBeenCalled();
-      expect(button.position.y).toBeCloseTo(1.0, 3);
     });
   });
 

@@ -27,7 +27,7 @@ c:\maarify\
       simulation/       # Shared stakeholder-sim library (Environment + Urban Dev)
       store/            # In-memory progress store behind SwappableStorage interface
       types.ts          # ModuleDefinition, SpatialAnchor, ChallengeDefinition
-    hub/                # Spatial portal hub, scale model selector, device smoke-test zone
+    hub/                # Spatial portal hub, scale model selector
     modules/
       cosmos/           # Vertical slice
       quantum/
@@ -124,7 +124,6 @@ flowchart TD
 
   subgraph Hub ["src/hub/"]
     HubScene[Hub World & Portals]
-    SmokeTest[Device Smoke-Test Zone]
     Plinths[Tier Selector Plinths]
   end
 

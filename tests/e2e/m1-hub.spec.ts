@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('M1 Core Systems, Spatial Hub & Smoke-Test Zone', () => {
-  test('renders 7 physical portals, plinth tier selector, and smoke-test zone within budget', async ({ page }) => {
+test.describe('M1 Spatial Hub', () => {
+  test('renders 7 physical portals, plinth tier selector and tuning controls within budget', async ({ page }) => {
     const consoleErrors: string[] = [];
     page.on('console', (msg) => {
       if (msg.type() === 'error') {
@@ -45,7 +45,7 @@ test.describe('M1 Core Systems, Spatial Hub & Smoke-Test Zone', () => {
 
     // 2. Capture multi-pose screenshot matrix for layout verification
     const { captureMultiPoseMatrix } = await import('./helpers/screenshot-matrix.js');
-    const screenshots = await captureMultiPoseMatrix(page, 'm1-hub-and-smoke-test');
+    const screenshots = await captureMultiPoseMatrix(page, 'm1-hub');
     expect(screenshots.length).toBeGreaterThan(0);
 
     // 3. Record budget metrics for check-budgets script
@@ -56,7 +56,7 @@ test.describe('M1 Core Systems, Spatial Hub & Smoke-Test Zone', () => {
       budgetData = JSON.parse(existing);
     } catch {}
 
-    budgetData['m1-hub-and-smoke-test'] = { states: { baseline: { triangles: metrics.triangles, drawCalls: metrics.drawCalls } } };
+    budgetData['m1-hub'] = { states: { baseline: { triangles: metrics.triangles, drawCalls: metrics.drawCalls } } };
 
     await fs.mkdir('reports', { recursive: true });
     await fs.writeFile('reports/budget-data.json', JSON.stringify(budgetData, null, 2), 'utf-8');

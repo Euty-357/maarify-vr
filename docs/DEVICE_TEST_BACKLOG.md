@@ -2,7 +2,7 @@
 _Target Device: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
 _Last Updated: 2026-11-08_
 _All items here cannot be verified in headless CI or emulator and are strictly labelled **NOT verified on headset**._
-> **Companion Procedure:** See [HEADSET_TEST.md](file:///c:/maarify/docs/HEADSET_TEST.md) for ADB reverse setup, MQDH profiling, and smoke-test protocols.
+> **Companion Procedure:** See [HEADSET_TEST.md](file:///c:/maarify/docs/HEADSET_TEST.md) for ADB reverse setup, MQDH profiling, and the Quest 3 device check list.
 
 ---
 
@@ -18,7 +18,7 @@ _All items here cannot be verified in headless CI or emulator and are strictly l
 - **What:** Verify distinct haptic impulses fire on Touch Plus controllers during grab, poke, part assembly snap, and aerodynamic stall buffeting.
 - **Why device needed:** IWER and Playwright cannot simulate physical voice-coil and resonant haptic actuators.
 - **Module / System:** Core / Haptics (`src/core/haptics/`)
-- **How to test:** In Hub Smoke-Test Zone, tap calibration cube, snap turbofan stage, and hold wing in stall wind tunnel; feel vibrations in left/right controllers.
+- **How to test:** In a module, grab a part, snap it into place, and hold the wing in the stall wind tunnel; feel vibrations in left/right controllers.
 - **Pass criteria:** Crisp, tactile 15ms pulse on button poke/part snap; continuous low-frequency rumble during stall buffeting; zero unhandled promise rejections.
 - **Status:** NOT verified on headset
 
@@ -34,7 +34,7 @@ _All items here cannot be verified in headless CI or emulator and are strictly l
 - **What:** Verify Quest 3 4MP RGB color passthrough renders accurately with correct real-world scale and depth perception; verify virtual objects blend on real desk with transparent background.
 - **Why device needed:** Passthrough cameras and optical compositing do not exist in emulator.
 - **Module / System:** Core / XR Session (`immersive-ar` session mode)
-- **How to test:** In Hub Smoke-Test Zone, click "Toggle MR Mode"; observe room in stereoscopic color passthrough; place beating heart or turbofan engine onto physical table using hit-test.
+- **How to test:** From a module, request MR/tabletop mode when it exists; observe room in stereoscopic color passthrough; place a model onto a physical table using hit-test.
 - **Pass criteria:** Real room visible in color; virtual model rests stably on real tabletop; zero visual flicker or depth distortion.
 - **Status:** NOT verified on headset
 

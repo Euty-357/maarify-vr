@@ -7,7 +7,7 @@ _Target Hardware: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
 | Milestone | Focus | Key Deliverable | Gate Policy |
 | :--- | :--- | :--- | :--- |
 | **M0** | Toolchain & Spatial Spike | WebXR grabbable cube, flat desktop fallback, IWER emulator harness, verify pipeline | `npm run verify` green; baseline commit |
-| **M1** | Core Systems, Hub & Smoke-Test | Direct hands, teleport, vignette, positional audio, haptics, Diegetic Spatial Anchor kit, portal Hub, Hub Device Smoke-Test Zone | **STOP GATE:** Quest 3 Tuesday test rehearsal & review |
+| **M1** | Core Systems & Hub | Direct hands, teleport, vignette, positional audio, haptics, Diegetic Spatial Anchor kit, portal Hub | **STOP GATE:** Quest 3 test rehearsal & review |
 | **M2** | Cosmos (Full Spec) | Earth surface $\to$ Karman line $\to$ LEO $\to$ warp/lightspeed $\to$ planets $\to$ black hole | 100% SPEC complete; M2 retro report |
 | **M3** | Quantum (Full Spec) | Bloch sphere rotation, 7 hardware cryostat models, Deutsch-Jozsa/Grover circuits | 100% SPEC complete; regression check |
 | **M4** | Human Body & Medicine (Full Spec) | Beating heart, blood flow scale ride, brain circuits, cancer hallmarks, HIV virion & Pumwani cohort | 100% SPEC complete; medical sign-off |
@@ -41,13 +41,13 @@ _Target Hardware: Meta Quest 3 (Primary), Quest 3S, Quest 2 (Baseline)_
 - Playwright multi-pose camera screenshot harness (`tests/e2e/helpers/screenshot-matrix.ts`).
 - Verification pipeline configured (`npm run verify`).
 
-### Milestone M1: Core Systems, Hub & Device Smoke-Test Zone
+### Milestone M1: Core Systems & Hub
 - Fixed-timestep physics accumulator ($dt = 1/120\text{s}$) with interpolation.
 - Direct manipulation input (finger poke, distance grab, Touch Plus haptics).
 - Locomotion: parabolic teleport, snap-turn, seated offset, smooth movement with vignette.
 - Diegetic Spatial Anchor kit (3D tags, leader lines, grab-and-pull micro-sim controller).
 - In-memory progress store behind `SwappableStorage`.
-- Central Hub scene with 7 physical portals, tier selector plinth, and **Hub Device Smoke-Test Zone**.
+- Central Hub scene with 7 physical portals and tier selector plinth.
 
 ---
 

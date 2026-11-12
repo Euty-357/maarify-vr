@@ -21,7 +21,7 @@ This is the single reference for every control in the build. If a binding is not
 
 | Control | Result |
 |---|---|
-| **Left click** | Raycast from the camera: portals load modules · tier buttons change depth · anchors expand/collapse · sliders jump to max (or 0 if already max) · rotators step +30° · smoke chime pings · calibration block animates · smoke anchor toggles · the TUNING console opens the panel · panel buttons work once open |
+| **Left click** | Raycast from the camera: portals load modules · tier buttons change depth · anchors expand/collapse · sliders jump to max (or 0 if already max) · rotators step +30° · the TUNING console opens the panel · panel buttons work once open |
 | **T** | Open/close the tuning panel in front of the camera |
 | **Enter WebXR** (bottom-right) | Request an immersive session |
 | **Not available** | No locomotion (no WASD, no mouse-look), and **grabbing does not work on desktop** — the click path requires the camera to be within 14 cm of the object, so nucleotides, tRNA, Cas9 and the rocket injector cannot be picked up. Anchors, sliders, rotators, portals and buttons all work at any distance. |
@@ -60,8 +60,7 @@ Seated play is fully supported: every module control is reachable from a seated 
 |---|---|---|
 | 7 portals | Hub ring, 3.5 m radius | Enter a module |
 | Depth-tier plinth | Hub centre | Foundation / Advanced / Expert |
-| TUNING console | Hub, left of the smoke-test plinth at ~(−0.95, 1.08, −1.55) | Opens the tuning panel in front of you |
-| Smoke-test zone | Hub, in front | Chime sphere (poke), calibration block (grab), test anchor (expand) |
+| TUNING console | Hub, left of the plinth at ~(−0.95, 1.08, −1.55) | Opens the tuning panel in front of you |
 | Diegetic anchors | Every module | Tap to expand the micro-simulation |
 | Sliders / rotators | Every module | Drag / step; each has a seated reach |
 | Grabbables | Every module | Pick up, release into a socket |
@@ -120,9 +119,9 @@ The three tier *descriptions* exist per anchor, but the micro-simulation geometr
 
 ---
 
-## 9. Debug panel (development aid)
+## 9. Debug panel (development aid, opt-in)
 
-A small panel sits at the bottom of the head-relative view and follows the head. It refreshes at 4 Hz and is mirrored into the desktop overlay. It is a development aid, not learner content, and must be gated off before any ship build.
+Open the app with **`?debug=1`** to show the panel. It is hidden by default and must not be enabled in a learner build. It sits at the bottom of the head-relative view, follows the head, refreshes at 4 Hz and is 60 % opaque.
 
 | Line | Meaning |
 |---|---|

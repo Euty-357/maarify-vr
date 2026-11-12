@@ -304,4 +304,13 @@ _Never delete entries. Append only._
 - `npm run verify` exit 0: 72 unit tests (3 new teleport-bound tests), seven Playwright specs, M6 20,378 tris / 84 draws.
 - Still open: Phase 3 extraction into `src/core/input/`, Aerospace portal load diagnosis (H7), IWER repeat tests, 3× flake run. Device verification pending.
 
+---
+## 2026-11-12T08:15 EAT | Session 19 | DeepSeek Harness | Section 1 Cleanup
+- Device evidence recorded: controls, portals and hub↔module transitions work on the Quest 3 (user-confirmed). Grab, bounded teleport, closest-hit dispatch and smooth locomotion remain unverified on device.
+- Committed the input/controls rework separately so it can be reverted independently.
+- Removed the hub smoke-test zone (`src/hub/smoke-test-zone.ts`), the unused `SpatialPokePrimitive` and its tests, the desktop debug overlay DOM, the obsolete `docs/M6_BUILD_PLAN.md`, and every smoke-test reference in docs and tests. Renamed `m1-hub-smoke-test.spec.ts` to `m1-hub.spec.ts` and its budget key to `m1-hub`.
+- Dev tools are now opt-in with `?debug=1`: debug panel and stale-build notice. The frame-error guard and `/__build` endpoint remain unconditional.
+- Docs reconciled: CONTROLS, ARCHITECTURE, DEVICE_TEST_BACKLOG, HEADSET_TEST, INDEX, PLAN, STATE, TASKS.
+- Post-removal tests: 71 unit tests and seven Playwright specs green.
+
 

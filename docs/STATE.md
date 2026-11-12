@@ -7,7 +7,7 @@ _This file is the single source of truth for resuming any session. Update it aft
 
 ## Where We Are & What We Have Done
 1. **Toolchain & Spike (M0):** Complete & green (`b1ec4d3`). Three.js, WebXR Device API, Vitest, Playwright with IWER emulator, multi-pose screenshot matrix, budget checkers, and hygiene checks.
-2. **Core Systems & Spatial Hub (M1):** Complete & green (`4144db0`). Spatial hub with 7 physical portals, plinth tier selector, device smoke-test zone, diegetic spatial anchors, audio guidance, and progress store.
+2. **Core Systems & Spatial Hub (M1):** Complete & green (`4144db0`). Spatial hub with 7 physical portals, plinth tier selector, diegetic spatial anchors, audio guidance, and progress store. The hub smoke-test zone was removed on 2026-11-12 (device checks now live in `docs/HEADSET_TEST.md`).
 3. **Cosmos & Astronomy (M2):** Complete & green (`f6aa83a`, tag `v0.2-cosmos`). Full vertical slice: Malindi night horizon, atmospheric ascent layers, solar system scale collapse, orbital transfer burn, supermassive black hole Sagittarius A*, 4 physical challenges, 4 diegetic anchors with 3-tier micro-simulations, 12 verified sources.
 4. **Quantum Mechanics (M3):** Complete & green (`106bac7`, tag `v0.3-quantum`). Bloch sphere rotator, double-slit gaze collapse, exploded 5-stage dilution cryostat, gallery of 7 hardware architectures, optical Bell state bench, quantum circuit assembly, 4 physical challenges, 4 diegetic anchors with 3-tier micro-sims, 12 verified sources.
 5. **Human Body & Medicine (M4):** Complete & green (`c3acb51`, tag `v0.4-human-body`). Prominent medical disclaimer plinth, pulsating 4-chamber heart with mechanical valves and ventricular pressure slider, capillary RBC ride, neural synaptic junction, exploded HIV virion with pinch scale, CAR-T tumor immunotherapy, 4 physical challenges, 4 diegetic anchors with 3-tier micro-sims, Dr. Amani audio narrative (Pumwani cohort, U=U destigmatization), 10 verified sources.
@@ -15,20 +15,19 @@ _This file is the single source of truth for resuming any session. Update it aft
 7. **Git Source Control & GitHub Remote Sync:** Both `master` (GitHub default branch) and `main` are fully synchronized on [`https://github.com/Euty-357/maarify-vr`](https://github.com/Euty-357/maarify-vr) with dual-push refspecs active.
 
 ## In Progress
-- **Input hardening (Phases 1–7 of the 2026-11-11 brief).** Phase 1 (instrumentation) is implemented: build id via Vite (`__BUILD_ID__` + `/__build`), head-relative 4 Hz debug panel with live `session.inputSources`, reason codes, event and error rings, and a guarded frame loop. Phase 2 research is logged. Phase 3 (single core input service) is next.
-- **M6 DNA / Genetics is complete and tagged** (`v0.6-dna-genetics`), but module work M6-onward is paused until input is solid.
+- **Section 1 cleanup (2026-11-12):** input/controls rework committed separately; smoke-test zone, poke primitive, desktop debug overlay and obsolete plan doc removed; dev tools gated behind `?debug=1`. Verify + three Playwright runs still to complete before the cleanup commit.
+- **Device evidence:** with the current build, controls, portals and hub↔module transitions work on the Quest 3 (user-confirmed). Grab, bounded teleport, the closest-hit dispatch and smooth locomotion are **not yet device-verified**.
 
 ## What Is Next
-1. **Device verification of Phases 1/5/6:** reload to build `b793fd9-1794409747081`, confirm `POSE 2/2`, portals by walk/trigger, `RET ray-grab` in Aerospace with `?grabhints=1`, clamped teleport, B/Y return.
-2. **Phase 3:** extract the per-frame source/pose/edge logic from `main.ts` into `src/core/input/xr-input-service.ts` and route primitives through it, without changing behaviour. The behaviour already exists in `main.ts` (fresh sources, handedness, frame poses, owned edges); only the file boundary is missing.
-3. **Phase 4/7:** Aerospace portal load catch + spatial notice, per-module grab Playwright tests, IWER repeat loop, three flake runs. Then `npm run verify` and wait for "commit".
+1. Finish section 1: verify green, three Playwright runs, cleanup commit, push.
+2. Start section 2 foundation: design tokens, dark-academia hub/brand, credits plaque, Information Panels v2, content schema + audit script, Explodable Assembly, per-scene settings, sections support, hosting readiness.
+3. Then module order: Cosmos → Medicine → Aerospace → Climate Change → Urban → Quantum → DNA.
 
 ## Blockers
-- Aerospace portal still does not open on device (H7 unresolved).
-- No headset verification for anything changed after the last device test; all claims remain emulator-only.
+- None currently. Aerospace portal still needs a load-error catch (section 4).
 
 ## Last Green Commit
-- `b793fd9` — `fix(xr): aim the pointer forward, pivot snap turn on the head, and own the teleport`. Everything after this is uncommitted.
+- `b793fd9` — input/controls rework commit pending (`fix(xr): stable controller/hand input…`); cleanup commit pending. Update this line after the pushes.
 
 ## Which Tool/Session Last Worked
-- DeepSeek Harness, 2026-11-11T18:06 EAT. Next: device verification, then Phase 3 extraction.
+- DeepSeek Harness, 2026-11-12T08:15 EAT. Next: finish section 1 verify and commits.

@@ -58,7 +58,7 @@
 - [x] `M1-07` Fixed-timestep physics accumulator (dt = 1/120s) with Vitest multi-frame rate determinism test
 - [x] `M1-08` In-memory progress store behind SwappableStorage interface with unit test suite
 - [x] `M1-09` Spatial Hub scene with 7 physical portals and depth-tier selector plinth
-- [x] `M1-10` Hub Device Smoke-Test Zone for Quest 3 hardware validation
+- [x] `M1-10` ~~Hub Device Smoke-Test Zone~~ removed 2026-11-12; device checks now live in `docs/HEADSET_TEST.md`
 - [x] `M1-11` npm run verify green → commit (`0c13267`)
 
 ## M2: Cosmos (vertical slice)
