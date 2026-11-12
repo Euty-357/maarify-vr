@@ -708,7 +708,18 @@ function syncFolioForAnchor(anchor: DiegeticSpatialAnchor): void {
     scene.add(folioPanel);
   }
   const world = anchor.getWorldPosition(new THREE.Vector3());
-  folioPanel.position.copy(world).add(new THREE.Vector3(0.5, 0.2, 0.35));
+  const cameraPosition = camera.getWorldPosition(new THREE.Vector3());
+  const direction = world.clone().sub(cameraPosition).setY(0);
+  if (direction.lengthSq() < 0.0001) direction.set(0, 0, -1);
+  direction.normalize();
+  // Keep the folio beside the anchor but at 1.1 m, nearer than every anchor tag,
+  // so the body text stays legible and nothing occludes it.
+  const distance = 1.1;
+  const target = cameraPosition.clone().addScaledVector(direction, distance);
+  target.y = world.y;
+  const side = new THREE.Vector3(-direction.z, 0, direction.x).multiplyScalar(0.35);
+  target.add(side);
+  folioPanel.position.copy(target);
   folioPanel.setContent(content);
 }
 
@@ -1489,6 +1500,18 @@ function publishTestHooks() {
         collapsed: folioPanel.state.collapsed,
       }
     : null;
+  (window as any).__MAARIFY_FOLIO_ACTION__ = (action: string) => {
+    if (!folioPanel) return false;
+    if (action === 'next') folioPanel.goNext();
+    else if (action === 'prev') folioPanel.goPrev();
+    else if (action === 'collapse') folioPanel.toggleCollapse();
+    else if (action === 'foundation' || action === 'advanced' || action === 'expert') {
+      folioPanel.switchTier(action);
+    } else {
+      return false;
+    }
+    return true;
+  };
 }
 
 // Start application

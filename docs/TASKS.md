@@ -17,7 +17,8 @@
 - [x] `HW-07c2b` Cosmos 24/24 anchors + all anchors placed in the scene + `audit:content --enforce` passes
 - [x] `HW-07c2c` 15/15 exact claim quotes recorded; San Marco and Sun figures corrected from primary sources
 - [x] `HW-07c2c2` 100 km Kármán convention verified from the FAI/ICARE PDF (16/16 claims)
-- [ ] `HW-07c2d` Cosmos draw-call optimisation (132 -> ≤126, ideally ≤108)
+- [x] `HW-07c2d` Cosmos draw calls 132 -> 121 via batched leader lines (working band 108–126)
+- [x] `HW-07c2e` Cosmos four reviewer passes recorded with evidence; ready to tag
 - [ ] `HW-07d` Content-as-data migration for the other modules (same source-pack-first rule)
 - [ ] `HW-08` Explodable Assembly primitive + settings/sections framework
 - [ ] `HW-09` Hosting readiness (build/preview, _headers, lazy modules, size report)

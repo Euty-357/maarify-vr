@@ -15,7 +15,7 @@
     "states": {
       "all-destinations-preloaded": {
         "triangles": 7618,
-        "drawCalls": 132
+        "drawCalls": 121
       }
     }
   },

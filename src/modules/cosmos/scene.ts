@@ -313,6 +313,7 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   anchorDefs.forEach((def) => {
     anchorPrimitive.registerAnchor(def, 'foundation');
   });
+  anchorPrimitive.batchLeaderLines();
   root.add(anchorContainer);
 
   // 9. Interactive Primitives for Physical Challenges:

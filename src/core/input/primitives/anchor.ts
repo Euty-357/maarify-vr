@@ -34,6 +34,45 @@ export class SpatialAnchorPrimitive {
     return this.anchors.get(id);
   }
 
+  /**
+   * Merge every anchor's leader line into one LineSegments draw call. With 24+
+   * anchors this saves 20+ draw calls per frame; the individual lines are hidden.
+   */
+  public batchLeaderLines(): void {
+    const positions: number[] = [];
+    for (const anchor of this.anchors.values()) {
+      anchor.updateMatrixWorld(true);
+      const line = anchor.children.find(
+        (child) => child instanceof THREE.Line && !(child instanceof THREE.LineSegments)
+      ) as THREE.Line | undefined;
+      if (!line) continue;
+      const attribute = line.geometry.getAttribute('position');
+      const points: THREE.Vector3[] = [];
+      for (let index = 0; index < attribute.count; index += 1) {
+        const point = new THREE.Vector3().fromBufferAttribute(attribute, index);
+        line.localToWorld(point);
+        points.push(point);
+      }
+      for (let index = 0; index < points.length - 1; index += 1) {
+        const start = points[index];
+        const end = points[index + 1];
+        positions.push(start.x, start.y, start.z, end.x, end.y, end.z);
+      }
+      line.visible = false;
+    }
+    if (positions.length === 0) return;
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    const material = new THREE.LineBasicMaterial({
+      color: ActiveTuning.anchors.leaderLineColor,
+      transparent: true,
+      opacity: ActiveTuning.anchors.leaderLineOpacity,
+    });
+    const batched = new THREE.LineSegments(geometry, material);
+    batched.name = 'anchor-leader-lines-batched';
+    this.containerGroup.add(batched);
+  }
+
   public getAllAnchors(): DiegeticSpatialAnchor[] {
     return Array.from(this.anchors.values());
   }

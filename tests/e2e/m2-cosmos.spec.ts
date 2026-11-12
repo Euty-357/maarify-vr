@@ -37,6 +37,16 @@ test.describe('M2 Cosmos & Astronomy Full Spec Playthrough', () => {
     expect(folio.tier).toBe('foundation');
     expect(folio.collapsed).toBe(false);
 
+    // Tier tabs keep the page, arrows page, header collapses.
+    await page.evaluate(() => (window as any).__MAARIFY_FOLIO_ACTION__('advanced'));
+    await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_FOLIO__?.tier)).toBe('advanced');
+    await page.evaluate(() => (window as any).__MAARIFY_FOLIO_ACTION__('next'));
+    await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_FOLIO__?.page)).toBe(1);
+    await page.evaluate(() => (window as any).__MAARIFY_FOLIO_ACTION__('collapse'));
+    await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_FOLIO__?.collapsed)).toBe(true);
+    await page.evaluate(() => (window as any).__MAARIFY_FOLIO_ACTION__('expert'));
+    await expect.poll(() => page.evaluate(() => (window as any).__MAARIFY_FOLIO__?.tier)).toBe('expert');
+
     // 3. Capture multi-pose screenshot matrix for visual layout verification
     const { captureMultiPoseMatrix } = await import('./helpers/screenshot-matrix.js');
     const screenshots = await captureMultiPoseMatrix(page, 'm2-cosmos');

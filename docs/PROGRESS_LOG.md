@@ -382,4 +382,11 @@ _Never delete entries. Append only._
 - SOURCES.md had been written as cp1252 by an earlier shell edit; converted back to UTF-8 so the edit tool and audit can read it. No content lost.
 - Cosmos stays experimental until the four reviewer passes and the draw-call target are done, but the content-verification blocker is closed.
 
+---
+## 2026-11-12T17:35 EAT | Session 29 | DeepSeek Harness | Cosmos Performance + Reviewer Passes
+- Batched all 24 anchor leader lines into one LineSegments draw call; Cosmos draw calls fell from 132 to 121, inside the 108–126 working band (7.6k triangles).
+- Comfort review of the actual render found the folio body too small and washed out. The folio now sits 1.1 m from the viewer (nearer than every anchor), uses 34 px body type, sRGB canvas with mipmaps and anisotropy, tone-mapping off, and renders as a transparent overlay drawn after the world so orbit lines cannot cross it. Fixed a real bug found by that work: batched leader lines used stale child matrices.
+- Added `__MAARIFY_FOLIO_ACTION__` and expanded the Cosmos e2e: tier tab switches to Advanced/Expert, page arrow advances to page 2, header collapses, all asserted.
+- Reviewer passes recorded in STATE: immersion PASS (device caveat), science PASS (17 exact claim quotes after adding NOAA's geostationary sentence), comfort PASS (device check outstanding), performance PASS on emulator.
+
 

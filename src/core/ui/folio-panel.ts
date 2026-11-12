@@ -50,8 +50,8 @@ export class FolioPanel extends THREE.Group {
 
     const frame = new THREE.Mesh(new THREE.BoxGeometry(0.94, 0.84, 0.02), standardMaterial('brass'));
     frame.position.z = -0.012;
+    frame.name = 'folio-frame';
     this.add(frame);
-
     this.header = createTextPanel('ANCHOR', {
       widthMeters: 0.8,
       heightMeters: 0.07,
@@ -93,10 +93,14 @@ export class FolioPanel extends THREE.Group {
       this.bodyCanvas.width = 1024;
       this.bodyCanvas.height = 640;
       this.bodyTexture = new THREE.CanvasTexture(this.bodyCanvas);
-      this.bodyTexture.minFilter = THREE.LinearFilter;
+      this.bodyTexture.colorSpace = THREE.SRGBColorSpace;
+      this.bodyTexture.minFilter = THREE.LinearMipmapLinearFilter;
+      this.bodyTexture.magFilter = THREE.LinearFilter;
+      this.bodyTexture.generateMipmaps = true;
+      this.bodyTexture.anisotropy = 4;
       this.bodyMesh = new THREE.Mesh(
         new THREE.PlaneGeometry(0.84, 0.525),
-        new THREE.MeshBasicMaterial({ map: this.bodyTexture })
+        new THREE.MeshBasicMaterial({ map: this.bodyTexture, toneMapped: false })
       );
     } else {
       this.bodyMesh = new THREE.Mesh(
@@ -132,6 +136,23 @@ export class FolioPanel extends THREE.Group {
     this.add(this.footer);
 
     this.grab = new SpatialGrabPrimitive(this, { constrainY: false });
+    this.makeOverlay();
+  }
+
+  /** UI overlay: never let world geometry or leader lines draw over the folio. */
+  private makeOverlay(): void {
+    for (const child of this.children) {
+      if (!(child instanceof THREE.Mesh)) continue;
+      const material = child.material as THREE.Material | THREE.Material[];
+      const materials = Array.isArray(material) ? material : [material];
+      for (const entry of materials) {
+        entry.transparent = true;
+        entry.depthTest = false;
+        entry.depthWrite = false;
+      }
+      const isBack = child === this.bodyMesh || child.name === 'folio-board' || child.name === 'folio-frame';
+      child.renderOrder = isBack ? 996 : 998;
+    }
   }
 
   private makeArrow(label: string): THREE.Mesh {
@@ -240,7 +261,7 @@ export class FolioPanel extends THREE.Group {
     const x = 46;
     const maxWidth = width - 92;
     context.textBaseline = 'top';
-    context.fillStyle = '#241610';
+    context.fillStyle = '#1a1410';
 
     for (const block of blocks) {
       if (y > height - 120) break;
@@ -262,7 +283,7 @@ export class FolioPanel extends THREE.Group {
     y: number,
     maxWidth: number
   ): number {
-    const lineHeight = 36;
+    const lineHeight = 40;
     const wrap = (text: string, font: string): string[] => {
       context.font = font;
       const words = text.split(/\s+/);
@@ -292,18 +313,18 @@ export class FolioPanel extends THREE.Group {
 
     switch (block.type) {
       case 'paragraph':
-        draw(block.text, '30px Georgia, serif', '#241610');
+        draw(block.text, '34px Georgia, serif', '#1a1410');
         break;
       case 'keyFacts':
-        for (const fact of block.facts) draw(fact, '29px Georgia, serif', '#241610', '• ');
+        for (const fact of block.facts) draw(fact, '33px Georgia, serif', '#1a1410', '• ');
         break;
       case 'table':
-        draw(block.headers.join('  |  '), 'bold 24px Georgia, serif', '#3a2416');
-        for (const row of block.rows) draw(row.join('  |  '), '24px Georgia, serif', '#3a2416');
+        draw(block.headers.join('  |  '), 'bold 28px Georgia, serif', '#3a2416');
+        for (const row of block.rows) draw(row.join('  |  '), '28px Georgia, serif', '#3a2416');
         break;
       case 'equation':
-        draw(block.latex, 'italic 32px Georgia, serif', '#5a1f1f');
-        draw(block.explanation, '27px Georgia, serif', '#241610');
+        draw(block.latex, 'italic 36px Georgia, serif', '#5a1f1f');
+        draw(block.explanation, '31px Georgia, serif', '#241610');
         break;
       case 'workedExample':
         draw('Worked example — ' + block.context, 'bold 26px Georgia, serif', '#3a2416');

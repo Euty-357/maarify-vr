@@ -68,7 +68,9 @@ experimental, so it is not shown to learners.
 | 15 | Malindi hosted over 20 sounding rockets and 9 satellites between 1967 and 1988 | Kenya Space Agency | "Over 20 sounding rockets and 9 satellites were launched from the facility between 1967 and 1988." | VERIFIED |
 | 16 | The Kármán line was set at 100 km by FAI in 1960 | FAI/ICARE, *The Kármán Line Definition* (N. Bérend, 2023), PDF | "Set at 100 km by FAI in 1960 (with a group of scientists, including Kármán) for separating aeronautics and astronautics records" | VERIFIED |
 
-**Closed:** the 100 km convention is now verified from FAI's own presentation PDF (https://www.fai.org/sites/default/files/documents/fai_icare_plenary_meeting-annex_3-karman_line-n._berend-v1.2.pdf). All sixteen high-risk claims have exact supporting sentences.
+| 17 | Geostationary orbit is 35,786 km above the equator | NOAA NESDIS, *Geostationary Satellites* | "GOES satellites orbit 22,236 miles above Earth's equator, at speeds equal to the Earth's rotation." (22,236 miles = 35,786 km) | VERIFIED |
+
+**Closed:** the 100 km convention is now verified from FAI's own presentation PDF (https://www.fai.org/sites/default/files/documents/fai_icare_plenary_meeting-annex_3-karman_line-n._berend-v1.2.pdf). All seventeen high-risk claims have exact supporting sentences.
 
 **Correction:** the earlier "27 orbital launches" San Marco figure is contradicted by the Kenya Space Agency's own history ("over 20 sounding rockets and 9 satellites"); the content and the source table now use the KSA figures.
 
