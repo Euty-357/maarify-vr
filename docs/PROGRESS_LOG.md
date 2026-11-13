@@ -422,3 +422,9 @@ _Never delete entries. Append only._
 - The first implementation measured 191 draw calls; batching flow lines reduced it to 178. This passes the 180 hard ceiling but exceeds the 108 working target, so Aerospace remains in progress and must be optimised before readiness.
 - Stabilised a Cosmos E2E test that relied on a toggle direction after auditing all anchors; it now explicitly establishes the desired expanded state.
 - Full `npm run verify` passed: 101 unit tests, 7 Playwright specs and all budget checks. M5: 2,388 triangles / 178 draw calls, **verified in Playwright/emulator** and **NOT verified on headset**. Commit: `e9aea96`.
+
+---
+## 2026-11-13T11:30 EAT | Session 34 | Codex | Shared Anchor Renderer Optimisation
+- Replaced the six-face, multi-material anchor-tag box with a double-sided canvas plane. The tag remains raycastable and retains its diegetic label texture and leader-line affordance, while reducing each anchor to one render group.
+- Full `npm run verify` passed: 101 unit tests, 7 Playwright specs, hygiene and reports. Emulator budgets now meet the 108-draw working target in all measured modules: Cosmos 61, Quantum 63, Human Body 62, Aerospace 58 and DNA 62 draw calls.
+- Aerospace fell from 2,388 triangles / 178 calls to 2,148 / 58. This is **verified in Playwright/emulator**; Quest 3/3S feel, legibility and performance remain **NOT verified on headset**.

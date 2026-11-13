@@ -14,40 +14,40 @@
   "m2-cosmos": {
     "states": {
       "all-destinations-preloaded": {
-        "triangles": 7618,
-        "drawCalls": 121
+        "triangles": 7498,
+        "drawCalls": 61
       }
     }
   },
   "m3-quantum": {
     "states": {
       "gallery-and-cryostat-preloaded": {
-        "triangles": 7222,
-        "drawCalls": 83
+        "triangles": 7182,
+        "drawCalls": 63
       }
     }
   },
   "m4-human-body": {
     "states": {
       "hiv-exploded-geometry-preloaded": {
-        "triangles": 14636,
-        "drawCalls": 142
+        "triangles": 14476,
+        "drawCalls": 62
       }
     }
   },
   "m5-aerospace": {
     "states": {
       "engine-exploded-and-plume-preloaded": {
-        "triangles": 2388,
-        "drawCalls": 178
+        "triangles": 2148,
+        "drawCalls": 58
       }
     }
   },
   "m6-dna-genetics": {
     "states": {
       "all-beats-unlocked": {
-        "triangles": 20374,
-        "drawCalls": 82
+        "triangles": 20334,
+        "drawCalls": 62
       }
     }
   }

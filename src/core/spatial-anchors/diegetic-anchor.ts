@@ -65,24 +65,19 @@ export class DiegeticSpatialAnchor extends THREE.Group {
       this.tagTexture = new THREE.Texture();
     }
 
-    const tagGeo = new THREE.BoxGeometry(
+    // A plane keeps the readable canvas and physical raycast target while avoiding
+    // BoxGeometry's six material groups per anchor. At 24+ anchors per module,
+    // this turns six submissions per label into one.
+    const tagGeo = new THREE.PlaneGeometry(
       ActiveTuning.anchors.tagWidth,
-      ActiveTuning.anchors.tagHeight,
-      ActiveTuning.anchors.tagDepth
+      ActiveTuning.anchors.tagHeight
     );
-    // Multi-material box: face 4 (+Z front) has the canvas texture
-    const sideMat = new THREE.MeshStandardMaterial({
-      color: 0x1e293b,
-      roughness: 0.4,
-      metalness: 0.7,
-    });
-    const frontMat = new THREE.MeshBasicMaterial({
+    const tagMat = new THREE.MeshBasicMaterial({
       map: this.tagTexture,
       transparent: false,
+      side: THREE.DoubleSide,
     });
-    const materials = [sideMat, sideMat, sideMat, sideMat, frontMat, sideMat];
-
-    this.tagMesh = new THREE.Mesh(tagGeo, materials);
+    this.tagMesh = new THREE.Mesh(tagGeo, tagMat);
     this.tagMesh.position.set(0.2, 0.24, 0);
     this.tagMesh.name = `anchor-tag-${id}`;
     this.add(this.tagMesh);
