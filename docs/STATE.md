@@ -31,8 +31,8 @@ _This file is the single source of truth for resuming any session. Update it aft
 - None. All Quest 3/3S performance numbers remain NOT measured on device.
 
 ## Last Green Commit
-- `e9aea96` — `feat(aerospace): add explodable engine and visible flow` (verify exit 0; 101 unit tests, 7 Playwright specs).
+- `04a7ed0` — `perf(anchors): batch diegetic tag rendering` (verify exit 0; 101 unit tests, 7 Playwright specs).
 
 
 ## Which Tool/Session Last Worked
-- Codex, 2026-11-13T02:00 EAT. Aerospace technical upgrade committed; next: Aerospace evidence/review and draw-call optimisation.
+- Codex, 2026-11-13T11:30 EAT. Shared anchor-rendering optimisation committed; next: Aerospace claim review, reviewer passes and headset checks.
