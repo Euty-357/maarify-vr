@@ -117,6 +117,19 @@ export class SpatialAnchorPrimitive {
     }
   }
 
+
+  public staggerOverlapping(): void {
+    const list=Array.from(this.anchors.values());
+    for(let i=0;i<list.length;i++){
+      for(let j=i+1;j<list.length;j++){
+        const a=list[i].getWorldPosition(new THREE.Vector3());
+        const b=list[j].getWorldPosition(new THREE.Vector3());
+        const hDist=Math.hypot(a.x-b.x,a.z-b.z);
+        if(hDist<0.4){list[j].position.y+=0.2;}
+      }
+    }
+  }
+
   public dispose(): void {
     for (const anchor of this.anchors.values()) {
       this.containerGroup.remove(anchor);

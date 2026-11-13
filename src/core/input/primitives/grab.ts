@@ -4,7 +4,7 @@ import { triggerHapticPulse } from '../../haptics/haptics.js';
 
 export interface GrabbableOptions {
   onGrab?: (hand: 'left' | 'right' | 'pointer') => void;
-  onRelease?: () => void;
+  onRelease?: (inputSource?: XRInputSource) => void;
   onMove?: (newPosition: THREE.Vector3, newQuaternion: THREE.Quaternion) => void;
   constrainY?: boolean;
 }
@@ -34,7 +34,10 @@ export class SpatialGrabPrimitive {
     this.targetObject.getWorldPosition(targetPos);
     const dist = interactorPos.distanceTo(targetPos);
 
-    if (dist <= ActiveTuning.input.grabThresholdMeters) {
+    const threshold = inputSource?.hand
+      ? ActiveTuning.input.handGrabThresholdMeters
+      : ActiveTuning.input.grabThresholdMeters;
+    if (dist <= threshold) {
       this.isGrabbed = true;
       this.grabbingSource = inputSource || 'desktop';
 
@@ -71,7 +74,9 @@ export class SpatialGrabPrimitive {
     const newQuat = interactorQuat.clone().multiply(this.grabQuaternionOffset);
     this.targetObject.quaternion.slerp(newQuat, ActiveTuning.input.handSmoothingAlpha);
 
-    this.options.onMove?.(this.targetObject.position, this.targetObject.quaternion);
+    const worldPos = this.targetObject.getWorldPosition(new THREE.Vector3());
+    const worldQuat = this.targetObject.getWorldQuaternion(new THREE.Quaternion());
+    this.options.onMove?.(worldPos, worldQuat);
   }
 
   public release(inputSource?: XRInputSource): void {
@@ -87,7 +92,7 @@ export class SpatialGrabPrimitive {
       );
     }
 
-    this.options.onRelease?.();
+    this.options.onRelease?.(inputSource);
   }
 }
 

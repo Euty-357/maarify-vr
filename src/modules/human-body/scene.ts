@@ -178,15 +178,22 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
     new THREE.PlaneGeometry(0.48, 0.24),
     new THREE.MeshBasicMaterial({ map: plaqueTex, side: THREE.DoubleSide })
   );
-  plaque.position.set(0, 0.32, 0);
+  plaque.position.set(0, 0.68, 0);
   plaque.rotation.x = -Math.PI / 6; // Angled upward to user's gaze
   disclaimerGroup.add(plaque);
   root.add(disclaimerGroup);
 
+
+  function wingWorldPos(wingId: string, lx: number, ly: number, lz: number): THREE.Vector3 {
+    const atrium=root.getObjectByName('medicine-atrium');
+    const wing=atrium ? atrium.getObjectByName('medicine-wing-'+wingId) : null;
+    if(!wing) return new THREE.Vector3(lx,ly,lz);
+    return wing.localToWorld(new THREE.Vector3(lx,ly,lz));
+  }
   // 3. Pulsating 4-Chamber Heart & Valve Assembly (Beat 2)
   const heartRoot = new THREE.Group();
   heartRoot.name = 'beating-heart-assembly';
-  heartRoot.position.set(0, 1.3, -1.1);
+  heartRoot.position.copy(wingWorldPos('heart',0,1.2,-0.8));
 
   const heartAnatomy = createHeartAnatomyMesh();
   heartRoot.add(heartAnatomy);
@@ -213,7 +220,7 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
     new THREE.BoxGeometry(0.03, 0.03, 0.03),
     new THREE.MeshStandardMaterial({ color: 0xef4444 })
   );
-  sliderHandle.position.set(0.3, 0.85, -0.8);
+  sliderHandle.position.copy(wingWorldPos('heart',0.3,0.85,-0.8));
   const heartPressureSlider = new SpatialSliderPrimitive(sliderHandle, {
     axis: 'y',
     minDistance: 0.75,
@@ -232,14 +239,14 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
     new THREE.CylinderGeometry(0.12, 0.12, 0.03, 16),
     new THREE.MeshStandardMaterial({ color: 0x10b981, metalness: 0.7 })
   );
-  dialMesh.position.set(-0.3, 0.85, -0.8);
+  dialMesh.position.copy(wingWorldPos('heart',-0.3,0.85,-0.8));
   const pacemakerRotator = new SpatialRotatorPrimitive(dialMesh, { detentStepDeg: 15 });
   root.add(dialMesh);
 
   // 4. Microcirculation Capillary Tube & Red Blood Cell Ride (Beat 4)
   const capillaryLoop = new THREE.Group();
   capillaryLoop.name = 'capillary-circulation-zone';
-  capillaryLoop.position.set(1.6, 1.2, -0.5);
+  capillaryLoop.position.copy(wingWorldPos('infection-prevention',0,1.2,-0.8));
 
   // Transparent capillary endothelium tube
   const tubeGeo = new THREE.CylinderGeometry(0.16, 0.16, 1.2, 16, 1, true);
@@ -270,7 +277,7 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   // 5. Neural Axon Terminal & Synaptic Junction (Beat 4)
   const synapseRoot = new THREE.Group();
   synapseRoot.name = 'neural-synapse-zone';
-  synapseRoot.position.set(-1.6, 1.2, -0.5);
+  synapseRoot.position.copy(wingWorldPos('brain',0,1.2,-0.8));
 
   // Presynaptic bouton bulb
   const boutonGeo = new THREE.SphereGeometry(0.22, 16, 16);
@@ -302,8 +309,8 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   // 6. Exploded HIV Virion Model (Beat 6 & U=U Reality)
   const hivVirionRoot = new THREE.Group();
   hivVirionRoot.name = 'hiv-virion-assembly';
-  hivVirionRoot.position.set(0, 1.2, 1.8);
-  hivVirionRoot.rotation.y = Math.PI; // Face user
+  hivVirionRoot.position.copy(wingWorldPos('hiv',0,1.2,-0.8));
+  hivVirionRoot.rotation.y=Math.PI; // Face user
 
   // Outer viral lipid membrane
   const envGeo = new THREE.SphereGeometry(0.28, 20, 20);
@@ -369,8 +376,8 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   // 7. CAR-T Cell vs Tumor Interface (Beat 5)
   const carTRoot = new THREE.Group();
   carTRoot.name = 'car-t-oncology-zone';
-  carTRoot.position.set(-0.8, 1.2, 0.8);
-  carTRoot.rotation.y = (Math.PI * 3) / 4;
+  carTRoot.position.copy(wingWorldPos('cancer',0,1.2,-0.8));
+  carTRoot.rotation.y=(Math.PI*3)/4;
 
   // Tumor B-cell with surface CD19 antigens
   const tumor = new THREE.Mesh(
@@ -406,6 +413,7 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   anchorDefs.forEach((def) => {
     anchorPrimitive.registerAnchor(def, 'foundation');
   });
+  anchorPrimitive.staggerOverlapping();
   anchorPrimitive.batchLeaderLines();
   root.add(anchorContainer);
 

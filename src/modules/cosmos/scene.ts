@@ -225,12 +225,14 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
     }
     solarSystemRoot.add(pMesh);
   });
+  solarSystemRoot.scale.setScalar(0.4);
+  solarSystemRoot.position.set(0, 1.2, -2.5);
   root.add(solarSystemRoot);
 
   // Two-handed scale pinch primitive on solar system
   const scalePinchPrimitive = new SpatialScalePinchPrimitive(solarSystemRoot, {
-    minScale: 0.25,
-    maxScale: 3.5,
+    minScale: 0.3,
+    maxScale: 4.0,
   });
 
   // 6. Exoplanet Display Pods (All 7 systems from EXOPLANET_CATALOG)
@@ -246,6 +248,7 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
     const angle = (idx / EXOPLANET_CATALOG.length) * Math.PI - Math.PI / 2;
     pod.position.set(Math.cos(angle) * 2.8, 0, Math.sin(angle) * 1.5);
     pod.lookAt(0, 1.2, 0);
+    pod.userData.billboard = true;
     exoplanetDisplays.push(pod);
     exoZone.add(pod);
   });
@@ -254,7 +257,7 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   // 7. Sagittarius A* Supermassive Black Hole & Accretion Disc (Beat 6)
   const blackHoleRoot = new THREE.Group();
   blackHoleRoot.name = 'sagittarius-a-black-hole';
-  blackHoleRoot.position.set(-3.2, 1.5, 0);
+  blackHoleRoot.position.set(-8, 1.5, -6);
 
   // Event horizon (Schwarzschild radius sphere, total black absorbing all light)
   const horizonGeo = new THREE.SphereGeometry(0.35, 32, 32);
@@ -274,19 +277,18 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   photonRing.rotateX(Math.PI / 2);
   blackHoleRoot.add(photonRing);
 
-  // Relativistic Accretion Disc with Doppler brightening asymmetry
-  const discGeo = new THREE.RingGeometry(0.58, 1.4, 48);
-  discGeo.rotateX(Math.PI / 2);
-  // Approaching side is cyan/white blueshifted; receding side is amber redshifted
-  const discMat = new THREE.MeshStandardMaterial({
-    color: 0x0284c7,
-    emissive: 0x0369a1,
-    emissiveIntensity: 0.8,
-    side: THREE.DoubleSide,
-    roughness: 0.3,
-  });
-  const accretionDisc = new THREE.Mesh(discGeo, discMat);
-  blackHoleRoot.add(accretionDisc);
+  // Multi-layer accretion disc (BUG-13)
+  const discInner=new THREE.Mesh(new THREE.RingGeometry(0.42,0.60,48),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,transparent:true,opacity:0.9}));
+  discInner.rotateX(Math.PI/2);
+  blackHoleRoot.add(discInner);
+  const discMid=new THREE.Mesh(new THREE.RingGeometry(0.60,0.95,48),new THREE.MeshBasicMaterial({color:0xf97316,side:THREE.DoubleSide,transparent:true,opacity:0.85}));
+  discMid.rotateX(Math.PI/2);
+  blackHoleRoot.add(discMid);
+  const discOuter=new THREE.Mesh(new THREE.RingGeometry(0.95,1.40,48),new THREE.MeshBasicMaterial({color:0x7f1d1d,side:THREE.DoubleSide,transparent:true,opacity:0.75}));
+  discOuter.rotateX(Math.PI/2);
+  blackHoleRoot.add(discOuter);
+  // compat alias
+
 
   // 3C 273 Quasar Relativistic Plasma Jet (bipolar vertical cones)
   const jetGeo = new THREE.ConeGeometry(0.12, 1.8, 16, 1, true);
@@ -303,7 +305,22 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   southJet.rotation.x = Math.PI;
   blackHoleRoot.add(northJet);
   blackHoleRoot.add(southJet);
+  // Point light at black hole + warp pads
+  const bhLight=new THREE.PointLight(0x38bdf8,1.2,4.0);
+  blackHoleRoot.add(bhLight);
   root.add(blackHoleRoot);
+  // Outbound warp pad near solar system
+  const warpOutGeo=new THREE.RingGeometry(0.3,0.5,24).rotateX(-Math.PI/2);
+  const warpMat=new THREE.MeshBasicMaterial({color:0x38bdf8,side:THREE.DoubleSide,transparent:true,opacity:0.8});
+  const warpPad=new THREE.Mesh(warpOutGeo,warpMat);
+  warpPad.position.set(-2,0.01,-2);
+  warpPad.userData.activate=()=>window.dispatchEvent(new CustomEvent('maarify:warp-to',{detail:{x:-7.5,z:-5.5}}));
+  root.add(warpPad);
+  // Return warp pad near black hole
+  const warpRet=new THREE.Mesh(new THREE.RingGeometry(0.3,0.5,24).rotateX(-Math.PI/2),warpMat.clone());
+  warpRet.position.set(-7.5,0.01,-4.5);
+  warpRet.userData.activate=()=>window.dispatchEvent(new CustomEvent('maarify:warp-to',{detail:{x:0,z:0}}));
+  root.add(warpRet);
 
   // 8. Diegetic Spatial Anchors Kit
   const anchorContainer = new THREE.Group();
@@ -313,6 +330,7 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   anchorDefs.forEach((def) => {
     anchorPrimitive.registerAnchor(def, 'foundation');
   });
+  anchorPrimitive.staggerOverlapping();
   anchorPrimitive.batchLeaderLines();
   root.add(anchorContainer);
 
@@ -339,7 +357,10 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   root.add(leverBase);
 
   // Animation / Render tick handler
+  let time=0;
   function update(deltaSeconds: number): void {
+    time+=deltaSeconds;
+    time+=deltaSeconds;
     // Slowly revolve planets
     planetsData.forEach((p, i) => {
       const mesh = solarSystemRoot.getObjectByName(`planet-${p.name.toLowerCase()}`);
@@ -349,8 +370,14 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
       }
     });
 
-    // Rotate accretion disc
-    accretionDisc.rotation.z += 0.8 * deltaSeconds;
+    // Rotate accretion disc layers at different speeds
+    discInner.rotation.z += 2.5 * deltaSeconds;
+    discMid.rotation.z += 1.2 * deltaSeconds;
+    discOuter.rotation.z += 0.6 * deltaSeconds;
+    // Pulse north/south jets
+    const jScale = 1 + Math.sin(time * 3) * 0.15;
+    northJet.scale.set(jScale, 1, jScale);
+    southJet.scale.set(jScale, 1, jScale);
 
     // Slowly revolve ISS
     issGroup.rotation.y += 0.2 * deltaSeconds;

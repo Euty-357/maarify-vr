@@ -111,7 +111,7 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
     side: THREE.DoubleSide,
   });
   const signMesh = new THREE.Mesh(signGeo, signMat);
-  signMesh.position.set(0, 0.72, 0);
+  signMesh.position.set(0, 0.78, 0);
   signMesh.rotation.x = -Math.PI / 6;
   safetyPlinthGroup.add(signMesh);
   root.add(safetyPlinthGroup);
@@ -552,6 +552,7 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   anchorDefs.forEach((def) => {
     anchorPrimitive.registerAnchor(def, 'foundation');
   });
+  anchorPrimitive.staggerOverlapping();
   anchorPrimitive.batchLeaderLines();
   root.add(anchorContainer);
 

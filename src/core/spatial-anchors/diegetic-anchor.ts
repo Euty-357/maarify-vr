@@ -18,6 +18,7 @@ export class DiegeticSpatialAnchor extends THREE.Group {
   public isExpanded = false;
   public activeTier: 'foundation' | 'advanced' | 'expert' = 'foundation';
   private lineMesh: THREE.Line;
+  private indicatorMesh!: THREE.Mesh;
   private tagMesh: THREE.Mesh;
   private microSimRoot: THREE.Group;
   private tagCanvas: HTMLCanvasElement;
@@ -51,6 +52,14 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     this.lineMesh = new THREE.Line(lineGeo, lineMat);
     this.add(this.lineMesh);
 
+    // Indicator sphere (collapsed default state - glowing ⓘ)
+    const indicatorGeo = new THREE.SphereGeometry(0.03, 10, 8);
+    const indicatorMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+    this.indicatorMesh = new THREE.Mesh(indicatorGeo, indicatorMat);
+    this.indicatorMesh.name = 'anchor-indicator-' + id;
+    this.indicatorMesh.userData.isAnchorIndicator = true;
+    this.add(this.indicatorMesh);
+
     // 2. Spatial Anchor Tag with HTML Canvas Texture (offline, zero network calls)
     const isBrowser = typeof document !== 'undefined';
     if (isBrowser) {
@@ -80,6 +89,9 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     this.tagMesh = new THREE.Mesh(tagGeo, tagMat);
     this.tagMesh.position.set(0.2, 0.24, 0);
     this.tagMesh.name = `anchor-tag-${id}`;
+    this.tagMesh.userData.isAnchorTag=true;
+    this.tagMesh.userData.billboard=true;
+    this.tagMesh.visible=false;
     this.add(this.tagMesh);
 
     // 3. Interactive Micro-Simulation Root (State 2)
@@ -148,16 +160,26 @@ export class DiegeticSpatialAnchor extends THREE.Group {
   /**
    * Toggles between State 1 (Spatial Tag) and State 2 (Exploded Micro-Sim)
    */
-  public toggleExpansion(): boolean {
+  public toggleExpansion(cameraWorldPos?: THREE.Vector3): boolean {
     this.isExpanded = !this.isExpanded;
+    this.tagMesh.visible = this.isExpanded;
+    this.indicatorMesh.visible = !this.isExpanded;
     this.microSimRoot.visible = this.isExpanded;
     this.renderTagCanvas(this.isExpanded);
+    // Adapt tag toward the opening camera position
+    if (this.isExpanded && cameraWorldPos) {
+      const dir = cameraWorldPos.clone().sub(this.getWorldPosition(new THREE.Vector3())).setY(0);
+      if (dir.lengthSq() > 0.0001) {
+        dir.normalize().multiplyScalar(0.35);
+        this.tagMesh.position.set(dir.x, 0.24, dir.z);
+      }
+    }
     return this.isExpanded;
   }
 
   /** Alias for toggleExpansion */
-  public toggleExpanded(): boolean {
-    return this.toggleExpansion();
+  public toggleExpanded(cameraWorldPos?: THREE.Vector3): boolean {
+    return this.toggleExpansion(cameraWorldPos);
   }
 
   public setMicroSimContent(mesh: THREE.Object3D): void {

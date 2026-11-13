@@ -9,6 +9,7 @@ import { RuntimeTuningPanel } from './core/tuning-panel/tuning-panel';
 import { DiegeticSpatialAnchor } from './core/spatial-anchors/diegetic-anchor';
 import {
   SpatialGrabPrimitive,
+  SpatialLeverPrimitive,
   SpatialRotatorPrimitive,
   SpatialSliderPrimitive,
   SpatialSnapTurnPrimitive,
@@ -60,6 +61,7 @@ let tuningConsole: THREE.Group;
 const progressStore = new InMemoryProgressStore();
 const physicsAccumulator = new FixedTimestepAccumulator(ActiveTuning.physics.fixedStepHz);
 const activeGrabs = new Map<THREE.Object3D, SpatialGrabPrimitive>();
+const activeLevers = new Map<THREE.Object3D, SpatialLeverPrimitive>();
 const grabDistances = new Map<THREE.Object3D, number>();
 const completedChallenges = new Set<string>();
 
@@ -326,6 +328,15 @@ function initApp() {
       stripModuleParamFromUrl();
     }
   }
+
+  window.addEventListener('maarify:warp-to', (event: Event) => {
+    const detail = (event as CustomEvent<{ x: number; z: number }>).detail;
+    if (detail) {
+      cameraRig.position.set(detail.x, 0, detail.z);
+      comfortSystem.setMotionIntensity(0.85);
+      window.setTimeout(() => comfortSystem.setMotionIntensity(0), 150);
+    }
+  });
 
   setupDesktopInteraction();
   setupWebXR();
@@ -880,11 +891,6 @@ function findInputSource(controller: THREE.XRTargetRaySpace): XRInputSource | un
  * WebXR target rays point along -Z, while Object3D.getWorldDirection() returns +Z.
  * This builds the real pointing direction from the controller's world quaternion.
  */
-function getControllerForward(controller: THREE.Object3D, target: THREE.Vector3): THREE.Vector3 {
-  const quaternion = new THREE.Quaternion();
-  controller.getWorldQuaternion(quaternion);
-  return target.set(0, 0, -1).applyQuaternion(quaternion).normalize();
-}
 
 /** Hands point from the wrist through the index fingertip; controllers along their -Z ray. */
 function getPointerRay(
@@ -922,7 +928,7 @@ function getPointerRay(
   }
   // Last resort: no pose yet (first frame, session just started).
   controller.getWorldPosition(origin);
-  getControllerForward(controller, direction);
+  camera.getWorldDirection(direction);
 }
 
 /** Ray-to-UV routing for the tuning console; consumed before world interaction. */
@@ -1042,10 +1048,18 @@ function handleModuleRayInteraction(
   const hits = xrRaycaster.intersectObjects(targets, true);
   if (hits.length === 0) return null;
 
-  // Dispatch on the CLOSEST hit only. Previously every anchor anywhere along the ray
-  // could consume the press, so aiming at a grabbable near an anchor tag toggled the
-  // anchor instead of grabbing.
-  const hit = hits[0];
+  // Two-pass priority: interactive primitives beat anchor tags (BUG-07).
+  const interactiveHit = hits.find((h) =>
+    !h.object.userData.isAnchorTag && (
+      findUserDataPrimitive(h.object, "activate") ||
+      findUserDataPrimitive(h.object, "sliderPrimitive") ||
+      findUserDataPrimitive(h.object, "rotatorPrimitive") ||
+      findUserDataPrimitive(h.object, "leverPrimitive") ||
+      findUserDataPrimitive(h.object, "grabPrimitive")
+    )
+  );
+  const anchorHit = hits.find((h) => findDiegeticAnchor(h.object));
+  const hit = interactiveHit ?? anchorHit ?? hits[0];
 
   const activate = findUserDataPrimitive(hit.object, 'activate');
   if (typeof activate === 'function') {
@@ -1071,6 +1085,13 @@ function handleModuleRayInteraction(
   if (rotator) {
     rotator.addDeltaDeg(ActiveTuning.input.rotatorDetentStepDeg);
     return 'rotator';
+  }
+
+  const lever = findUserDataPrimitive(hit.object, 'leverPrimitive') as SpatialLeverPrimitive | null;
+  if (lever) {
+    lever.updateFromGrab(hit.point, source);
+    activeLevers.set(controller, lever);
+    return 'lever';
   }
 
   const grab = findUserDataPrimitive(hit.object, 'grabPrimitive') as SpatialGrabPrimitive | null;
@@ -1139,6 +1160,14 @@ function handleModuleProximityInteraction(
     (rotatorObject.userData.rotatorPrimitive as SpatialRotatorPrimitive).addDeltaDeg(ActiveTuning.input.rotatorDetentStepDeg);
     return;
   }
+  const leverProxObj = findClosestModuleObject((object) => object.userData.leverPrimitive instanceof SpatialLeverPrimitive, pos, 0.4);
+  if (leverProxObj) {
+    const lev = leverProxObj.userData.leverPrimitive as SpatialLeverPrimitive;
+    lev.updateFromGrab(pos, source);
+    activeLevers.set(controller, lev);
+    return;
+  }
+
   const grabObject = findClosestModuleObject((object) => object.userData.grabPrimitive instanceof SpatialGrabPrimitive, pos, 0.3);
   if (!grabObject) return;
   const grab = grabObject.userData.grabPrimitive as SpatialGrabPrimitive;
@@ -1164,6 +1193,7 @@ function findClosestModuleObject(predicate: (object: THREE.Object3D) => boolean,
 }
 
 function releaseControllerGrab(controller: THREE.Object3D): void {
+  activeLevers.delete(controller);
   const grab = activeGrabs.get(controller);
   if (!grab) return;
   grab.release(findInputSource(controller as THREE.XRTargetRaySpace));
@@ -1193,7 +1223,11 @@ async function onEnterVR() {
       else if (rates.includes(72)) session.updateTargetFrameRate(72).catch(() => {});
     }
 
+    session.addEventListener('visibilitychange', () => {
+      scene.visible = session.visibilityState !== 'visible-blurred';
+    });
     session.addEventListener('end', () => {
+      scene.visible = true;
       inputMode = 'Desktop Fallback';
       activeTier = 'Quest 3 / 3S (90 Hz target)';
       camera.position.copy(DESKTOP_CAMERA_POSITION);
@@ -1430,8 +1464,8 @@ function syncControllerPoses(frame?: XRFrame): void {
       const thumbPosition = thumb.getWorldPosition(new THREE.Vector3());
       const indexPosition = index.getWorldPosition(new THREE.Vector3());
       // Guard against uninitialised joints (zero world position on first frame).
-      const thumbValid = thumbPosition.lengthSq() > 0.0001;
-      const indexValid = indexPosition.lengthSq() > 0.0001;
+      const thumbValid = thumbPosition.lengthSq() > 0.01;
+      const indexValid = indexPosition.lengthSq() > 0.01;
       if (thumbValid && indexValid) {
         const pinch = nextPinch(entry.pinchActive, thumbPosition.distanceTo(indexPosition));
         if (pinch.active !== entry.pinchActive) {
@@ -1555,6 +1589,12 @@ function renderFrame(frame?: XRFrame) {
   // Module animation tick (helix sway, plume pulse, heart beat...).
   activeModuleDef?.update?.(deltaSec);
 
+  activeLevers.forEach((lever, controller) => {
+    const lEntry = xrControllers.find((candidate) => candidate.controller === controller) ?? null;
+    const lPos = lEntry?.hasPose ? lEntry.poseOrigin.clone() : controller.getWorldPosition(new THREE.Vector3());
+    lever.updateFromGrab(lPos, lEntry?.source ?? undefined);
+  });
+
   activeGrabs.forEach((grab, controller) => {
     const entry = xrControllers.find((candidate) => candidate.controller === controller) ?? null;
     const origin = entry?.hasPose ? entry.poseOrigin.clone() : controller.getWorldPosition(new THREE.Vector3());
@@ -1563,6 +1603,13 @@ function renderFrame(frame?: XRFrame) {
     const distance = grabDistances.get(controller) ?? 0.6;
     grab.update(origin.addScaledVector(direction, distance), quaternion);
   });
+
+  // Per-frame billboard: objects with userData.billboard face the camera
+  const camPos=camera.getWorldPosition(new THREE.Vector3());
+  scene.traverse((obj) => { if (obj.userData.billboard) obj.lookAt(camPos); });
+
+  // Per-frame billboard: objects with userData.billboard face the camera
+
 
   if (folioPanel?.visible) {
     folioPanel.update(camera.getWorldPosition(folioCameraPosition));

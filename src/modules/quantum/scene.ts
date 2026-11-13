@@ -123,7 +123,7 @@ export async function buildQuantumScene(): Promise<QuantumSceneComponents> {
 
   // Spatial rotator primitive controlling Bloch sphere theta rotation
   const blochRotator = new SpatialRotatorPrimitive(blochVectorArrow, {
-    axis: 'z',
+    axis: 'y',
     detentStepDeg: 15,
   });
 
@@ -283,6 +283,8 @@ export async function buildQuantumScene(): Promise<QuantumSceneComponents> {
   anchorDefs.forEach((def) => {
     anchorPrimitive.registerAnchor(def, 'foundation');
   });
+  anchorPrimitive.staggerOverlapping();
+  anchorPrimitive.batchLeaderLines();
   root.add(anchorContainer);
 
   // Animation / Render tick handler

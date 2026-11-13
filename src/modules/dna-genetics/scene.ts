@@ -390,9 +390,9 @@ export async function buildScene(): Promise<DnaGeneticsScene> {
     root.add(nucleotide);
     new SpatialGrabPrimitive(nucleotide, {
       onGrab: () => ping(nucleotide, 700),
-      onRelease: () => {
+      onRelease: (inputSrc?) => {
         for (const slot of sockets) {
-          const result = slot.attempt(nucleotide);
+          const result = slot.attempt(nucleotide, inputSrc);
           if (result === 'accepted') return;
           if (result === 'rejected') {
             springBack(nucleotide, new THREE.Vector3(-1.75 + index * 0.2, 0.79, -1.0));
@@ -480,8 +480,8 @@ export async function buildScene(): Promise<DnaGeneticsScene> {
     root.add(trna);
     new SpatialGrabPrimitive(trna, {
       onGrab: () => ping(trna, 820),
-      onRelease: () => {
-        const result = aSiteSlot.attempt(trna);
+      onRelease: (inputSrc?) => {
+        const result = aSiteSlot.attempt(trna, inputSrc);
         if (result === 'ignored') springBack(trna, new THREE.Vector3(1.5 + index * 0.4, 1.05, -1.1));
       },
     });
@@ -689,9 +689,9 @@ export async function buildScene(): Promise<DnaGeneticsScene> {
     root.add(panel);
     new SpatialGrabPrimitive(panel, {
       onGrab: () => ping(panel, 660),
-      onRelease: () => {
+      onRelease: (inputSrc?) => {
         for (const slot of chainSlots) {
-          const result = slot.attempt(panel);
+          const result = slot.attempt(panel, inputSrc);
           if (result === 'accepted') return;
           if (result === 'rejected') {
             springBack(panel, new THREE.Vector3(x, 1.62, 0.35));

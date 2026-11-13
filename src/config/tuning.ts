@@ -40,6 +40,7 @@ export interface TuningConfig {
   };
   input: {
     grabThresholdMeters: number;
+    handGrabThresholdMeters: number;
     pokeThresholdMeters: number;
     pinchEnterMeters: number;
     pinchExitMeters: number;
@@ -98,6 +99,7 @@ export const DEFAULT_TUNING: TuningConfig = {
   },
   input: {
     grabThresholdMeters: 0.14,
+    handGrabThresholdMeters: 0.20,
     pokeThresholdMeters: 0.045,
     pinchEnterMeters: 0.025,
     pinchExitMeters: 0.04,
@@ -108,8 +110,8 @@ export const DEFAULT_TUNING: TuningConfig = {
     rotatorDetentStepDeg: 15,
   },
   comfort: {
-    teleportMaxDistanceMeters: 3.5,
-    teleportMaxRadiusMeters: 4.0,
+    teleportMaxDistanceMeters: 6.0,
+    teleportMaxRadiusMeters: 7.0,
     teleportArcGravity: 9.81,
     teleportLaunchVelocity: 6.0,
     smoothLocomotion: false,
