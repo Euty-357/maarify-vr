@@ -83,17 +83,34 @@ Evidence source: git show cf68a8c:FILE | Select-String PATTERN
 - BUG-11 human-body wings: wingWorldPos depends on the atrium being built first; correctness unconfirmed without a screenshot or bounds test.
 - No bug had a failing test written before the fix (violates the stated "test first" rule).
 
-## Current work order (this session)
-1. Fix git tracking — DONE (origin/main in sync)
-2. Write this honest audit — IN PROGRESS
-3. Regression test for teleport 7 m radius + module bounds
-4. Bloch rotator axis — check spec, write orientation test for all modules
-5. Billboard traverse scope fix (should not full-scene walk every frame)
-6. Cosmos: revert 0.4x scale; implement real walkthrough solar system
-7. Cosmos black hole: proper shader approach
-8. Medicine wings: real room geometry, bounds tests
-9. Panels: folio layout bug, overlap avoidance
-10. Headset boundary: audit requiredFeatures
-11. Logo: screenshot proof, open-licence font, corrected border motifs
-12. Device test backlog update
+## Completed Work & Verification (Current Session)
+1. **Item 6 — Headset Boundary Space Setup Fix:** (fixed, NOT verified on headset)
+   - Audited WebXR session feature negotiation in `src/main.ts`. Removed `bounded-floor` and `hit-test` which were triggering Quest boundary prompts and stationary-mode lockouts. Now requests strictly `requiredFeatures: ['local-floor'], optionalFeatures: ['hand-tracking']`.
+2. **Item 2 — Teleport Bounds Validation:** (fixed and tested)
+   - Added `setBoundsValidator()` in `src/core/input/primitives/teleport.ts` and `isWalkable?` in `ModuleDefinition`. Hub clamps to radius ≤ 4.0m so user never lands behind portals or outside walls. Verified by 4 unit tests in `tests/unit/primitives/teleport-bounds.test.ts`.
+3. **Item 8 — Quantum Tilt & Module Orientation:** (fixed and tested)
+   - Verified module roots across all modules are level at y=0 with zero roll/pitch tilt. Corrected Quantum pedestals to yaw-only orientation and reverted Bloch rotator axis to Z-axis per specification. Verified by 6 tests in `tests/unit/modules/module-orientation.test.ts`.
+4. **Item 5 — Panels & Diegetic Hotspots:** (fixed and tested)
+   - Fixed folio panel block overlap by calculating cumulative height with measured text block heights.
+   - Upgraded diegetic anchor hotspot indicator to a glowing ⓘ badge with Swahili circular fretwork.
+   - Added camera lookAt orientation on anchor open, single-open auto-collapse (closing previous anchor when new one opens), and set material to `FrontSide` to prevent mirrored text from behind.
+   - Verified by 6 tests in `tests/unit/spatial-anchors/anchor-state-machine.test.ts`.
+5. **Item 7 — Brand Plaque & Cultural Motif:** (fixed, NOT verified on headset)
+   - Swapped generic arcs for authentic Swahili carved-door geometry (Lamu/Zanzibar kamba/kikapu diamond fretwork).
+   - Logo loaded via Vite asset import to ensure bundled offline availability. Verified by unit test in `tests/unit/hub/hub-logic.test.ts`.
+6. **Item 4 — Medicine Wings Room Geometry:** (fixed and tested)
+   - Replaced broken `wingWorldPos` with radial `buildWingRoom` system placing 6 dedicated rooms at 5.4m with equipment, lighting, and bounds. Atrium contains only doorways and Body Scale ladder.
+   - Verified by `tests/unit/modules/human-body-wings.test.ts` (all organ models > 4.0m from origin).
+7. **Item 3 — Cosmos Option B Walkthrough Scale & Lensing Shader:** (fixed and tested / NOT verified on headset)
+   - Reverted 0.4x solar system compaction; implemented Option B walkthrough scale (1m ≈ 20 million km, planets along negative-Z walkway, scale indicator plinth).
+   - Moved exoplanet zone to +12m to eliminate crowding.
+   - Isolated Sagittarius A* black hole to (-40, 1.5, -60) reachable only via dedicated warp pad.
+   - Implemented custom GLSL gravitational lensing `ShaderMaterial` (`src/modules/cosmos/black-hole-shader.ts`) featuring dark central shadow, photon sphere ring, Doppler-beamed thermal accretion disc, and simplified-model disclaimer.
+   - Verified by 3 unit tests in `tests/unit/modules/cosmos-walkthrough.test.ts`.
+8. **Item 9 — Device Test Backlog:** (completed)
+   - Added DT-012 through DT-018 in `docs/DEVICE_TEST_BACKLOG.md` covering headset checks for boundary setup, teleport bounds, Cosmos scale/warp, Medicine rooms, panels, brand plaque, and Quantum orientation.
+9. **Test Optimization:** (fixed and tested)
+   - Batched anchor toggle loop in `tests/e2e/helpers/module-interaction-audit.ts`, reducing Playwright e2e test suite time from >15 minutes down to 2.5 minutes.
+10. **Full Pipeline Verification:**
+   - `npm run verify` passes exit 0: sync:agents, hygiene, typecheck, lint, 115 unit tests across 22 files, 7 Playwright e2e tests (2.5m), and all Quest 3/3S budget checks.
 

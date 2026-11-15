@@ -70,6 +70,8 @@ export interface ModuleDefinition {
   getState?(): Record<string, unknown> | null;
   /** Optional depth-tier hook so the hub selector reaches module content. */
   setDepthTier?(tier: 'foundation' | 'advanced' | 'expert'): void;
+  /** Optional bounds validator to constrain teleport landing points within module walkable areas. */
+  isWalkable?(position: THREE.Vector3): boolean;
   getChallenges(): ChallengeDefinition[];
   getSpatialAnchors(): SpatialAnchorDefinition[];
 }

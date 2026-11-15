@@ -309,6 +309,8 @@ function initApp() {
   scene.add(returnGate);
 
   teleport = new SpatialTeleportPrimitive(scene, cameraRig, comfortSystem);
+  // Hub walkable platform: radius <= 4.0m prevents landing behind portals (at 3.5m)
+  teleport.setBoundsValidator((pos) => Math.hypot(pos.x, pos.z) <= 4.0);
   snapTurn = new SpatialSnapTurnPrimitive(cameraRig, comfortSystem);
 
   // Impact dot for the pointer ray.
@@ -460,6 +462,12 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
     tuningConsole.visible = false;
     if (folioPanel) folioPanel.visible = false;
     activeModuleDef = mod;
+    if (teleport) {
+      teleport.setBoundsValidator((pos) => {
+        if (mod.isWalkable) return mod.isWalkable(pos);
+        return Math.hypot(pos.x, pos.z) <= ActiveTuning.comfort.teleportMaxRadiusMeters;
+      });
+    }
     activeModuleRoot = await mod.load(scene);
     mod.setDepthTier?.(selectedTier);
     highlightGrabbables(activeModuleRoot);
@@ -489,6 +497,10 @@ function returnToHub(): void {
   }
   activeModuleRoot = null;
   currentModuleName = 'hub';
+  if (teleport) {
+    // Return to hub walkable platform constraint (radius <= 4.0m)
+    teleport.setBoundsValidator((pos) => Math.hypot(pos.x, pos.z) <= 4.0);
+  }
   completedChallenges.clear();
   hubWorld.visible = true;
   tuningConsole.visible = true;
@@ -544,7 +556,13 @@ function setupDesktopInteraction() {
     if (hit.userData.tuningPanelSurface && intersects[0].uv) {
       tuningPanel.handlePointer(intersects[0].uv.x, intersects[0].uv.y);
     } else if (anchor) {
-      anchor.toggleExpansion();
+      const camPos = camera.getWorldPosition(new THREE.Vector3());
+      activeModuleRoot?.traverse((obj) => {
+        if (obj instanceof DiegeticSpatialAnchor && obj !== anchor && obj.isExpanded) {
+          obj.toggleExpansion();
+        }
+      });
+      anchor.toggleExpansion(camPos);
       syncFolioForAnchor(anchor);
     } else if (hit.userData.sliderPrimitive instanceof SpatialSliderPrimitive) {
       const slider = hit.userData.sliderPrimitive as SpatialSliderPrimitive;
@@ -1069,7 +1087,13 @@ function handleModuleRayInteraction(
 
   const anchor = findDiegeticAnchor(hit.object);
   if (anchor) {
-    anchor.toggleExpansion();
+    const camPos = camera.getWorldPosition(new THREE.Vector3());
+    activeModuleRoot?.traverse((obj) => {
+      if (obj instanceof DiegeticSpatialAnchor && obj !== anchor && obj.isExpanded) {
+        obj.toggleExpansion();
+      }
+    });
+    anchor.toggleExpansion(camPos);
     syncFolioForAnchor(anchor);
     triggerHapticPulse(source, ActiveTuning.haptics.snap.intensity, ActiveTuning.haptics.snap.durationMs);
     return 'anchor';
@@ -1205,7 +1229,8 @@ async function onEnterVR() {
   if (!('xr' in navigator)) return;
   try {
     const session = await (navigator as any).xr.requestSession('immersive-vr', {
-      optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'hit-test'],
+      requiredFeatures: ['local-floor'],
+      optionalFeatures: ['hand-tracking'],
     });
 
     scene.environmentIntensity = 0.65;

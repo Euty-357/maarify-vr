@@ -14,6 +14,7 @@ export class SpatialTeleportPrimitive {
   private arcLine: THREE.Line;
   private landingMarker: THREE.Mesh;
   public target: TeleportTarget = { position: new THREE.Vector3(), isValid: false };
+  private boundsValidator: ((position: THREE.Vector3) => boolean) | null = null;
 
   constructor(
     private scene: THREE.Scene,
@@ -45,6 +46,10 @@ export class SpatialTeleportPrimitive {
     this.landingMarker = new THREE.Mesh(ringGeo, ringMat);
     this.landingMarker.visible = false;
     this.scene.add(this.landingMarker);
+  }
+
+  public setBoundsValidator(validator: ((position: THREE.Vector3) => boolean) | null): void {
+    this.boundsValidator = validator;
   }
 
   public startAim(): void {
@@ -83,9 +88,12 @@ export class SpatialTeleportPrimitive {
         // includes the drop from controller height and rejects ordinary throws.
         const horizontalDistance = Math.hypot(pos.x - originPos.x, pos.z - originPos.z);
         const horizontalRadius = Math.hypot(pos.x, pos.z);
+        const withinDefaultRadius = horizontalRadius <= ActiveTuning.comfort.teleportMaxRadiusMeters;
+        const withinBounds = this.boundsValidator ? this.boundsValidator(pos) : withinDefaultRadius;
         this.target.isValid =
           horizontalDistance <= ActiveTuning.comfort.teleportMaxDistanceMeters &&
-          horizontalRadius <= ActiveTuning.comfort.teleportMaxRadiusMeters;
+          withinDefaultRadius &&
+          withinBounds;
         break;
       }
     }

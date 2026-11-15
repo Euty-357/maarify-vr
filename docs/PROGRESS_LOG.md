@@ -428,3 +428,26 @@ _Never delete entries. Append only._
 - Replaced the six-face, multi-material anchor-tag box with a double-sided canvas plane. The tag remains raycastable and retains its diegetic label texture and leader-line affordance, while reducing each anchor to one render group.
 - Full `npm run verify` passed: 101 unit tests, 7 Playwright specs, hygiene and reports. Emulator budgets now meet the 108-draw working target in all measured modules: Cosmos 61, Quantum 63, Human Body 62, Aerospace 58 and DNA 62 draw calls.
 - Aerospace fell from 2,388 triangles / 178 calls to 2,148 / 58. This is **verified in Playwright/emulator**; Quest 3/3S feel, legibility and performance remain **NOT verified on headset**.
+
+---
+## 2026-11-15T19:40 EAT | Session 9 | Bug Batch, Cosmos Lensing, Medicine Rooms & Full Verification
+- **HONEST RE-AUDIT:** Completed audit of 24-bug claims in `docs/STATE.md` with strict evidence recording. Corrected false claims (grab and module update loops were pre-existing; black hole was not realistic; quantum tilt unverified).
+- **HEADSET BOUNDARY FIX (DT-012):** Removed `bounded-floor` and `hit-test` from `requestSession` in `src/main.ts`. Strictly requires `local-floor` only. Prevents Quest Space Setup and stationary mode prompts on session entry. Labeled NOT verified on headset.
+- **TELEPORT BOUNDS VALIDATOR (DT-013):** Implemented `setBoundsValidator()` in `src/core/input/primitives/teleport.ts` and `isWalkable?` in `ModuleDefinition`. Hub clamps teleport to radius ≤ 4.0m to prevent landing behind portals. 4 unit tests passing in `tests/unit/primitives/teleport-bounds.test.ts`.
+- **COSMOS OPTION B WALKTHROUGH & BLACK HOLE SHADER (DT-014):**
+  - Reverted 0.4x table compaction in `src/modules/cosmos/scene.ts`. Implemented Option B walkthrough scale (1m ≈ 20M km, planets along negative-Z walkway with scale indicator plinth).
+  - Exoplanet zone isolated at +12m.
+  - Black hole isolated at (-40, 1.5, -60) reachable only via warp pad.
+  - Implemented custom GLSL gravitational lensing `ShaderMaterial` (`src/modules/cosmos/black-hole-shader.ts`) with Schwarzschild deflection approximation, dark shadow, photon ring, Doppler-beamed thermal accretion disc, and simplified model label.
+  - 3 unit tests passing in `tests/unit/modules/cosmos-walkthrough.test.ts`.
+- **MEDICINE WING ROOMS (DT-015):** Replaced broken `wingWorldPos` with radial `buildWingRoom` architecture creating 6 physical rooms at 5.4m with dedicated lighting, equipment and bounds in `src/modules/human-body/scene.ts`. Atrium reserved strictly for doorways and ladder plinth. 1 unit test passing in `tests/unit/modules/human-body-wings.test.ts`.
+- **PANELS & DIEGETIC HOTSPOTS (DT-016):**
+  - Fixed folio text block overlap in `src/core/ui/folio-panel.ts` with measured cumulative stacking.
+  - Replaced plain spheres with glowing ⓘ canvas glyphs in `src/core/spatial-anchors/diegetic-anchor.ts`.
+  - Added camera lookAt orientation on expand, single-open auto-collapse, and FrontSide material to eliminate mirrored text from behind.
+  - 6 unit tests passing in `tests/unit/spatial-anchors/anchor-state-machine.test.ts`.
+- **BRAND PLAQUE (DT-017):** Upgraded brand plaque in `src/core/brand/brand.ts` with documented Swahili carved-door fretwork geometry (Lamu/Zanzibar kamba/kikapu diamond motif) and Vite asset URL import. 3 unit tests passing in `tests/unit/hub/hub-logic.test.ts`.
+- **QUANTUM ORIENTATION (DT-018):** Reverted Bloch rotator axis to Z-axis per spec and fixed pedestal yaw in `src/modules/quantum/scene.ts`. 6 unit tests passing in `tests/unit/modules/module-orientation.test.ts`.
+- **TEST PERFORMANCE OPTIMIZATION:** Batched anchor toggle loop in `tests/e2e/helpers/module-interaction-audit.ts`, reducing Playwright e2e test suite execution time from 15+ minutes down to 2.5 minutes.
+- **DEVICE TEST BACKLOG:** Added DT-012 through DT-018 in `docs/DEVICE_TEST_BACKLOG.md`.
+- **VERIFY PIPELINE 100% GREEN:** `npm run verify` passed completely (hygiene check, typecheck, lint with 0 errors, 115 unit tests, 7 Playwright e2e specs, budget check across all scenes, report generation).

@@ -7,9 +7,9 @@ import { auditModuleInteractions } from './helpers/module-interaction-audit.js';
  * Verified in Playwright/emulator only — NOT verified on headset.
  */
 test.describe('M6 DNA & Genetics seven-beat playthrough', () => {
-  // Software WebGL in CI renders this scene at roughly 2–4 fps, so the seven-beat
-  // playthrough needs a longer budget than the project default.
-  test.describe.configure({ timeout: 180_000 });
+  // Software WebGL in CI / emulate runs at roughly 2–4 fps on host hardware,
+  // so the seven-beat playthrough + screenshot capture requires an extended timeout.
+  test.describe.configure({ timeout: 360_000 });
 
   test('plays all seven beats, awards 1,025 XP and the badge, then exits to the hub', async ({ page }) => {
     const consoleErrors: string[] = [];

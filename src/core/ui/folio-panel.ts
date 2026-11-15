@@ -289,6 +289,7 @@ export class FolioPanel extends THREE.Group {
     y: number,
     maxWidth: number
   ): number {
+    let currentY = y;
     const lineHeight = 40;
     const wrap = (text: string, font: string): string[] => {
       context.font = font;
@@ -312,8 +313,8 @@ export class FolioPanel extends THREE.Group {
       context.fillStyle = color;
       for (const line of wrap(prefix + text, font)) {
         context.font = font;
-        context.fillText(line, x, y);
-        y += lineHeight;
+        context.fillText(line, x, currentY);
+        currentY += lineHeight;
       }
     };
 
@@ -350,6 +351,7 @@ export class FolioPanel extends THREE.Group {
         break;
     }
 
-    return 10;
+    const blockHeight = currentY - y;
+    return blockHeight + 16;
   }
 }

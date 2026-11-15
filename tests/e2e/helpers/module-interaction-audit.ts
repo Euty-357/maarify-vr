@@ -10,11 +10,17 @@ export async function auditModuleInteractions(
   expect(audit.anchors).toHaveLength(expectedAnchors);
   expect(audit.challenges).toHaveLength(expectedChallenges);
 
-  for (const anchorId of audit.anchors) {
-    const expanded = await page.evaluate((id) => (window as any).__MAARIFY_TOGGLE_ANCHOR__(id), anchorId);
-    expect(expanded).toBe(true);
-    const collapsed = await page.evaluate((id) => (window as any).__MAARIFY_TOGGLE_ANCHOR__(id), anchorId);
-    expect(collapsed).toBe(false);
+  const toggleResults = await page.evaluate((anchorIds: string[]) => {
+    return anchorIds.map((id: string) => {
+      const expanded = (window as any).__MAARIFY_TOGGLE_ANCHOR__(id);
+      const collapsed = (window as any).__MAARIFY_TOGGLE_ANCHOR__(id);
+      return { id, expanded, collapsed };
+    });
+  }, audit.anchors);
+
+  for (const res of toggleResults) {
+    expect(res.expanded).toBe(true);
+    expect(res.collapsed).toBe(false);
   }
 
   for (const challenge of audit.challenges) {

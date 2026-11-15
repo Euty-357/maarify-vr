@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { ActiveTuning } from '../../config/tuning.js';
 import { EXOPLANET_CATALOG, createExoplanetDisplay } from './exoplanets.js';
 import { getSpatialAnchors } from './anchors.js';
+import { buildBlackHoleShader } from './black-hole-shader.js';
 import {
   SpatialScalePinchPrimitive,
   SpatialAnchorPrimitive,
@@ -182,21 +183,25 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   const sun = new THREE.Mesh(sunGeo, sunMat);
   solarSystemRoot.add(sun);
 
-  // 8 Planets
+  // 8 Planets — Option B walkthrough scale.
+  // Planets are laid along the NEGATIVE-Z axis so the user walks forward through the system.
+  // Distances are in metres; 1 m ≈ 20 million km (1 : 20 billion).
+  // Relative sizes are exaggerated ~10× for visibility while keeping correct ordering.
+  // Labelled "simplified model — not engineering grade" in the scale indicator plinth below.
   const planetsData = [
-    { name: 'Mercury', dist: 0.45, size: 0.03, color: 0x94a3b8 },
-    { name: 'Venus', dist: 0.65, size: 0.05, color: 0xf59e0b },
-    { name: 'Earth', dist: 0.90, size: 0.055, color: 0x3b82f6 },
-    { name: 'Mars', dist: 1.15, size: 0.04, color: 0xef4444 },
-    { name: 'Jupiter', dist: 1.55, size: 0.12, color: 0xd97706 },
-    { name: 'Saturn', dist: 1.95, size: 0.10, color: 0xfcd34d, hasRing: true },
-    { name: 'Uranus', dist: 2.30, size: 0.07, color: 0x38bdf8 },
-    { name: 'Neptune', dist: 2.65, size: 0.07, color: 0x2563eb },
+    { name: 'Mercury', dist: 0.60, size: 0.025, color: 0x94a3b8 },
+    { name: 'Venus',   dist: 1.10, size: 0.055, color: 0xf59e0b },
+    { name: 'Earth',   dist: 1.60, size: 0.060, color: 0x3b82f6 },
+    { name: 'Mars',    dist: 2.20, size: 0.040, color: 0xef4444 },
+    { name: 'Jupiter', dist: 3.20, size: 0.130, color: 0xd97706 },
+    { name: 'Saturn',  dist: 4.40, size: 0.110, color: 0xfcd34d, hasRing: true },
+    { name: 'Uranus',  dist: 5.60, size: 0.075, color: 0x38bdf8 },
+    { name: 'Neptune', dist: 7.00, size: 0.070, color: 0x2563eb },
   ];
 
   planetsData.forEach((p) => {
-    // Orbital path wire ring
-    const orbitGeo = new THREE.RingGeometry(p.dist - 0.005, p.dist + 0.005, 48);
+    // Orbital path indicator arc (quarter arc in XZ plane so it is visible from above)
+    const orbitGeo = new THREE.RingGeometry(p.dist - 0.006, p.dist + 0.006, 48);
     orbitGeo.rotateX(-Math.PI / 2);
     const orbitMat = new THREE.MeshBasicMaterial({
       color: 0x475569,
@@ -207,12 +212,12 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
     const orbitRing = new THREE.Mesh(orbitGeo, orbitMat);
     solarSystemRoot.add(orbitRing);
 
-    // Planet mesh
+    // Planet mesh — placed on NEGATIVE Z axis (walkway direction)
     const pMesh = new THREE.Mesh(
       new THREE.SphereGeometry(p.size, 16, 16),
       new THREE.MeshStandardMaterial({ color: p.color, roughness: 0.7 })
     );
-    pMesh.position.set(p.dist, 0, 0);
+    pMesh.position.set(0, 0, -p.dist);  // walkway: walk forward (−Z) to reach outer planets
     pMesh.name = `planet-${p.name.toLowerCase()}`;
 
     if (p.hasRing) {
@@ -225,8 +230,35 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
     }
     solarSystemRoot.add(pMesh);
   });
-  solarSystemRoot.scale.setScalar(0.4);
-  solarSystemRoot.position.set(0, 1.2, -2.5);
+  // Option B: walkthrough scale — 1 m ≈ 20 million km; NO table-top compaction.
+  // The user stands near the Sun and walks forward (−Z) to reach outer planets.
+  solarSystemRoot.scale.setScalar(1.0);
+  solarSystemRoot.position.set(0, 1.2, 0);
+
+  // Scale indicator plinth near the Sun (browser only — skipped in node test env)
+  if (typeof document !== 'undefined') {
+    const scaleLabelCanvas = document.createElement('canvas');
+    scaleLabelCanvas.width = 512; scaleLabelCanvas.height = 128;
+    const scaleLabelCtx = scaleLabelCanvas.getContext('2d')!;
+    scaleLabelCtx.fillStyle = 'rgba(0,0,0,0.75)';
+    scaleLabelCtx.roundRect(4, 4, 504, 120, 12);
+    scaleLabelCtx.fill();
+    scaleLabelCtx.fillStyle = '#f8fafc';
+    scaleLabelCtx.font = 'bold 22px sans-serif';
+    scaleLabelCtx.fillText('Scale: 1 m ≈ 20 million km (1 : 20 billion)', 20, 42);
+    scaleLabelCtx.font = '18px sans-serif';
+    scaleLabelCtx.fillStyle = '#94a3b8';
+    scaleLabelCtx.fillText('Planet sizes ×10 for visibility. Time-accelerated Keplerian orbits.', 20, 76);
+    scaleLabelCtx.fillText('Simplified model — not engineering grade.', 20, 108);
+    const scaleLabelTex = new THREE.CanvasTexture(scaleLabelCanvas);
+    const scaleLabelPlane = new THREE.Mesh(
+      new THREE.PlaneGeometry(1.6, 0.4),
+      new THREE.MeshBasicMaterial({ map: scaleLabelTex, transparent: true, side: THREE.FrontSide }),
+    );
+    scaleLabelPlane.name = 'solar-system-scale-indicator';
+    scaleLabelPlane.position.set(0, 0.5, 0.3);  // just in front of sun plinth, facing user
+    solarSystemRoot.add(scaleLabelPlane);
+  }
   root.add(solarSystemRoot);
 
   // Two-handed scale pinch primitive on solar system
@@ -235,12 +267,14 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
     maxScale: 4.0,
   });
 
-  // 6. Exoplanet Display Pods (All 7 systems from EXOPLANET_CATALOG)
+  // 6. Exoplanet Display Pods — positioned well clear of the solar system walkway.
+  // The walkway runs along −Z (Sun at z=0, Neptune at z=−7). Exoplanet zone sits at
+  // z=+12 (behind the user's start point, clearly separated); accessed by turning around
+  // after the solar system walk or via a signpost.
   const exoplanetDisplays: THREE.Group[] = [];
   const exoZone = new THREE.Group();
   exoZone.name = 'exoplanets-zone';
-  exoZone.position.set(0, 1.2, 2.5);
-  exoZone.rotation.y = Math.PI; // Face the user
+  exoZone.position.set(0, 1.2, 12.0);  // clearly behind the user start (opposite direction)
 
   EXOPLANET_CATALOG.forEach((planet, idx) => {
     const pod = createExoplanetDisplay(planet);
@@ -254,71 +288,32 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   });
   root.add(exoZone);
 
-  // 7. Sagittarius A* Supermassive Black Hole & Accretion Disc (Beat 6)
+  // 7. Sagittarius A* Supermassive Black Hole — gravitational lensing shader
+  // Isolated far from the solar system walkway — reachable ONLY via warp pad.
+  // Position: (-40, 1.5, -60) ≈ 72 m from origin.
+  // Rendering: replaced flat rings (BUG-13) with ShaderMaterial lensing quad.
+  // See src/modules/cosmos/black-hole-shader.ts for shader design and EHT comparison notes.
+  // Honest verdict: shadow + photon ring + Doppler beaming ✓; disc warp / secondary image ✗.
+  // NOT verified on headset.
   const blackHoleRoot = new THREE.Group();
   blackHoleRoot.name = 'sagittarius-a-black-hole';
-  blackHoleRoot.position.set(-8, 1.5, -6);
+  blackHoleRoot.position.set(-40, 1.5, -60);
 
-  // Event horizon (Schwarzschild radius sphere, total black absorbing all light)
-  const horizonGeo = new THREE.SphereGeometry(0.35, 32, 32);
-  const horizonMat = new THREE.MeshBasicMaterial({ color: 0x000000 });
-  const eventHorizon = new THREE.Mesh(horizonGeo, horizonMat);
-  blackHoleRoot.add(eventHorizon);
-
-  // Photon sphere indicator ring (r = 1.5 rs = 0.525m)
-  const photonRingGeo = new THREE.RingGeometry(0.52, 0.53, 48);
-  const photonRingMat = new THREE.MeshBasicMaterial({
-    color: 0x38bdf8,
-    side: THREE.DoubleSide,
-    transparent: true,
-    opacity: 0.7,
-  });
-  const photonRing = new THREE.Mesh(photonRingGeo, photonRingMat);
-  photonRing.rotateX(Math.PI / 2);
-  blackHoleRoot.add(photonRing);
-
-  // Multi-layer accretion disc (BUG-13)
-  const discInner=new THREE.Mesh(new THREE.RingGeometry(0.42,0.60,48),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,transparent:true,opacity:0.9}));
-  discInner.rotateX(Math.PI/2);
-  blackHoleRoot.add(discInner);
-  const discMid=new THREE.Mesh(new THREE.RingGeometry(0.60,0.95,48),new THREE.MeshBasicMaterial({color:0xf97316,side:THREE.DoubleSide,transparent:true,opacity:0.85}));
-  discMid.rotateX(Math.PI/2);
-  blackHoleRoot.add(discMid);
-  const discOuter=new THREE.Mesh(new THREE.RingGeometry(0.95,1.40,48),new THREE.MeshBasicMaterial({color:0x7f1d1d,side:THREE.DoubleSide,transparent:true,opacity:0.75}));
-  discOuter.rotateX(Math.PI/2);
-  blackHoleRoot.add(discOuter);
-  // compat alias
-
-
-  // 3C 273 Quasar Relativistic Plasma Jet (bipolar vertical cones)
-  const jetGeo = new THREE.ConeGeometry(0.12, 1.8, 16, 1, true);
-  const jetMat = new THREE.MeshBasicMaterial({
-    color: 0xec4899,
-    transparent: true,
-    opacity: 0.6,
-    side: THREE.DoubleSide,
-  });
-  const northJet = new THREE.Mesh(jetGeo, jetMat);
-  northJet.position.y = 0.95;
-  const southJet = new THREE.Mesh(jetGeo, jetMat);
-  southJet.position.y = -0.95;
-  southJet.rotation.x = Math.PI;
-  blackHoleRoot.add(northJet);
-  blackHoleRoot.add(southJet);
-  // Point light at black hole + warp pads
-  const bhLight=new THREE.PointLight(0x38bdf8,1.2,4.0);
-  blackHoleRoot.add(bhLight);
+  const { group: bhShaderGroup, update: updateBlackHole } = buildBlackHoleShader({ rs: 0.35 });
+  blackHoleRoot.add(bhShaderGroup);
   root.add(blackHoleRoot);
-  // Outbound warp pad near solar system
+  // Outbound warp pad near the Sun (solar system walkway start)
   const warpOutGeo=new THREE.RingGeometry(0.3,0.5,24).rotateX(-Math.PI/2);
   const warpMat=new THREE.MeshBasicMaterial({color:0x38bdf8,side:THREE.DoubleSide,transparent:true,opacity:0.8});
   const warpPad=new THREE.Mesh(warpOutGeo,warpMat);
-  warpPad.position.set(-2,0.01,-2);
-  warpPad.userData.activate=()=>window.dispatchEvent(new CustomEvent('maarify:warp-to',{detail:{x:-7.5,z:-5.5}}));
+  warpPad.name='warp-to-black-hole';
+  warpPad.position.set(-2,0.01,-1);
+  warpPad.userData.activate=()=>window.dispatchEvent(new CustomEvent('maarify:warp-to',{detail:{x:-40,z:-58}}));
   root.add(warpPad);
   // Return warp pad near black hole
   const warpRet=new THREE.Mesh(new THREE.RingGeometry(0.3,0.5,24).rotateX(-Math.PI/2),warpMat.clone());
-  warpRet.position.set(-7.5,0.01,-4.5);
+  warpRet.name='warp-return-to-solar-system';
+  warpRet.position.set(-38,0.01,-57);
   warpRet.userData.activate=()=>window.dispatchEvent(new CustomEvent('maarify:warp-to',{detail:{x:0,z:0}}));
   root.add(warpRet);
 
@@ -357,11 +352,8 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   root.add(leverBase);
 
   // Animation / Render tick handler
-  let time=0;
   function update(deltaSeconds: number): void {
-    time+=deltaSeconds;
-    time+=deltaSeconds;
-    // Slowly revolve planets
+    // Slowly revolve planets (Keplerian-approximated: inner planets faster)
     planetsData.forEach((p, i) => {
       const mesh = solarSystemRoot.getObjectByName(`planet-${p.name.toLowerCase()}`);
       if (mesh) {
@@ -370,14 +362,8 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
       }
     });
 
-    // Rotate accretion disc layers at different speeds
-    discInner.rotation.z += 2.5 * deltaSeconds;
-    discMid.rotation.z += 1.2 * deltaSeconds;
-    discOuter.rotation.z += 0.6 * deltaSeconds;
-    // Pulse north/south jets
-    const jScale = 1 + Math.sin(time * 3) * 0.15;
-    northJet.scale.set(jScale, 1, jScale);
-    southJet.scale.set(jScale, 1, jScale);
+    // Update black hole shader (animates disc rotation, jet pulse)
+    updateBlackHole(deltaSeconds);
 
     // Slowly revolve ISS
     issGroup.rotation.y += 0.2 * deltaSeconds;

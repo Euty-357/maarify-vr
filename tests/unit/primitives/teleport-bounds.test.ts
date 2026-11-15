@@ -33,4 +33,20 @@ describe('Teleport target bounds', () => {
     const teleport = aimDownRange();
     expect(teleport.target.isValid).toBe(false);
   });
+
+  it('respects a custom module bounds validator and rejects landing points outside boundary', () => {
+    const teleport = aimDownRange();
+    expect(teleport.target.isValid).toBe(true);
+    const landingRadius = Math.hypot(teleport.target.position.x, teleport.target.position.z);
+
+    // Custom validator stricter than the landing position
+    teleport.setBoundsValidator((pos) => Math.hypot(pos.x, pos.z) <= landingRadius * 0.5);
+    teleport.updateAim(new THREE.Vector3(0, 1.5, 0), new THREE.Vector3(0, -0.12, -1).normalize(), 0);
+    expect(teleport.target.isValid).toBe(false);
+
+    // Custom validator that includes the landing position
+    teleport.setBoundsValidator((pos) => Math.hypot(pos.x, pos.z) <= landingRadius + 1.0);
+    teleport.updateAim(new THREE.Vector3(0, 1.5, 0), new THREE.Vector3(0, -0.12, -1).normalize(), 0);
+    expect(teleport.target.isValid).toBe(true);
+  });
 });

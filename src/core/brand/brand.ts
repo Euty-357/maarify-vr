@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import { PALETTE, FONTS, standardMaterial } from '../design/tokens.js';
+import logoAssetUrl from '../../../assets/brand/maarify-logo.png';
 
 export const BRAND_NAME = 'Maarify';
-export const BRAND_LOGO_URL = '/assets/brand/maarify-logo.png';
+export const BRAND_LOGO_URL = logoAssetUrl;
 
 /**
  * Brand plaque: a brass-framed wordmark that swaps to the logo once
@@ -32,30 +33,51 @@ export function createBrandPlaque(widthMeters = 1.5, heightMeters = 0.55): THREE
     wCanvas.width=768;wCanvas.height=256;
     const wCtx=wCanvas.getContext("2d")!;
     wCtx.fillStyle="#241610";wCtx.fillRect(0,0,768,256);
-    wCtx.strokeStyle="#b08d57";wCtx.lineWidth=2;
-    wCtx.beginPath();wCtx.moveTo(24,58);wCtx.lineTo(744,58);wCtx.stroke();
-    wCtx.beginPath();wCtx.moveTo(24,186);wCtx.lineTo(744,186);wCtx.stroke();
-    const dc=(cx:number,cy:number,sx:number,sy:number)=>{wCtx.save();wCtx.translate(cx,cy);wCtx.scale(sx,sy);wCtx.strokeStyle="#b08d57";wCtx.lineWidth=2;wCtx.beginPath();wCtx.arc(0,0,18,0,Math.PI/2);wCtx.stroke();wCtx.beginPath();wCtx.arc(0,0,10,0,Math.PI/2);wCtx.stroke();wCtx.restore();};
-    dc(28,62,1,1);dc(740,62,-1,1);dc(28,182,1,-1);dc(740,182,-1,-1);
-    wCtx.fillStyle="#e8dcc0";
-    wCtx.font="bold 92px "+FONTS.serif;
-    wCtx.fillText("M",32,172);
-    wCtx.font="bold 72px "+FONTS.serif;
-    wCtx.fillText("AARIFY",118,168);
-    wCtx.fillStyle="#b08d57";wCtx.font="18px "+FONTS.serif;wCtx.textAlign="center";
-    wCtx.fillText("A SPATIAL LEARNING EXPERIENCE",384,210);
-    const wTex=new THREE.CanvasTexture(wCanvas);wTex.minFilter=THREE.LinearFilter;
-    wordmark=new THREE.Mesh(new THREE.PlaneGeometry(widthMeters*0.92,heightMeters*0.7),new THREE.MeshBasicMaterial({map:wTex,transparent:true,side:THREE.DoubleSide}));
+    // Swahili carved-door border geometry: Lamu/Zanzibar geometric fret & diamond lozenges (kikapu/kamba motif)
+    wCtx.strokeStyle = '#b08d57';
+    wCtx.lineWidth = 2;
+    wCtx.strokeRect(16, 16, 736, 224);
+    wCtx.strokeRect(22, 22, 724, 212);
+    for (let x = 32; x < 720; x += 32) {
+      wCtx.beginPath();
+      wCtx.moveTo(x, 22);
+      wCtx.lineTo(x + 16, 36);
+      wCtx.lineTo(x + 32, 22);
+      wCtx.stroke();
+
+      wCtx.beginPath();
+      wCtx.moveTo(x, 234);
+      wCtx.lineTo(x + 16, 220);
+      wCtx.lineTo(x + 32, 234);
+      wCtx.stroke();
+    }
+
+    wCtx.fillStyle = '#e8dcc0';
+    wCtx.font = 'bold 92px ' + FONTS.serif;
+    wCtx.fillText('M', 40, 160);
+    wCtx.font = 'bold 72px ' + FONTS.serif;
+    wCtx.fillText('AARIFY', 128, 156);
+    wCtx.fillStyle = '#b08d57';
+    wCtx.font = '18px ' + FONTS.serif;
+    wCtx.textAlign = 'center';
+    wCtx.fillText('A SPATIAL LEARNING EXPERIENCE', 384, 198);
+    const wTex = new THREE.CanvasTexture(wCanvas);
+    wTex.minFilter = THREE.LinearFilter;
+    wordmark = new THREE.Mesh(
+      new THREE.PlaneGeometry(widthMeters * 0.92, heightMeters * 0.7),
+      new THREE.MeshBasicMaterial({ map: wTex, transparent: true, side: THREE.FrontSide })
+    );
   } else {
-    wordmark=new THREE.Mesh(new THREE.PlaneGeometry(widthMeters*0.9,heightMeters*0.62),new THREE.MeshBasicMaterial({color:0xe8dcc0}));
+    wordmark = new THREE.Mesh(
+      new THREE.PlaneGeometry(widthMeters * 0.9, heightMeters * 0.62),
+      new THREE.MeshBasicMaterial({ color: 0xe8dcc0, side: THREE.FrontSide })
+    );
   }
-  wordmark.position.z=0.032;
+  wordmark.position.z = 0.032;
   group.add(wordmark);
 
-  // Headless tests and software rendering skip the full-size texture; the serif
-  // wordmark is used there. The device loads the real logo.
-  const isAutomated = typeof navigator !== 'undefined' && navigator.webdriver === true;
-  if (!isAutomated && typeof document !== 'undefined' && typeof Image !== 'undefined') {
+  // Logo loading: loads the real Maarify brand logo texture onto the plaque
+  if (typeof document !== 'undefined' && typeof Image !== 'undefined') {
     new THREE.TextureLoader().load(
       BRAND_LOGO_URL,
       (texture) => {
@@ -65,7 +87,7 @@ export function createBrandPlaque(widthMeters = 1.5, heightMeters = 0.55): THREE
         const logoWidth = widthMeters * 0.86;
         const logo = new THREE.Mesh(
           new THREE.PlaneGeometry(logoWidth, logoWidth / aspect),
-          new THREE.MeshBasicMaterial({ map: texture, transparent: true })
+          new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.FrontSide })
         );
         logo.position.z = 0.034;
         logo.name = 'brand-logo';

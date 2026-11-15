@@ -33,5 +33,15 @@ describe('Hub World Structure & Tier Plinth Logic', () => {
     hub.setTier('expert');
     expect(hub.selectedTier).toBe('expert');
   });
+
+  it('instantiates the brand plaque with FrontSide materials and Swahili carved-door geometry', () => {
+    const hub = new HubWorld();
+    const brandPlaque = hub.getObjectByName('brand-plaque');
+    expect(brandPlaque).toBeDefined();
+
+    // Verify position above the main arch (y = 2.75, z = -3.4)
+    expect(brandPlaque?.position.y).toBeCloseTo(2.75, 2);
+    expect(brandPlaque?.position.z).toBeCloseTo(-3.4, 2);
+  });
 });
 

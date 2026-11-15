@@ -52,16 +52,52 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     this.lineMesh = new THREE.Line(lineGeo, lineMat);
     this.add(this.lineMesh);
 
-    // Indicator sphere (collapsed default state - glowing ⓘ)
-    const indicatorGeo = new THREE.SphereGeometry(0.03, 10, 8);
-    const indicatorMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+    // Indicator glowing ⓘ badge (collapsed default state)
+    const isBrowser = typeof document !== 'undefined';
+    let indicatorTexture: THREE.Texture;
+    if (isBrowser) {
+      const icanvas = document.createElement('canvas');
+      icanvas.width = 128;
+      icanvas.height = 128;
+      const ictx = icanvas.getContext('2d');
+      if (ictx) {
+        ictx.beginPath();
+        ictx.arc(64, 64, 56, 0, Math.PI * 2);
+        ictx.fillStyle = 'rgba(2, 132, 199, 0.45)';
+        ictx.fill();
+        ictx.lineWidth = 8;
+        ictx.strokeStyle = '#38bdf8';
+        ictx.stroke();
+
+        ictx.beginPath();
+        ictx.arc(64, 64, 46, 0, Math.PI * 2);
+        ictx.fillStyle = '#0f172a';
+        ictx.fill();
+
+        ictx.fillStyle = '#38bdf8';
+        ictx.font = 'bold 64px Georgia, serif';
+        ictx.textAlign = 'center';
+        ictx.textBaseline = 'middle';
+        ictx.fillText('i', 64, 64);
+      }
+      indicatorTexture = new THREE.CanvasTexture(icanvas);
+    } else {
+      indicatorTexture = new THREE.Texture();
+    }
+
+    const indicatorGeo = new THREE.PlaneGeometry(0.08, 0.08);
+    const indicatorMat = new THREE.MeshBasicMaterial({
+      map: indicatorTexture,
+      transparent: true,
+      side: THREE.FrontSide,
+    });
     this.indicatorMesh = new THREE.Mesh(indicatorGeo, indicatorMat);
     this.indicatorMesh.name = 'anchor-indicator-' + id;
     this.indicatorMesh.userData.isAnchorIndicator = true;
+    this.indicatorMesh.userData.billboard = true;
     this.add(this.indicatorMesh);
 
     // 2. Spatial Anchor Tag with HTML Canvas Texture (offline, zero network calls)
-    const isBrowser = typeof document !== 'undefined';
     if (isBrowser) {
       this.tagCanvas = document.createElement('canvas');
       this.tagCanvas.width = 512;
@@ -74,9 +110,8 @@ export class DiegeticSpatialAnchor extends THREE.Group {
       this.tagTexture = new THREE.Texture();
     }
 
-    // A plane keeps the readable canvas and physical raycast target while avoiding
-    // BoxGeometry's six material groups per anchor. At 24+ anchors per module,
-    // this turns six submissions per label into one.
+    // A plane keeps the readable canvas and physical raycast target.
+    // FrontSide ensures text is never read mirrored/reversed from behind.
     const tagGeo = new THREE.PlaneGeometry(
       ActiveTuning.anchors.tagWidth,
       ActiveTuning.anchors.tagHeight
@@ -84,14 +119,14 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     const tagMat = new THREE.MeshBasicMaterial({
       map: this.tagTexture,
       transparent: false,
-      side: THREE.DoubleSide,
+      side: THREE.FrontSide,
     });
     this.tagMesh = new THREE.Mesh(tagGeo, tagMat);
     this.tagMesh.position.set(0.2, 0.24, 0);
     this.tagMesh.name = `anchor-tag-${id}`;
-    this.tagMesh.userData.isAnchorTag=true;
-    this.tagMesh.userData.billboard=true;
-    this.tagMesh.visible=false;
+    this.tagMesh.userData.isAnchorTag = true;
+    this.tagMesh.userData.billboard = true;
+    this.tagMesh.visible = false;
     this.add(this.tagMesh);
 
     // 3. Interactive Micro-Simulation Root (State 2)
@@ -166,12 +201,14 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     this.indicatorMesh.visible = !this.isExpanded;
     this.microSimRoot.visible = this.isExpanded;
     this.renderTagCanvas(this.isExpanded);
-    // Adapt tag toward the opening camera position
+    // Adapt tag position and face toward the opening camera position
     if (this.isExpanded && cameraWorldPos) {
-      const dir = cameraWorldPos.clone().sub(this.getWorldPosition(new THREE.Vector3())).setY(0);
+      const worldPos = this.getWorldPosition(new THREE.Vector3());
+      const dir = cameraWorldPos.clone().sub(worldPos).setY(0);
       if (dir.lengthSq() > 0.0001) {
-        dir.normalize().multiplyScalar(0.35);
-        this.tagMesh.position.set(dir.x, 0.24, dir.z);
+        dir.normalize();
+        this.tagMesh.position.set(dir.x * 0.35, 0.24, dir.z * 0.35);
+        this.tagMesh.lookAt(dir.x * 0.35 + dir.x, 0.24, dir.z * 0.35 + dir.z);
       }
     }
     return this.isExpanded;

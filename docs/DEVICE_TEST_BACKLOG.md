@@ -99,3 +99,59 @@ _All items here cannot be verified in headless CI or emulator and are strictly l
 - **Pass criteria:** All five parts are reachable and snap predictably without accidental grabs; streamlines and tracer particles are clear on entry; levers work with Touch Plus and hands; stall is visually distinct; no forced motion or unsafe/obscured controls.
 - **First tuning target if failed:** engine and lever positions in `src/modules/aerospace/scene.ts`; interaction thresholds in `src/config/tuning.ts`.
 - **Status:** NOT verified on headset
+
+## DT-012 — Headset Boundary & Session Feature Negotiation
+- **What:** Confirm Quest 3 enters WebXR immediately without prompting for Guardian redraw, Room Space Setup, or stationary-mode boundary dialogues.
+- **Why device needed:** WebXR session configuration (`requiredFeatures: ['local-floor']`) behaviour depends entirely on Quest OS system UI prompts which do not exist in desktop or emulator.
+- **Module / System:** Core (`src/main.ts`)
+- **How to test:** Put on Quest 3 from standard room-scale boundary; navigate to Maarify; click "Enter WebXR".
+- **Pass criteria:** Immediate transition into spatial hub; zero system prompts for boundary reconfiguration; floor level exactly matches physical floor.
+- **Status:** NOT verified on headset
+
+## DT-013 — Teleport Bounds & Portal Exclusion
+- **What:** Verify teleport arc respects module boundaries and blocks landing behind hub portals or outside walkable areas.
+- **Why device needed:** Arc aiming feel, boundary clamping feedback, and spatial comfort can only be validated with physical controllers.
+- **Module / System:** Core (`src/core/input/primitives/teleport.ts`, `src/main.ts`)
+- **How to test:** Stand in Hub; aim teleport arc directly through and behind portals (radius > 4.0m); attempt to teleport into wall bounds.
+- **Pass criteria:** Reticle changes to invalid / clamps to max walkable radius; user never lands behind portal geometry.
+- **Status:** NOT verified on headset
+
+## DT-014 — Cosmos Walkthrough Scale, Black Hole Warp & Lensing Shader
+- **What:** Verify Option B walkthrough scale (Sun at origin, planets along -Z walkway up to 7m), exoplanet zone at +12m, warp travel to Sagittarius A* at (-40, 1.5, -60), and shader appearance (shadow, photon ring, Doppler beaming).
+- **Why device needed:** Stereo depth perception of the solar system walkway, comfort during warp transition, and performance/visual quality of the gravitational lensing fragment shader on Snapdragon XR2 Gen 2.
+- **Module / System:** Cosmos (`src/modules/cosmos/scene.ts`, `src/modules/cosmos/black-hole-shader.ts`)
+- **How to test:** Enter Cosmos; walk down the solar system path; inspect scale plinth; step onto warp pad to travel to black hole; observe lensing and jet animation; return via return warp pad.
+- **Pass criteria:** Walkway feels spacious and physically grounded; warp transition is instantaneous/comfortable; black hole displays distinct dark shadow, bright photon ring, and Doppler-asymmetric accretion disc; steady 90 fps maintained.
+- **Status:** NOT verified on headset
+
+## DT-015 — Medicine Six Wing Rooms Physical Separation
+- **What:** Verify that each of the 6 Medicine wings exists as its own room radially placed at 5.4m with equipment and lighting, while the central atrium contains only signage, portal doors, and the Body Scale ladder.
+- **Why device needed:** Spatial audio reverberation, room scale feel, doorway transitions, and occlusion cannot be judged without stereo headset presence.
+- **Module / System:** Medicine (`src/modules/human-body/scene.ts`, `src/modules/human-body/sections.ts`)
+- **How to test:** Enter Human Body module; stand in atrium and verify unobstructed view of doors; walk through each portal into wing rooms; verify organ models are placed centrally within their respective rooms.
+- **Pass criteria:** Zero visual intersections between organ models and doorways; each wing feels like a dedicated clinical/research room; atrium remains spacious.
+- **Status:** NOT verified on headset
+
+## DT-016 — Diegetic Hotspots & Folio Panel Usability
+- **What:** Verify glowing ⓘ badge legibility, single-open auto-collapse behavior, front-only billboard orientation, and stacked text readability on folio panels.
+- **Why device needed:** World-space panel text legibility at arm's length (0.8m–1.5m), canvas texture sharpness, and gaze/ray targeting ergonomics.
+- **Module / System:** Core (`src/core/spatial-anchors/diegetic-anchor.ts`, `src/core/ui/folio-panel.ts`)
+- **How to test:** Approach an anchor; observe glowing ⓘ glyph; trigger expansion via controller ray; walk around anchor to verify backface is clean (no mirrored text); open a second anchor to confirm previous collapses automatically.
+- **Pass criteria:** Text blocks are cleanly stacked without overlap; panel faces user on open; only one panel active per region; ⓘ glyph is sharp and distinct.
+- **Status:** NOT verified on headset
+
+## DT-017 — Brand Plaque & Cultural Motif Clarity
+- **What:** Verify Maarify logo renders clearly on the hub arch plaque (y=2.75) with crisp Swahili carved-door fretwork geometry.
+- **Why device needed:** High-contrast canvas texture rendering, font rendering, and overhead viewing angles through pancake lenses.
+- **Module / System:** Hub (`src/core/brand/brand.ts`)
+- **How to test:** In Hub, look up at the main portal arch plaque; inspect logo icon and Swahili diamond/kikapu border.
+- **Pass criteria:** Logo image is sharp; Swahili fretwork border is rendered cleanly without artifacting or distortion.
+- **Status:** NOT verified on headset
+
+## DT-018 — Quantum Upright Pedestals & Bloch Rotation
+- **What:** Confirm Quantum module space has floor perfectly level at y=0, pedestals are upright, and Bloch sphere rotator rotates around polar Z-axis.
+- **Why device needed:** Vestibular orientation alignment (any accidental scene roll/pitch creates nausea) and angular dial manipulation feel.
+- **Module / System:** Quantum (`src/modules/quantum/scene.ts`)
+- **How to test:** Enter Quantum module; verify horizon is level with real room floor; rotate Bloch sphere dial with controller ray and direct hand pinch.
+- **Pass criteria:** Perfect horizon alignment; zero tilt sensation; Bloch polar rotation matches theoretical |0⟩ to |1⟩ latitude.
+- **Status:** NOT verified on headset

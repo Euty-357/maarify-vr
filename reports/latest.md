@@ -1,6 +1,6 @@
 # Maarify — Latest Verify Report
-_Generated: 2026-11-13T14:45:57.355Z_
-_Commit: cf68a8c_
+_Generated: 2026-11-15T16:37:57.091Z_
+_Commit: 11da82b_
 
 ## Verification Labels
 - Unit tests: **verified by unit test**
@@ -8,13 +8,13 @@ _Commit: cf68a8c_
 - Headset: **NOT verified on headset** — see [DEVICE_TEST_BACKLOG.md](../docs/DEVICE_TEST_BACKLOG.md)
 
 ## Budget Results
-- **m0-spatial-spike:** worst-case triangles=4688, drawCalls=39 (1 captured state(s))
-- **m1-hub:** worst-case triangles=4688, drawCalls=39 (1 captured state(s))
-- **m2-cosmos:** worst-case triangles=12066, drawCalls=77 (1 captured state(s))
-- **m3-quantum:** worst-case triangles=7734, drawCalls=60 (1 captured state(s))
-- **m4-human-body:** worst-case triangles=5484, drawCalls=38 (1 captured state(s))
-- **m5-aerospace:** worst-case triangles=4620, drawCalls=52 (1 captured state(s))
-- **m6-dna-genetics:** worst-case triangles=20886, drawCalls=62 (1 captured state(s))
+- **m0-spatial-spike:** worst-case triangles=4686, drawCalls=38 (1 captured state(s))
+- **m1-hub:** worst-case triangles=4686, drawCalls=38 (1 captured state(s))
+- **m2-cosmos:** worst-case triangles=9648, drawCalls=72 (1 captured state(s))
+- **m3-quantum:** worst-case triangles=7182, drawCalls=60 (1 captured state(s))
+- **m4-human-body:** worst-case triangles=4068, drawCalls=65 (1 captured state(s))
+- **m5-aerospace:** worst-case triangles=2136, drawCalls=52 (1 captured state(s))
+- **m6-dna-genetics:** worst-case triangles=20334, drawCalls=62 (1 captured state(s))
 
 ## Test Results
 _No test result data yet._
@@ -23,4 +23,4 @@ _No test result data yet._
 - All emulator measurements are NOT verified on headset.
 - See [docs/DEVICE_TEST_BACKLOG.md](../docs/DEVICE_TEST_BACKLOG.md) for headset-only test cases.
 
-_History entry: C:\maarify\reports\history\2026-11-13T14-45-57-355Z.json_
+_History entry: C:\maarify\reports\history\2026-11-15T16-37-57-091Z.json_

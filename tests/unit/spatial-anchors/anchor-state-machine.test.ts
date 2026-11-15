@@ -92,5 +92,50 @@ describe('Diegetic Spatial Anchor State Machine', () => {
     primitive.updateTier('expert');
     expect(anchor?.getState().simulationCaption).toBe('Expert caption');
   });
+
+  it('renders collapsed by default with glowing ⓘ indicator and FrontSide materials (no mirrored text)', () => {
+    const anchor = new DiegeticSpatialAnchor(
+      'indicator-test',
+      new THREE.Vector3(0, 1.2, -1.0),
+      'Indicator Test',
+      'Brief explanation.',
+      { type: 'exploded-view', caption: 'Pull apart.' }
+    );
+
+    // Collapsed by default
+    expect(anchor.isExpanded).toBe(false);
+
+    const indicator = anchor.getObjectByName('anchor-indicator-indicator-test') as THREE.Mesh;
+    expect(indicator).toBeDefined();
+    expect(indicator.visible).toBe(true);
+    expect(indicator.userData.isAnchorIndicator).toBe(true);
+
+    const tag = anchor.getObjectByName('anchor-tag-indicator-test') as THREE.Mesh;
+    expect(tag).toBeDefined();
+    expect(tag.visible).toBe(false);
+
+    // Both must use FrontSide material so text/glyph cannot be viewed mirrored from behind
+    expect((indicator.material as THREE.Material).side).toBe(THREE.FrontSide);
+    expect((tag.material as THREE.Material).side).toBe(THREE.FrontSide);
+  });
+
+  it('orients tag toward camera position when expanded', () => {
+    const anchor = new DiegeticSpatialAnchor(
+      'orient-test',
+      new THREE.Vector3(0, 1.2, -1.0),
+      'Orient Test',
+      'Brief explanation.',
+      { type: 'exploded-view', caption: 'Pull apart.' }
+    );
+
+    const cameraPos = new THREE.Vector3(0, 1.6, 0); // User standing at origin looking at z = -1.0
+    anchor.toggleExpansion(cameraPos);
+    expect(anchor.isExpanded).toBe(true);
+
+    const tag = anchor.getObjectByName('anchor-tag-orient-test') as THREE.Mesh;
+    expect(tag.visible).toBe(true);
+    // Tag should be offset toward the camera (z > 0 relative to anchor)
+    expect(tag.position.z).toBeGreaterThan(0);
+  });
 });
 

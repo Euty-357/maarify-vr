@@ -121,9 +121,9 @@ export async function buildQuantumScene(): Promise<QuantumSceneComponents> {
   blochSphere.add(blochVectorArrow);
   root.add(blochSphere);
 
-  // Spatial rotator primitive controlling Bloch sphere theta rotation
+  // Spatial rotator primitive controlling Bloch sphere theta rotation (polar angle between |0> and |1>)
   const blochRotator = new SpatialRotatorPrimitive(blochVectorArrow, {
-    axis: 'y',
+    axis: 'z',
     detentStepDeg: 15,
   });
 
@@ -193,7 +193,7 @@ export async function buildQuantumScene(): Promise<QuantumSceneComponents> {
     const angle = (idx / (QUANTUM_ARCHITECTURES.length - 1)) * (Math.PI * 0.8) - Math.PI * 0.4;
     const r = 3.2;
     ped.position.set(Math.sin(angle) * r, 0, Math.cos(angle) * r - 1.5);
-    ped.lookAt(0, 0.8, 0);
+    ped.lookAt(0, ped.position.y, 0); // Yaw-only orientation: face center without vertical tilt
     hardwarePedestals.push(ped);
     galleryGroup.add(ped);
   });
