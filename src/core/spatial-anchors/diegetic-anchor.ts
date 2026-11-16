@@ -50,6 +50,7 @@ export class DiegeticSpatialAnchor extends THREE.Group {
       opacity: ActiveTuning.anchors.leaderLineOpacity,
     });
     this.lineMesh = new THREE.Line(lineGeo, lineMat);
+    this.lineMesh.raycast = () => {};
     this.add(this.lineMesh);
 
     // Indicator glowing ⓘ badge (collapsed default state)

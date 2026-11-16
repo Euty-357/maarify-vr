@@ -37,6 +37,46 @@ describe('Spatial Interaction Primitives', () => {
       expect(grabbed).toBe(false);
       expect(grab.isGrabbed).toBe(false);
     });
+
+    it('correctly tracks interactor in parent local space without flying away', () => {
+      const parent = new THREE.Group();
+      parent.position.set(0, 1.0, -2.0); // Parent offset 2 meters back
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1));
+      mesh.position.set(0, 0, 0); // Local (0,0,0) -> World (0, 1.0, -2.0)
+      parent.add(mesh);
+      parent.updateMatrixWorld(true);
+
+      const grab = new SpatialGrabPrimitive(mesh);
+      const grabPos = new THREE.Vector3(0, 1.0, -2.0);
+      const grabbed = grab.tryGrab(grabPos, new THREE.Quaternion());
+      expect(grabbed).toBe(true);
+
+      // Move interactor 10 cm forward in world space
+      const newPos = new THREE.Vector3(0, 1.0, -1.9);
+      for (let i = 0; i < 20; i++) {
+        grab.update(newPos, new THREE.Quaternion());
+      }
+      parent.updateMatrixWorld(true);
+
+      const worldPos = mesh.getWorldPosition(new THREE.Vector3());
+      expect(worldPos.z).toBeCloseTo(-1.9, 2);
+      expect(mesh.position.z).toBeCloseTo(0.1, 2); // Local position is 0.1, NOT -1.9!
+    });
+
+    it('resetPose restores initial home pose cleanly', () => {
+      const mesh = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.1, 0.1));
+      mesh.position.set(1.5, 2.0, -3.0);
+      const grab = new SpatialGrabPrimitive(mesh);
+
+      // Displace the object
+      mesh.position.set(9.0, 9.0, 9.0);
+      expect(mesh.position.x).toBe(9.0);
+
+      grab.resetPose();
+      expect(mesh.position.x).toBe(1.5);
+      expect(mesh.position.y).toBe(2.0);
+      expect(mesh.position.z).toBe(-3.0);
+    });
   });
 
   describe('SpatialSliderPrimitive', () => {
@@ -125,6 +165,33 @@ describe('Spatial Interaction Primitives', () => {
       expect(scalePinch.currentScale).toBeCloseTo(2.0, 2);
       expect(scalePinch.explodeFraction).toBeCloseTo(0.5, 2);
       expect(assembly.scale.x).toBeCloseTo(2.0, 2);
+    });
+
+    it('preventObjectScale preserves target object scale while updating explodeFraction', () => {
+      const assembly = new THREE.Group();
+      const onExplodeFraction = vi.fn();
+      const scalePinch = new SpatialScalePinchPrimitive(assembly, {
+        minScale: 1.0,
+        maxScale: 2.0,
+        preventObjectScale: true,
+        onExplodeFraction,
+      });
+
+      const hand1 = new THREE.Vector3(-0.1, 1.2, -0.5);
+      const hand2 = new THREE.Vector3(0.1, 1.2, -0.5);
+      scalePinch.startTwoHanded(hand1, hand2);
+
+      const hand1Far = new THREE.Vector3(-0.2, 1.2, -0.5);
+      const hand2Far = new THREE.Vector3(0.2, 1.2, -0.5);
+      scalePinch.updateTwoHanded(hand1Far, hand2Far);
+
+      expect(scalePinch.explodeFraction).toBeCloseTo(1.0, 2);
+      expect(assembly.scale.x).toBe(1.0); // Object scale is NOT modified!
+      expect(onExplodeFraction).toHaveBeenCalledWith(1.0);
+
+      scalePinch.reset();
+      expect(scalePinch.explodeFraction).toBe(0.0);
+      expect(scalePinch.currentScale).toBe(1.0);
     });
   });
 });

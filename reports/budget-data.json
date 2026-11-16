@@ -50,5 +50,13 @@
         "drawCalls": 62
       }
     }
+  },
+  "m7-environment": {
+    "states": {
+      "watershed-terrain-and-stakeholders-preloaded": {
+        "triangles": 8734,
+        "drawCalls": 45
+      }
+    }
   }
 }

@@ -85,6 +85,34 @@ export interface TuningConfig {
     refDistance: number;
     maxDistance: number;
   };
+  debug: {
+    /** Seconds a hover must persist while ray direction changed before STICKY_HOVER fires. */
+    stickyHoverThresholdSec: number;
+    /** Minimum ray direction change in degrees to trigger STICKY_HOVER. */
+    stickyHoverRayChangeDeg: number;
+    /** Number of target changes in hoverFlapWindowSec to trigger HOVER_FLAP. */
+    hoverFlapCountThreshold: number;
+    /** Time window in seconds for HOVER_FLAP counting. */
+    hoverFlapWindowSec: number;
+    /** Object displacement < this (cm) while interactor moved > grabNoFollowInteractorCm → GRAB_NO_FOLLOW. */
+    grabNoFollowObjectCm: number;
+    /** Interactor displacement > this (cm) in 1 s while object barely moved → GRAB_NO_FOLLOW. */
+    grabNoFollowInteractorCm: number;
+    /** Number of input source changes in inputSourceFlapWindowSec to trigger INPUT_SOURCE_FLAP. */
+    inputSourceFlapCount: number;
+    /** Time window in seconds for INPUT_SOURCE_FLAP counting. */
+    inputSourceFlapWindowSec: number;
+    /** Ray angle > this (degrees) from head forward on first 10 frames → RAY_BACKWARD. */
+    rayBackwardThresholdDeg: number;
+    /** Frame time > this (ms) → FRAME_STALL. 50 ms = 2× at 90 Hz. */
+    frameStallThresholdMs: number;
+    /** Ring buffer covers this many seconds of full-rate state at ~60 Hz. */
+    ringBufferSeconds: number;
+    /** Vite dev-server endpoint path for NDJSON log upload. */
+    logEndpointPath: string;
+    /** Pose log sample rate in Hz (default 10). */
+    poseLogHz: number;
+  };
 }
 
 export const DEFAULT_TUNING: TuningConfig = {
@@ -159,6 +187,21 @@ export const DEFAULT_TUNING: TuningConfig = {
     rolloffFactor: 1.5,
     refDistance: 1.0,
     maxDistance: 10.0,
+  },
+  debug: {
+    stickyHoverThresholdSec: 1.5,
+    stickyHoverRayChangeDeg: 20,
+    hoverFlapCountThreshold: 3,
+    hoverFlapWindowSec: 0.5,
+    grabNoFollowObjectCm: 2,
+    grabNoFollowInteractorCm: 15,
+    inputSourceFlapCount: 2,
+    inputSourceFlapWindowSec: 1.0,
+    rayBackwardThresholdDeg: 100,
+    frameStallThresholdMs: 50,
+    ringBufferSeconds: 15,
+    logEndpointPath: '/__log',
+    poseLogHz: 10,
   },
 };
 

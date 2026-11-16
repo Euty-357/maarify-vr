@@ -10,6 +10,7 @@ import {
   SpatialSliderPrimitive,
   SpatialRotatorPrimitive,
   SpatialLeverPrimitive,
+  SpatialScalePinchPrimitive,
   ExplodableAssembly,
 } from '../../core/input/primitives/index.js';
 import { createTextPanel } from '../../core/ui/text-panel.js';
@@ -177,6 +178,7 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   const streamlineRibbons = new THREE.LineSegments(streamlineGeo, streamlineMat);
   streamlineRibbons.name = 'wind-tunnel-streamline-ribbons';
   streamlineRibbons.userData.streamlineCount = numStreamlines;
+  streamlineRibbons.raycast = () => {};
   streamlineGroup.add(streamlineRibbons);
 
   // Active particulate smoke puffs: instanced/points particle field
@@ -199,6 +201,7 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   });
   const smokeParticles = new THREE.Points(particleGeo, particleMat);
   smokeParticles.name = 'wind-tunnel-particles';
+  smokeParticles.raycast = () => {};
   streamlineGroup.add(smokeParticles);
   wingSparRoot.add(streamlineGroup);
 
@@ -430,6 +433,19 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   });
   explodeLever.setAngle(-40);
   root.add(explodeLeverPivot);
+
+  const engineScalePinch = new SpatialScalePinchPrimitive(rocketEngineRoot, {
+    minScale: 1.0,
+    maxScale: 2.2,
+    preventObjectScale: true,
+    onExplodeFraction: (frac) => {
+      explodeAssembly.setExplodeAmount(frac);
+      explodeLever.setAngle(-40 + frac * 80);
+    },
+  });
+  rocketEngineRoot.userData.scalePinchPrimitive = engineScalePinch;
+  rocketEngineRoot.userData.explodableAssembly = explodeAssembly;
+
   root.add(rocketEngineRoot);
 
   // 5. Engine Cycle Rotator Plinth (Right of Engine)

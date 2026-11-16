@@ -163,7 +163,38 @@ If `adb tcpip` or `adb shell` hangs, do it with the headset awake but out of an 
 
 The initial page load always needs the dev server (Vite fetches modules at load; all five modules are imported eagerly so entering one never fetches after load). Once loaded, unplugging the cable is safe unless the page reloads.
 
-## 11. Known gaps
+## 11. Mark-Bug Gesture
+
+The **mark-bug gesture** flushes the debug ring buffer and posts a `MARK` event to the logger, so a developer can flag exactly what they just experienced without stopping the session. It is only active when the logger is enabled (`?debug=1` or `?log=1`).
+
+### Controller chord
+
+| Step | Action |
+|---|---|
+| 1 | Squeeze **both grip buttons** simultaneously (left grip + right grip held at the same time). |
+| 2 | While both grips are held, press the **left trigger**. |
+
+**Rationale:** Requires three fingers across two hands in a combination that cannot occur during normal play (grip is otherwise unwired, and the left trigger alone is used for grab/select). Very unlikely to fire accidentally.
+
+### Hand-tracking gesture
+
+| Step | Action |
+|---|---|
+| 1 | Form a **fist on both hands simultaneously**: all fingers curled and thumb tip > 3 cm from index tip on both hands. |
+| 2 | Hold the double-fist for **1 second**. |
+
+**Rationale:** The fist shape is used by no other interaction (pinch requires open fingers; grab requires proximity). One-second hold prevents accidental triggers during natural hand motion.
+
+### What happens on trigger
+
+1. The ring buffer (last 15 s of events at up to 60 Hz) is flushed to the `/__log` endpoint.
+2. A `MARK` event is posted with a counter, timestamp, session id and build id.
+3. The logger prints `[MARK #N]` to the console.
+4. `triggerMarkBug(counter)` is the exported function that modules or input handlers call.
+
+---
+
+## 12. Known gaps
 
 1. No in-app help card — this document is the reference.
 2. M2–M5 have no exit portal; use reload or the console hook.

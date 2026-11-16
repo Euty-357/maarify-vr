@@ -5,6 +5,7 @@ import { triggerHapticPulse } from '../../haptics/haptics.js';
 export interface ScalePinchOptions {
   minScale?: number;
   maxScale?: number;
+  preventObjectScale?: boolean;
   onScaleChange?: (scaleFactor: number, deltaDistance: number) => void;
   onExplodeFraction?: (fraction: number) => void; // 0.0 to 1.0 exploded
 }
@@ -48,7 +49,9 @@ export class SpatialScalePinchPrimitive {
 
     if (Math.abs(newScale - this.currentScale) > 0.005) {
       this.currentScale = newScale;
-      this.targetObject.scale.setScalar(this.currentScale);
+      if (!this.options.preventObjectScale) {
+        this.targetObject.scale.setScalar(this.currentScale);
+      }
 
       // Explode fraction is normalized between 1.0 (unexploded) and maxScale (fully exploded)
       this.explodeFraction = Math.max(0.0, Math.min(1.0, (this.currentScale - 1.0) / (this.maxScale - 1.0)));
@@ -76,6 +79,16 @@ export class SpatialScalePinchPrimitive {
 
   public endTwoHanded(): void {
     this.isTwoHandedActive = false;
+  }
+
+  public reset(): void {
+    this.currentScale = 1.0;
+    this.explodeFraction = 0.0;
+    this.isTwoHandedActive = false;
+    if (!this.options.preventObjectScale) {
+      this.targetObject.scale.setScalar(1.0);
+    }
+    this.options.onExplodeFraction?.(0.0);
   }
 }
 

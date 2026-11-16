@@ -24,6 +24,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Dev session NDJSON log files
+logs/
+*.ndjson
+
 # Operating System junk
 .DS_Store
 Thumbs.db

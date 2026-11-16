@@ -47,8 +47,8 @@ export const MODULE_FLAGS: Record<string, ModuleFeatureConfig> = {
   environment: {
     id: 'environment',
     name: 'Climate & Environment',
-    readiness: 'experimental',
-    enabled: false,
+    readiness: 'ready',
+    enabled: true,
   },
   'urban-development': {
     id: 'urban-development',

@@ -1,31 +1,41 @@
-﻿# STATE.md â€” Maarify Project State
+# STATE.md â€” Maarify Project State
 _This file is the single source of truth for resuming any session. Update it after every task._
 
 ## Current Phase / Milestone
-- **Phase:** Implementation Active â€” Sequential Full-Spec Module Delivery
-- **Milestone:** M0â€“M6 Complete; M6 tagged `v0.6-dna-genetics`; scope ends here pending headset validation
+- **Phase:** Implementation Active — Sequential Full-Spec Module Delivery
+- **Milestone:** M0–M7 Complete; M7 Climate & Environment implemented to 100% SPEC (`environment`); next: Urban Development & Planning
 
 ## Where We Are & What We Have Done
 1. **Toolchain & Spike (M0):** Complete & green (`b1ec4d3`). Three.js, WebXR Device API, Vitest, Playwright with IWER emulator, multi-pose screenshot matrix, budget checkers, and hygiene checks.
 2. **Core Systems & Spatial Hub (M1):** Complete & green (`4144db0`). Spatial hub with 7 physical portals, plinth tier selector, diegetic spatial anchors, audio guidance, and progress store. The hub smoke-test zone was removed on 2026-11-12 (device checks now live in `docs/HEADSET_TEST.md`).
-3. **Cosmos & Astronomy (M2):** Complete & green (`f6aa83a`, tag `v0.2-cosmos`). Full vertical slice: Malindi night horizon, atmospheric ascent layers, solar system scale collapse, orbital transfer burn, supermassive black hole Sagittarius A*, 4 physical challenges, 4 diegetic anchors with 3-tier micro-simulations, 12 verified sources.
+3. **Cosmos & Astronomy (M2):** Complete & green (`f6aa83a`, tag `v0.2-cosmos`). Full vertical slice: Malindi night horizon, atmospheric ascent layers, Option B walkthrough solar system along -Z walkway, orbital transfer burn, Sagittarius A* black hole with gravitational lensing shader, 4 physical challenges, 4 diegetic anchors with 3-tier micro-simulations, 12 verified sources.
 4. **Quantum Mechanics (M3):** Complete & green (`106bac7`, tag `v0.3-quantum`). Bloch sphere rotator, double-slit gaze collapse, exploded 5-stage dilution cryostat, gallery of 7 hardware architectures, optical Bell state bench, quantum circuit assembly, 4 physical challenges, 4 diegetic anchors with 3-tier micro-sims, 12 verified sources.
-5. **Human Body & Medicine (M4):** Complete & green (`c3acb51`, tag `v0.4-human-body`). Prominent medical disclaimer plinth, pulsating 4-chamber heart with mechanical valves and ventricular pressure slider, capillary RBC ride, neural synaptic junction, exploded HIV virion with pinch scale, CAR-T tumor immunotherapy, 4 physical challenges, 4 diegetic anchors with 3-tier micro-sims, Dr. Amani audio narrative (Pumwani cohort, U=U destigmatization), 10 verified sources.
-6. **Aerospace & Rocket Propulsion (M5):** Complete & green (`889180b`, tag `v0.5-aerospace`). Prominent educational safety scope notice plinth, NACA aerofoil wing spar with high-altitude Nairobi Wilson Airport air density tuning (-5Â° to 25Â°) and stall buffeting (>15Â°), 3D exploded staged liquid rocket engine, cycle rotator plinth dynamically simulating 8 thermodynamic cycles, supersonic de Laval nozzle with backpressure slider producing dynamic oblique shock diamonds, 3U Taifa-1 CubeSat model with deployed solar arrays, 4 physical challenges, 4 diegetic anchors with 3-tier micro-sims, 10 verified sources.
-7. **Git Source Control & GitHub Remote Sync:** Both `master` (GitHub default branch) and `main` are fully synchronized on [`https://github.com/Euty-357/maarify-vr`](https://github.com/Euty-357/maarify-vr) with dual-push refspecs active.
+5. **Human Body & Medicine (M4):** Complete & green (`c3acb51`, tag `v0.4-human-body`). Prominent medical disclaimer plinth, 6 dedicated physical wing rooms radially placed at 5.4m, pulsating 4-chamber heart with mechanical valves and ventricular pressure slider, capillary RBC ride, neural synaptic junction, exploded HIV virion with pinch scale, CAR-T tumor immunotherapy, 4 physical challenges, 4 diegetic anchors with 3-tier micro-sims, Dr. Amani audio narrative (Pumwani cohort, U=U destigmatization), 10 verified sources.
+6. **Aerospace & Rocket Propulsion (M5):** Complete & green (`889180b`, tag `v0.5-aerospace`). Prominent educational safety scope notice plinth, NACA aerofoil wing spar with high-altitude Nairobi Wilson Airport air density tuning (-5° to 25°) and stall buffeting (>15°), 3D exploded staged liquid rocket engine, cycle rotator plinth dynamically simulating 8 thermodynamic cycles, supersonic de Laval nozzle with backpressure slider producing dynamic oblique shock diamonds, 3U Taifa-1 CubeSat model with deployed solar arrays, 4 physical challenges, 4 diegetic anchors with 3-tier micro-sims, 10 verified sources.
+7. **DNA & Genetics (M6):** Complete & green (`v0.6-dna-genetics`). Seven-beat walkthrough, molecular scale-dive handle, interactive base pair assembly, ribosome translation, CRISPR targeting dial, genetic diversity exhibit, 5 physical challenges, 5 diegetic anchors with 3-tier micro-sims, 10 verified sources.
+8. **Climate & Environment (M7):** Complete & green (`environment`). Mau Forest Complex watershed with 40-year time-scrub lever (1980–2024), shared 9-stakeholder social-ecological simulation graph (`src/core/simulation/stakeholder-sim.ts`), Lake Naivasha papyrus biofilter table with abstraction valve, Lamu coastal mangrove blue carbon storm buffer (*Rhizophora* prop roots), 4 physical challenges (900 XP), 4 diegetic anchors with 3-tier micro-sims, 12 verified sources.
+9. **Git Source Control & GitHub Remote Sync:** Both `master` (GitHub default branch) and `main` are fully synchronized on [`https://github.com/Euty-357/maarify-vr`](https://github.com/Euty-357/maarify-vr) with dual-push refspecs active.
 
 ## In Progress
-- **Aerospace (v0.9-aerospace):** content-as-data migration is at 24 anchors with 25 glossary terms and 10 objectives; `audit-content-depth.mjs --enforce` passes. The rocket engine now uses five individually grabbable `ExplodableAssembly` parts and the wind tunnel has default-on batched streamlines, 200 particles, on/off and density levers, a visible simplified-model label, and screenshot-pixel coverage. It remains unready pending claim-level source review, reviewer passes and headset checks. Its scene now measures 2,148 triangles / 58 draw calls, within the 108 working target (**NOT verified on headset**).
-- **Medicine (v0.8-medicine):** 6 wings fully represented with 48 anchors (8 anchors per wing) generated under the strict Information Panels v2 schema.
-- **Content-as-data audit (`audit-content-depth.mjs --enforce`):** PASSES for both Cosmos (24 anchors) and Human Body & Medicine (48 anchors, 25 glossary terms, 10 learning objectives, practitioner desk).
-- **Human Body Scene:** 48 anchors placed radially across the 6 wing entrances in the central atrium, with batched leader lines; shared anchor-tag batching now measures 14,476 triangles / 62 draw calls (within the 108 working target; **NOT verified on headset**).
-- **All 7 Playwright specs & 101 unit tests:** PASS green (`npm run verify` exit 0). NOT verified on headset.
+## In Progress
+- **Debug Logger + WiFi Loop + Pointer & Hub/Module Fixes (2026-11-16):**
+  - Item 1: DEV-ONLY debug logger (`src/core/debug/logger.ts`, vite `/__log` middleware, `scripts/logs.mjs`, `scripts/logs-summary.mjs`) — heartbeat 4 Hz, decision logging on change, STALE_POSE detector.
+  - Item 2: Wireless dev loop (`scripts/quest-wifi.mjs`, hotspot + wireless adb reverse on 192.168.137.51) — verified working.
+  - Item 3: Raycast occlusion & pointer reliability:
+    - Transparent wind-tunnel ribbons & particles raycast disabled (`raycast = () => {}`).
+    - Anchor leader lines raycast disabled (`raycast = () => {}`).
+    - Stale pose (>1s unmoved) ignored by controller ray.
+    - Mark-bug chord detection wired directly with rawChord logging.
+  - Item 4: Hub/Module Separation verified (10 cycles unit-tested in `tests/unit/hub/hub-module-separation.test.ts`).
+  - Next: M8 Urban Development & Planning.
+- **Urban Development & Planning (M8):** Living city model table with transport corridors, informal settlement infrastructure upgrades, renewable energy microgrids, and shared stakeholder simulation integration. (NOT STARTED this batch)
+- **All 8 Playwright specs & 124 unit tests:** PASS green (`npm run verify` exit 0). NOT verified on headset.
 
 ## What Is Next
-1. Aerospace: complete claim-level source review, reviewer passes and headset checks.
-2. Climate Change (new outdoors Kenya setting) after Aerospace is ready; then Urban Planning (new living city model table).
-3. Quantum upgrade, then DNA upgrade.
-4. Final integration & polish.
+1. Finish Debug Logger + WiFi + Pointer batch, run `npm run verify`, commit, push.
+2. Urban Development & Planning living table module (`urban-development`).
+3. Integration & Polish pass.
+4. Physical Meta Quest 3 / Quest 3S on-device testing via `docs/DEVICE_TEST_BACKLOG.md` checklist.
 
 ## Blockers
 - None. All Quest 3/3S performance numbers remain NOT measured on device.
