@@ -5,6 +5,7 @@ import quantumModule from '../../../src/modules/quantum/index.js';
 import humanBodyModule from '../../../src/modules/human-body/index.js';
 import aerospaceModule from '../../../src/modules/aerospace/index.js';
 import dnaGeneticsModule from '../../../src/modules/dna-genetics/index.js';
+import environmentModule from '../../../src/modules/environment/index.js';
 
 const modules = [
   { name: 'Cosmos', mod: cosmosModule },
@@ -12,6 +13,7 @@ const modules = [
   { name: 'Human Body', mod: humanBodyModule },
   { name: 'Aerospace', mod: aerospaceModule },
   { name: 'DNA & Genetics', mod: dnaGeneticsModule },
+  { name: 'Climate & Environment', mod: environmentModule },
 ];
 
 describe('Module Orientation and Alignment Verification', () => {

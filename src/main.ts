@@ -14,6 +14,8 @@ import {
   SpatialSliderPrimitive,
   SpatialSnapTurnPrimitive,
   SpatialTeleportPrimitive,
+  SpatialScalePinchPrimitive,
+  ExplodableAssembly,
 } from './core/input/primitives/index';
 import { triggerHapticPulse } from './core/haptics/haptics';
 import { ActiveTuning } from './config/tuning';
@@ -28,15 +30,28 @@ import quantumModule from './modules/quantum/index';
 import humanBodyModule from './modules/human-body/index';
 import aerospaceModule from './modules/aerospace/index';
 import dnaGeneticsModule from './modules/dna-genetics/index';
+import environmentModule from './modules/environment/index';
+import {
+  logEvent,
+  logPointerDecision,
+  logGrabEvent,
+  logPose,
+  setCurrentModule,
+  triggerMarkBug,
+  trackGrabStart,
+  clearGrabFollow,
+  logInputSourceChange,
+} from './core/debug/logger';
 
 declare const __BUILD_ID__: string;
 
 /** Build id injected by Vite; shown in-world so a stale headset page is obvious. */
 const BUILD_ID = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'unknown-build';
-/** Dev tools (debug panel, stale notice) are opt-in via ?debug=1. */
+/** Dev tools (debug panel, stale notice, and logger) are opt-in via ?debug=1 or ?log=1. */
 const DEV_TOOLS_ENABLED = typeof window !== 'undefined'
   && import.meta.env.DEV
-  && new URLSearchParams(window.location.search).get('debug') === '1';
+  && (new URLSearchParams(window.location.search).get('debug') === '1'
+   || new URLSearchParams(window.location.search).get('log') === '1');
 
 // --- Core state -----------------------------------------------------------
 let renderer: THREE.WebGLRenderer;
@@ -84,6 +99,9 @@ interface XRControllerHandle {
   lastBackPress: boolean;
   poseOrigin: THREE.Vector3;
   poseQuaternion: THREE.Quaternion;
+  lastMovedOrigin: THREE.Vector3;
+  lastMovedQuaternion: THREE.Quaternion;
+  lastMovedTime: number;
   hasPose: boolean;
   pinchActive: boolean;
 }
@@ -275,27 +293,50 @@ function initApp() {
   returnGate = new THREE.Group();
   returnGate.name = 'module-return-gate';
   const gatePad = new THREE.Mesh(
-    new THREE.RingGeometry(0.3, 0.48, 32).rotateX(-Math.PI / 2),
+    new THREE.CircleGeometry(0.65, 32).rotateX(-Math.PI / 2),
     new THREE.MeshBasicMaterial({ color: 0xef4444, transparent: true, opacity: 0.85, side: THREE.DoubleSide })
   );
   gatePad.position.set(0, 0.03, 2.4);
+  gatePad.name = 'module-return-pad';
   returnGate.add(gatePad);
+
+  const gateBorder = new THREE.Mesh(
+    new THREE.RingGeometry(0.65, 0.75, 32).rotateX(-Math.PI / 2),
+    new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7, side: THREE.DoubleSide })
+  );
+  gateBorder.position.set(0, 0.032, 2.4);
+  returnGate.add(gateBorder);
+
   const gateColumn = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.03, 0.03, 0.9, 8),
+    new THREE.CylinderGeometry(0.04, 0.04, 0.9, 16),
     new THREE.MeshStandardMaterial({ color: 0x7f1d1d, emissive: 0xef4444, emissiveIntensity: 0.6 })
   );
   gateColumn.position.set(0, 0.45, 2.55);
   returnGate.add(gateColumn);
-  const gateLabel = createTextPanel('RETURN TO HUB — step on the red ring', {
-    widthMeters: 0.7,
+
+  const gateLabel = createTextPanel('RETURN TO HUB (step on pad or point ray)', {
+    widthMeters: 0.75,
     heightMeters: 0.16,
-    fontSizePx: 26,
+    fontSizePx: 24,
     align: 'center',
     accent: '#ef4444',
   });
-  gateLabel.position.set(0, 1.02, 2.55);
-  gateLabel.lookAt(0, 1.1, 0);
+  gateLabel.position.set(0, 1.05, 2.55);
+  gateLabel.lookAt(0, 1.05, 0);
   returnGate.add(gateLabel);
+
+  const rewindButton = createTextPanel('REWIND DISPLACED OBJECTS (or press A/X)', {
+    widthMeters: 0.75,
+    heightMeters: 0.14,
+    fontSizePx: 20,
+    align: 'center',
+    accent: '#38bdf8',
+  });
+  rewindButton.position.set(0, 0.72, 2.55);
+  rewindButton.lookAt(0, 0.72, 0);
+  rewindButton.userData.activate = () => rewindModuleObjects();
+  returnGate.add(rewindButton);
+
   const exitModule = () => {
     if (activeModuleDef) {
       logDebug('return gate');
@@ -304,6 +345,8 @@ function initApp() {
   };
   returnGate.userData.activate = exitModule;
   gatePad.userData.activate = exitModule;
+  gateBorder.userData.activate = exitModule;
+  gateColumn.userData.activate = exitModule;
   gateLabel.userData.activate = exitModule;
   returnGate.visible = false;
   scene.add(returnGate);
@@ -446,10 +489,31 @@ function createStudioEnvironment(target: THREE.WebGLRenderer): THREE.Texture {
 }
 
 // --- Module lifecycle -----------------------------------------------------
+let loadGeneration = 0;
+
+export function rewindModuleObjects(): void {
+  if (!activeModuleRoot) return;
+  logEvent('module', 'info', { event: 'rewind-module-objects', module: currentModuleName });
+
+  activeModuleRoot.traverse((obj) => {
+    if (obj.userData?.grabPrimitive instanceof SpatialGrabPrimitive) {
+      obj.userData.grabPrimitive.resetPose();
+    }
+    if (obj.userData?.scalePinchPrimitive instanceof SpatialScalePinchPrimitive) {
+      obj.userData.scalePinchPrimitive.reset();
+    }
+    if (obj.userData?.explodableAssembly instanceof ExplodableAssembly) {
+      obj.userData.explodableAssembly.reset();
+    }
+  });
+}
+
 export async function loadModule(id: string): Promise<THREE.Object3D | null> {
   if (moduleLoadInProgress) return null;
   if (!isModuleAvailable(id)) return null;
 
+  loadGeneration += 1;
+  const thisGen = loadGeneration;
   moduleLoadInProgress = true;
   try {
     clearGrabHighlights();
@@ -468,12 +532,36 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
         return Math.hypot(pos.x, pos.z) <= ActiveTuning.comfort.teleportMaxRadiusMeters;
       });
     }
-    activeModuleRoot = await mod.load(scene);
+    const loadedRoot = await mod.load(scene);
+
+    // If navigation happened during the await, abort and unload
+    if (thisGen !== loadGeneration || currentModuleName === 'hub' || !activeModuleDef) {
+      mod.unload();
+      if (loadedRoot && loadedRoot.parent) {
+        loadedRoot.parent.remove(loadedRoot);
+      }
+      return null;
+    }
+
+    activeModuleRoot = loadedRoot;
+    hubWorld.visible = false;
+    tuningConsole.visible = false;
     mod.setDepthTier?.(selectedTier);
     highlightGrabbables(activeModuleRoot);
     currentModuleName = id;
+    setCurrentModule(id);
     moduleEnteredAt = performance.now();
     resetRigToOrigin();
+
+    // Log module load lifecycle event with resource counts
+    let objectCount = 0;
+    activeModuleRoot.traverse(() => { objectCount++; });
+    logEvent('module', 'info', {
+      event: 'module-loaded',
+      moduleId: id,
+      objectCount,
+      hubVisible: hubWorld.visible,
+    });
     return activeModuleRoot;
   } finally {
     moduleLoadInProgress = false;
@@ -488,15 +576,21 @@ const MODULE_DEFINITIONS: Record<string, ModuleDefinition> = {
   'human-body': humanBodyModule,
   aerospace: aerospaceModule,
   'dna-genetics': dnaGeneticsModule,
+  environment: environmentModule,
 };
 
 function returnToHub(): void {
+  loadGeneration += 1;
   if (activeModuleDef) {
     activeModuleDef.unload();
     activeModuleDef = null;
   }
-  activeModuleRoot = null;
+  if (activeModuleRoot) {
+    if (activeModuleRoot.parent) activeModuleRoot.parent.remove(activeModuleRoot);
+    activeModuleRoot = null;
+  }
   currentModuleName = 'hub';
+  setCurrentModule('hub');
   if (teleport) {
     // Return to hub walkable platform constraint (radius <= 4.0m)
     teleport.setBoundsValidator((pos) => Math.hypot(pos.x, pos.z) <= 4.0);
@@ -506,6 +600,7 @@ function returnToHub(): void {
   tuningConsole.visible = true;
   if (folioPanel) folioPanel.visible = false;
   resetRigToOrigin();
+  logEvent('module', 'info', { event: 'return-to-hub', hubVisible: true });
 }
 
 /** Applies the hub depth tier to the hub and to whichever module is loaded. */
@@ -588,6 +683,7 @@ function logDebug(message: string): void {
   debugEvents.unshift(`${stamp} ${message}`);
   if (debugEvents.length > 6) debugEvents.pop();
   console.info('[maarify]', message);
+  logEvent('pointer', 'debug', { message });
 }
 
 /** Records the reason an activation attempt stopped, for the on-device panel. */
@@ -695,16 +791,11 @@ function updateReturnGate(deltaSeconds: number): void {
   if (performance.now() - moduleEnteredAt < 2500) return;
   const head = camera.getWorldPosition(new THREE.Vector3());
   const distance = Math.hypot(head.x - returnGate.position.x, head.z - 2.4);
-  const toGate = new THREE.Vector3(0, 0, 2.4).sub(head);
-  toGate.y = 0;
-  toGate.normalize();
-  const gaze = camera.getWorldDirection(new THREE.Vector3());
-  gaze.y = 0;
-  gaze.normalize();
-  // Must stand on the ring AND face it, so walking past it does nothing.
-  if (distance < 0.9 && toGate.dot(gaze) > 0.7) {
+
+  // Standing on the return pad (within 0.75m) triggers return after 0.6s.
+  if (distance < 0.75) {
     returnTimer += deltaSeconds;
-    if (returnTimer > 1.0) {
+    if (returnTimer > 0.6) {
       logDebug('return ring');
       returnToHub();
     }
@@ -812,6 +903,14 @@ function setupWebXR() {
             : handle.handedness;
         handle.rayLine.visible = true;
         console.info('[maarify] input connected:', event.data?.handedness, event.data?.hand ? 'hand' : 'controller');
+        logInputSourceChange(true);
+        logEvent('xr-session', 'info', {
+          event: 'controller-connected',
+          index: i,
+          handedness: handle.handedness,
+          isHand: Boolean(event.data?.hand),
+          profiles: event.data?.profiles,
+        });
       }
     });
     controller.addEventListener('disconnected', () => {
@@ -822,6 +921,8 @@ function setupWebXR() {
         handle.pinchActive = false;
         handle.rayLine.visible = false;
         console.info('[maarify] input disconnected:', i);
+        logInputSourceChange(false);
+        logEvent('xr-session', 'warn', { event: 'controller-disconnected', index: i });
       }
     });
     controller.addEventListener('selectstart', () => onControllerTrigger(controller, 'select'));
@@ -846,7 +947,26 @@ function setupWebXR() {
     const hand = renderer.xr.getHand(i) as unknown as HandSpace;
     cameraRig.add(hand);
 
-    xrControllers.push({ controller, hand, rayLine, source: null, handedness: null, lastTeleportPush: 0, lastTurnPush: 0, lastFacePress: false, lastTriggerPress: false, lastTriggerAt: 0, lastBackPress: false, poseOrigin: new THREE.Vector3(), poseQuaternion: new THREE.Quaternion(), hasPose: false, pinchActive: false });
+    xrControllers.push({
+      controller,
+      hand,
+      rayLine,
+      source: null,
+      handedness: null,
+      lastTeleportPush: 0,
+      lastTurnPush: 0,
+      lastFacePress: false,
+      lastTriggerPress: false,
+      lastTriggerAt: 0,
+      lastBackPress: false,
+      poseOrigin: new THREE.Vector3(),
+      poseQuaternion: new THREE.Quaternion(),
+      lastMovedOrigin: new THREE.Vector3(),
+      lastMovedQuaternion: new THREE.Quaternion(),
+      lastMovedTime: 0,
+      hasPose: false,
+      pinchActive: false,
+    });
   }
 }
 
@@ -1060,7 +1180,7 @@ function handleModuleRayInteraction(
 ): string | null {
   if (!activeModuleRoot) return null;
   xrRaycaster.set(origin, direction);
-  xrRaycaster.far = 4.5;
+  xrRaycaster.far = returnGate.visible ? 15.0 : 4.5;
   const targets: THREE.Object3D[] = [activeModuleRoot];
   if (returnGate.visible) targets.push(returnGate);
   const hits = xrRaycaster.intersectObjects(targets, true);
@@ -1122,6 +1242,9 @@ function handleModuleRayInteraction(
   if (grab && !grab.isGrabbed && grab.tryGrab(hit.point, new THREE.Quaternion(), source)) {
     activeGrabs.set(controller, grab);
     grabDistances.set(controller, Math.max(0.35, hit.distance));
+    const hand = (source?.handedness as 'left' | 'right') || 'right';
+    logGrabEvent(hand, hit.object.name || 'unnamed-grab', 'grab', { distance: hit.distance, point: hit.point });
+    trackGrabStart(hand, origin, hit.point);
     return 'ray-grab';
   }
 
@@ -1220,7 +1343,11 @@ function releaseControllerGrab(controller: THREE.Object3D): void {
   activeLevers.delete(controller);
   const grab = activeGrabs.get(controller);
   if (!grab) return;
-  grab.release(findInputSource(controller as THREE.XRTargetRaySpace));
+  const src = findInputSource(controller as THREE.XRTargetRaySpace);
+  const hand = (src?.handedness as 'left' | 'right') || 'right';
+  logGrabEvent(hand, grab.targetObject?.name || 'grab-obj', 'release');
+  clearGrabFollow(hand);
+  grab.release(src);
   activeGrabs.delete(controller);
   grabDistances.delete(controller);
 }
@@ -1380,23 +1507,27 @@ function updateXRLocomotion(frame?: XRFrame, deltaSeconds = 0): void {
     }
     entry.lastTriggerPress = triggerPressed;
 
-    // Face button (A/X or B/Y) enters the aimed portal. This path uses gamepad polling,
-    // so it still works if select events are unreliable.
-    const facePressed = Boolean(gamepad.buttons[4]?.pressed || gamepad.buttons[5]?.pressed);
-    if (facePressed && !entry.lastFacePress && !activeModuleRoot) {
-      logDebug('face button');
-      const origin = new THREE.Vector3();
-      const direction = new THREE.Vector3();
-      getPointerRay(entry, entry.controller, origin, direction);
-      const aimed = findAimedPortal(origin, direction, 0.85, 8);
-      if (aimed) {
-        tryLoadModule(aimed, entry.source ?? undefined);
+    // Primary face button (A or X): rewinds objects when in a module, or enters aimed portal in hub.
+    const primaryFacePressed = Boolean(gamepad.buttons[4]?.pressed);
+    if (primaryFacePressed && !entry.lastFacePress) {
+      if (activeModuleRoot) {
+        logDebug('rewind button');
+        rewindModuleObjects();
       } else {
-        triggerHapticPulse(entry.source ?? undefined, ActiveTuning.haptics.error.intensity, ActiveTuning.haptics.error.durationMs);
-        console.info('[maarify] face button pressed, no portal inside the aim cone');
+        logDebug('face button');
+        const origin = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        getPointerRay(entry, entry.controller, origin, direction);
+        const aimed = findAimedPortal(origin, direction, 0.85, 8);
+        if (aimed) {
+          tryLoadModule(aimed, entry.source ?? undefined);
+        } else {
+          triggerHapticPulse(entry.source ?? undefined, ActiveTuning.haptics.error.intensity, ActiveTuning.haptics.error.durationMs);
+          console.info('[maarify] face button pressed, no portal inside the aim cone');
+        }
       }
     }
-    entry.lastFacePress = facePressed;
+    entry.lastFacePress = primaryFacePressed;
 
     // B/Y returns to the hub (polled, so it works even if select events do not).
     const backPressed = Boolean(gamepad.buttons[5]?.pressed);
@@ -1405,6 +1536,17 @@ function updateXRLocomotion(frame?: XRFrame, deltaSeconds = 0): void {
       returnToHub();
     }
     entry.lastBackPress = backPressed;
+
+    // MARK-BUG gesture detection (both grip buttons + left trigger)
+    const leftSource = xrControllers.find(c => c.handedness === 'left')?.source;
+    const rightSource = xrControllers.find(c => c.handedness === 'right')?.source;
+    const leftGrip = Boolean(leftSource?.gamepad?.buttons[1]?.pressed);
+    const rightGrip = Boolean(rightSource?.gamepad?.buttons[1]?.pressed);
+    const leftTrigger = Boolean(leftSource?.gamepad?.buttons[0]?.pressed);
+    if (leftGrip && rightGrip && leftTrigger) {
+      logEvent('mark', 'info', { event: 'mark-bug-chord-detected', rawChord: { leftGrip, rightGrip, leftTrigger } });
+      triggerMarkBug(1);
+    }
   }
 
   if (teleportAiming && (!teleportOwner || !teleportOwner.source)) {
@@ -1481,6 +1623,21 @@ function syncControllerPoses(frame?: XRFrame): void {
     toWorldPose(entry.poseOrigin, entry.poseQuaternion, cameraRig.matrixWorld);
     entry.hasPose = true;
 
+    // Check if pose has moved; track last moved time for stale source detection
+    const nowMs = performance.now();
+    const dPos = entry.poseOrigin.distanceTo(entry.lastMovedOrigin);
+    const dAngle = entry.poseQuaternion.angleTo(entry.lastMovedQuaternion);
+    if (dPos > 0.001 || dAngle > 0.01) {
+      entry.lastMovedOrigin.copy(entry.poseOrigin);
+      entry.lastMovedQuaternion.copy(entry.poseQuaternion);
+      entry.lastMovedTime = nowMs;
+    }
+
+    // Log pose at sampled rate
+    if (entry.handedness) {
+      logPose(entry.handedness, entry.poseOrigin, entry.poseQuaternion);
+    }
+
     // Own pinch detection with hysteresis instead of relying on browser events.
     // Joints are only fresh for a hand source; controllers leave stale ones behind.
     const thumb = source.hand ? entry.hand?.joints?.['thumb-tip'] : undefined;
@@ -1510,8 +1667,11 @@ function syncControllerPoses(frame?: XRFrame): void {
 
 function updateControllerRays(): void {
   let bestHit: THREE.Intersection | null = null;
+  const now = performance.now();
   for (const entry of xrControllers) {
-    if (!entry.source) {
+    // Stale source detection: if pose hasn't moved for >1s or untracked, treat as inactive
+    const isStale = (now - entry.lastMovedTime > 1000) && entry.lastMovedTime > 0;
+    if (!entry.source || !entry.hasPose || isStale) {
       entry.rayLine.visible = false;
       continue;
     }
@@ -1522,10 +1682,11 @@ function updateControllerRays(): void {
 
     let end = origin.clone().addScaledVector(direction, 1.8);
     const targets: THREE.Object3D[] = [activeModuleRoot ?? hubWorld];
+    if (returnGate.visible) targets.push(returnGate);
     // The folio is an overlay in front of the world; the beam should stop on it.
     if (folioPanel?.visible) targets.push(folioPanel);
     xrRaycaster.set(origin, direction);
-    xrRaycaster.far = 4.5;
+    xrRaycaster.far = returnGate.visible ? 15.0 : 4.5;
     const hits = xrRaycaster.intersectObjects(targets, true);
     if (hits.length > 0) {
       end = hits[0].point;
@@ -1559,6 +1720,29 @@ function updateControllerRays(): void {
     hitMarker.visible = isInteractive;
     hitMarker.scale.setScalar(isPortal ? 1.8 : 1);
     (hitMarker.material as THREE.MeshBasicMaterial).color.setHex(isPortal ? 0x10b981 : 0x38bdf8);
+
+    for (const entry of xrControllers) {
+      if (entry.handedness) {
+        const obj = bestHit.object;
+        let parentPath = obj.name || 'unnamed';
+        let curr: THREE.Object3D | null = obj.parent;
+        while (curr && curr !== scene) {
+          if (curr.name) parentPath = curr.name + '/' + parentPath;
+          curr = curr.parent;
+        }
+        const mat = (obj as THREE.Mesh).material as THREE.Material | undefined;
+        logPointerDecision(entry.handedness, lastHitLabel, 'hit', {
+          name: obj.name,
+          type: obj.type,
+          uuid: obj.uuid,
+          parentPath,
+          distance: bestHit.distance,
+          point: bestHit.point,
+          materialSide: mat?.side,
+          transparent: mat?.transparent,
+        });
+      }
+    }
   } else {
     lastHitLabel = 'none';
     hitMarker.visible = false;
@@ -1588,6 +1772,52 @@ function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
   }
 }
 
+function findScalePinch(root: THREE.Object3D): SpatialScalePinchPrimitive | null {
+  let found: SpatialScalePinchPrimitive | null = null;
+  root.traverse((obj) => {
+    if (!found && obj.userData?.scalePinchPrimitive instanceof SpatialScalePinchPrimitive) {
+      found = obj.userData.scalePinchPrimitive as SpatialScalePinchPrimitive;
+    }
+  });
+  return found;
+}
+
+function updateTwoHandedInteractions(): void {
+  if (!activeModuleRoot) return;
+
+  const left = xrControllers.find((c) => c.handedness === 'left');
+  const right = xrControllers.find((c) => c.handedness === 'right');
+  if (!left || !right) return;
+
+  const leftGrip = Boolean(left.source?.gamepad?.buttons[1]?.pressed);
+  const rightGrip = Boolean(right.source?.gamepad?.buttons[1]?.pressed);
+  const leftTrigger = Boolean(left.source?.gamepad?.buttons[0]?.pressed);
+  const rightTrigger = Boolean(right.source?.gamepad?.buttons[0]?.pressed);
+  const leftPinch = left.pinchActive;
+  const rightPinch = right.pinchActive;
+
+  const leftActive = leftGrip || leftTrigger || leftPinch;
+  const rightActive = rightGrip || rightTrigger || rightPinch;
+
+  const pinchPrimitive = findScalePinch(activeModuleRoot);
+  if (!pinchPrimitive) return;
+
+  if (leftActive && rightActive) {
+    const pos1 = left.hasPose ? left.poseOrigin.clone() : left.controller.getWorldPosition(new THREE.Vector3());
+    const pos2 = right.hasPose ? right.poseOrigin.clone() : right.controller.getWorldPosition(new THREE.Vector3());
+
+    if (!pinchPrimitive.isTwoHandedActive) {
+      pinchPrimitive.startTwoHanded(pos1, pos2);
+      logEvent('grab', 'info', { event: 'two-handed-explode-start' });
+    } else {
+      pinchPrimitive.updateTwoHanded(pos1, pos2, left.source ?? undefined, right.source ?? undefined);
+    }
+  } else if (pinchPrimitive.isTwoHandedActive) {
+    pinchPrimitive.endTwoHanded();
+    logEvent('grab', 'info', { event: 'two-handed-explode-end' });
+  }
+}
+
 function renderFrame(frame?: XRFrame) {
   const now = performance.now();
   const deltaSec = Math.min((now - lastTime) / 1000, 0.1);
@@ -1604,6 +1834,7 @@ function renderFrame(frame?: XRFrame) {
   updateXRLocomotion(frame, deltaSec);
   updateWalkInEntry(deltaSec);
   updateReturnGate(deltaSec);
+  updateTwoHandedInteractions();
   updateDebugPanel();
 
   // Fixed-timestep simulation stays decoupled from display refresh.

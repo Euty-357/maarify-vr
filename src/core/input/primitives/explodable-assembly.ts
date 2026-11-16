@@ -92,6 +92,13 @@ export class ExplodableAssembly {
   /** Lerp every unheld part between its home pose (0) and exploded slot (1). */
   public setExplodeAmount(amount: number): void {
     this.explodeAmount = THREE.MathUtils.clamp(amount, 0, 1);
+    if (this.explodeAmount <= 0.05) {
+      for (const part of this.parts.values()) {
+        if (!part.grab.isGrabbed) {
+          part.detached = false;
+        }
+      }
+    }
     for (const part of this.parts.values()) {
       if (part.detached || part.grab.isGrabbed) continue;
       const slot = this.slotPosition(part);

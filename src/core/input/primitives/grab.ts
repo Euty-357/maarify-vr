@@ -12,6 +12,8 @@ export interface GrabbableOptions {
 export class SpatialGrabPrimitive {
   public isGrabbed = false;
   public grabbingSource: XRInputSource | 'desktop' | null = null;
+  public homePosition: THREE.Vector3;
+  public homeQuaternion: THREE.Quaternion;
   private grabOffset = new THREE.Vector3();
   private grabQuaternionOffset = new THREE.Quaternion();
 
@@ -21,6 +23,19 @@ export class SpatialGrabPrimitive {
   ) {
     targetObject.userData.isGrabbable = true;
     targetObject.userData.grabPrimitive = this;
+    this.homePosition = targetObject.position.clone();
+    this.homeQuaternion = targetObject.quaternion.clone();
+  }
+
+  public resetPose(): void {
+    if (this.isGrabbed) this.release();
+    this.targetObject.position.copy(this.homePosition);
+    this.targetObject.quaternion.copy(this.homeQuaternion);
+  }
+
+  public saveHomePose(): void {
+    this.homePosition.copy(this.targetObject.position);
+    this.homeQuaternion.copy(this.targetObject.quaternion);
   }
 
   public tryGrab(
@@ -41,9 +56,10 @@ export class SpatialGrabPrimitive {
       this.isGrabbed = true;
       this.grabbingSource = inputSource || 'desktop';
 
-      // Compute relative offset
+      // Compute relative offset in world coordinates
       this.grabOffset.copy(targetPos).sub(interactorPos);
-      this.grabQuaternionOffset.copy(interactorQuat).invert().multiply(this.targetObject.quaternion);
+      const targetQuat = this.targetObject.getWorldQuaternion(new THREE.Quaternion());
+      this.grabQuaternionOffset.copy(interactorQuat).invert().multiply(targetQuat);
 
       if (inputSource) {
         triggerHapticPulse(
@@ -64,15 +80,26 @@ export class SpatialGrabPrimitive {
   public update(interactorPos: THREE.Vector3, interactorQuat: THREE.Quaternion): void {
     if (!this.isGrabbed) return;
 
-    const newPos = interactorPos.clone().add(this.grabOffset);
+    const desiredWorldPos = interactorPos.clone().add(this.grabOffset);
     if (this.options.constrainY) {
-      newPos.y = this.targetObject.position.y;
+      const currentWorldPos = this.targetObject.getWorldPosition(new THREE.Vector3());
+      desiredWorldPos.y = currentWorldPos.y;
     }
 
-    // Apply smoothed motion
-    this.targetObject.position.lerp(newPos, ActiveTuning.input.handSmoothingAlpha);
-    const newQuat = interactorQuat.clone().multiply(this.grabQuaternionOffset);
-    this.targetObject.quaternion.slerp(newQuat, ActiveTuning.input.handSmoothingAlpha);
+    const desiredWorldQuat = interactorQuat.clone().multiply(this.grabQuaternionOffset);
+
+    if (this.targetObject.parent) {
+      this.targetObject.parent.updateWorldMatrix(true, false);
+      const desiredLocalPos = this.targetObject.parent.worldToLocal(desiredWorldPos.clone());
+      this.targetObject.position.lerp(desiredLocalPos, ActiveTuning.input.handSmoothingAlpha);
+
+      const parentWorldQuat = this.targetObject.parent.getWorldQuaternion(new THREE.Quaternion());
+      const desiredLocalQuat = parentWorldQuat.invert().multiply(desiredWorldQuat);
+      this.targetObject.quaternion.slerp(desiredLocalQuat, ActiveTuning.input.handSmoothingAlpha);
+    } else {
+      this.targetObject.position.lerp(desiredWorldPos, ActiveTuning.input.handSmoothingAlpha);
+      this.targetObject.quaternion.slerp(desiredWorldQuat, ActiveTuning.input.handSmoothingAlpha);
+    }
 
     const worldPos = this.targetObject.getWorldPosition(new THREE.Vector3());
     const worldQuat = this.targetObject.getWorldQuaternion(new THREE.Quaternion());

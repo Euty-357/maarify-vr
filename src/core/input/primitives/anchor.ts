@@ -70,6 +70,7 @@ export class SpatialAnchorPrimitive {
     });
     const batched = new THREE.LineSegments(geometry, material);
     batched.name = 'anchor-leader-lines-batched';
+    batched.raycast = () => {};
     this.containerGroup.add(batched);
   }
 
