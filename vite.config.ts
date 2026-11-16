@@ -24,6 +24,12 @@ export default defineConfig({
   define: {
     __BUILD_ID__: JSON.stringify(buildId),
   },
+  test: {
+    // Run in development mode so import.meta.env.DEV === true in all tests,
+    // which allows the debug logger's LOGGER_ENABLED gate to pass.
+    mode: 'development',
+    environment: 'jsdom',
+  },
   server: {
     host: '0.0.0.0',
     port: 5173,

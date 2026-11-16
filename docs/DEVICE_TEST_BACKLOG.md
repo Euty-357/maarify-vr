@@ -155,3 +155,11 @@ _All items here cannot be verified in headless CI or emulator and are strictly l
 - **How to test:** Enter Quantum module; verify horizon is level with real room floor; rotate Bloch sphere dial with controller ray and direct hand pinch.
 - **Pass criteria:** Perfect horizon alignment; zero tilt sensation; Bloch polar rotation matches theoretical |0⟩ to |1⟩ latitude.
 - **Status:** NOT verified on headset
+
+## DT-019 — M7 Climate & Environment Watershed Time Scrub & Stakeholder Graph
+- **What:** Verify Mau watershed time lever scrubs smoothly from 1980 to 2024, tree canopies scale responsively, grabbable sapling plots place cleanly on degraded slope, Naivasha valve rotates with tactile detents, and 9-stakeholder node graph displays clear colored dependency beams in 3D stereo.
+- **Why device needed:** Two-handed reach envelopes on terrain table, depth perception of river gully and 3D stakeholder network, and optical comfort in exterior daylight environment.
+- **Module / System:** Climate & Environment (`src/modules/environment/scene.ts`, `src/core/simulation/stakeholder-sim.ts`)
+- **How to test:** Enter Environment portal from Hub; operate time lever with left/right controllers; grab sapling plot and plant on slope; rotate Naivasha valve wheel; inspect 3D stakeholder network and toggle policy interventions; walk to coastal mangrove station and observe wave attenuation.
+- **Pass criteria:** All controls reachable seated; time scrub is fluid; stakeholder beam lines are distinct in stereo; steady 90 fps maintained; zero motion discomfort.
+- **Status:** NOT verified on headset

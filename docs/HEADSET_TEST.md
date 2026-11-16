@@ -80,3 +80,63 @@ Desktop and emulator results do not count for items 2, 5, 6 or 7.
 - **"WebXR not supported":** Ensure you are navigating to `http://localhost:5173` (not the local IP `192.168.x.x`, which requires HTTPS).
 - **Controller models not appearing:** Ensure controllers are awake and paired before tapping "Enter VR".
 - **Screen freezes upon sleep:** Quest Browser pauses the WebGL context when the proximity sensor sleeps. Unplugging and re-plugging or refreshing the tab recovers the context.
+
+
+---
+
+## Wireless Dev Loop (WiFi ADB + HTTPS)
+
+No USB cable needed. Two options — try Option 1 first; fall back to Option 2 if `navigator.xr` is unavailable.
+
+### Option 1 — `npm run quest:wifi` (HTTPS self-signed cert)
+
+Vite starts with a self-signed HTTPS certificate via `@vitejs/plugin-basic-ssl`. The script detects your LAN IP and prints it.
+
+```powershell
+npm run quest:wifi
+# Prints: Open in Quest Browser: https://192.168.x.x:5173
+#         BUILD ID: <id>
+```
+
+**On the Quest Browser:**
+1. Navigate to `https://<LAN-IP>:5173`.
+2. The browser will show a security warning for the self-signed cert → tap **Advanced → Proceed**.
+3. The app loads. Press **Enter WebXR** as normal.
+
+**Why HTTPS?** Plain `http://192.168.x.x` is **not** a secure context — `navigator.xr` will be `undefined` and WebXR will not start. HTTPS over a self-signed cert restores the secure context.
+
+**If `navigator.xr` is still undefined** after proceeding (some Quest Browser firmware versions enforce CA validation and refuse self-signed origins), fall back to Option 2.
+
+**Bookmark tip:** once the HTTPS URL is open and working, bookmark it in Quest Browser for one-tap access on future sessions (the cert warning only appears once per session).
+
+**HMR and logging:** Hot-module replacement works over HTTPS. The `/__log` debug logger endpoint is on the same HTTPS origin so logs stream without mixed-content errors.
+
+**Windows Firewall:** if the Quest Browser cannot reach the server, the script will print the fix. Run PowerShell as Administrator:
+```powershell
+netsh advfirewall firewall add rule name="Maarify Dev HTTPS" `
+  dir=in action=allow protocol=TCP localport=5173
+```
+
+---
+
+### Option 2 — Wireless ADB (adb tunnel — no HTTPS cert needed)
+
+With wireless ADB the Quest Browser reaches the dev server via `http://localhost`, which **is** a secure context (the tunnel makes the connection appear as localhost on the headset). No certificate warning, no firewall change needed.
+
+```powershell
+# 1. With the Quest connected via USB, switch adb to TCP mode:
+adb tcpip 5555
+
+# 2. Find the Quest's IP: Settings → Wi-Fi → your network → IP address
+adb connect <quest-ip>:5555
+
+# 3. Set up the reverse tunnel over the wireless connection:
+adb -s <quest-ip>:5555 reverse tcp:5173 tcp:5173
+
+# 4. Run the normal dev loop (it will verify the reverse tunnel):
+npm run quest
+```
+
+Then navigate to `http://localhost:5173` on the Quest Browser — identical to the USB cable workflow.
+
+> **Note:** Wireless ADB resets after a headset reboot or long sleep. Re-run `adb connect <quest-ip>:5555` and the `adb -s <quest-ip>:5555 reverse tcp:5173 tcp:5173` command to restore the tunnel before running `npm run quest`.

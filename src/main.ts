@@ -534,8 +534,9 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
     }
     const loadedRoot = await mod.load(scene);
 
-    // If navigation happened during the await, abort and unload
-    if (thisGen !== loadGeneration || currentModuleName === 'hub' || !activeModuleDef) {
+    // If navigation happened during the await (returnToHub() increments
+    // loadGeneration), abort and unload the now-stale content.
+    if (thisGen !== loadGeneration) {
       mod.unload();
       if (loadedRoot && loadedRoot.parent) {
         loadedRoot.parent.remove(loadedRoot);
