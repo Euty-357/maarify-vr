@@ -65,32 +65,38 @@ function getDebugTuning() {
 function checkEnabled(): boolean {
   if (!import.meta.env.DEV) return false;
   if (typeof window === 'undefined') return false;
-  const params = new URLSearchParams(window.location.search);
-  return params.get('debug') === '1' || params.get('log') === '1';
+  try {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('debug') === '1' || params.get('log') === '1';
+  } catch {
+    return false;
+  }
 }
-
-const LOGGER_ENABLED = checkEnabled();
 
 // ---------------------------------------------------------------------------
 // No-op fast path for production / when disabled
 // ---------------------------------------------------------------------------
 
 export function isLoggerEnabled(): boolean {
-  return LOGGER_ENABLED;
+  return checkEnabled();
 }
 
 // ---------------------------------------------------------------------------
 // Session / build identity
 // ---------------------------------------------------------------------------
 
-const SESSION_ID: string = (() => {
-  if (!LOGGER_ENABLED) return '';
-  try {
-    return crypto.randomUUID();
-  } catch {
-    return `session-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+let sessionId = '';
+function getSessionId(): string {
+  if (!isLoggerEnabled()) return '';
+  if (!sessionId) {
+    try {
+      sessionId = crypto.randomUUID();
+    } catch {
+      sessionId = `session-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    }
   }
-})();
+  return sessionId;
+}
 
 const BUILD_ID: string = (() => {
   try {
@@ -119,6 +125,21 @@ class RingBuffer<T> {
     this.buf[this.head] = item;
     this.head = (this.head + 1) % this.buf.length;
     if (this.count < this.buf.length) this.count++;
+  }
+
+  /** Return all items in FIFO order without clearing the buffer. */
+  toArray(): T[] {
+    const items: T[] = [];
+    if (this.count === 0) return items;
+    const start = this.count < this.buf.length
+      ? 0
+      : this.head; // oldest slot when full
+    for (let i = 0; i < this.count; i++) {
+      const idx = (start + i) % this.buf.length;
+      const item = this.buf[idx];
+      if (item !== undefined) items.push(item);
+    }
+    return items;
   }
 
   /** Drain all items in FIFO order, clearing the buffer. */
@@ -162,7 +183,7 @@ const flushQueue: LogEvent[] = [];
 let flushInFlight = false;
 
 function scheduleFlush(): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   if (pendingFlush !== null) return;
   pendingFlush = setTimeout(() => {
     pendingFlush = null;
@@ -184,7 +205,7 @@ async function performFlush(): Promise<void> {
       keepalive: true,
     });
     // On success, check if the ring buffer has events accumulated during the outage
-    const buffered = ringBuffer.drainAll();
+    const buffered = ringBuffer.toArray();
     if (buffered.length > 0) {
       flushQueue.push(...buffered);
       scheduleFlush();
@@ -206,12 +227,12 @@ function enqueue(event: LogEvent): void {
 
 /** Immediately flush the ring buffer and queued events (mark-bug / anomaly). */
 async function flushImmediate(): Promise<void> {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   if (pendingFlush !== null) {
     clearTimeout(pendingFlush);
     pendingFlush = null;
   }
-  const buffered = ringBuffer.drainAll();
+  const buffered = ringBuffer.toArray();
   // Merge buffered events that aren't already in flushQueue
   const inQueue = new Set(flushQueue.map((e) => e.seq));
   for (const e of buffered) {
@@ -226,12 +247,12 @@ async function flushImmediate(): Promise<void> {
 // ---------------------------------------------------------------------------
 
 export function logEvent(category: LogCategory, level: LogLevel, data: unknown): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   const event: LogEvent = {
     seq: seq++,
     wall: Date.now(),
     perf: performance.now(),
-    sessionId: SESSION_ID,
+    sessionId: getSessionId(),
     buildId: BUILD_ID,
     module: currentModule,
     category,
@@ -246,7 +267,7 @@ export function logEvent(category: LogCategory, level: LogLevel, data: unknown):
 // ---------------------------------------------------------------------------
 
 export function setCurrentModule(name: string): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   currentModule = name;
   logEvent('module', 'info', { event: 'module-entered', name });
 }
@@ -264,7 +285,7 @@ export function logPose(
   origin: { x: number; y: number; z: number },
   quaternion: { x: number; y: number; z: number; w: number }
 ): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   const tuning = getDebugTuning();
   const intervalMs = 1000 / tuning.poseLogHz;
   const now = performance.now();
@@ -312,7 +333,7 @@ export function logPointerDecision(
   decision: string,
   extra?: unknown
 ): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   const now = performance.now();
   const prev = lastPointerDecisions[hand];
   const changed = !prev || prev.targetName !== targetName || prev.decision !== decision;
@@ -337,7 +358,7 @@ export function logGrabEvent(
   eventType: 'grab' | 'release' | 'follow-check',
   extra?: unknown
 ): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   logEvent('grab', 'debug', { hand, objectName, eventType, extra });
 }
 
@@ -346,10 +367,10 @@ export function logGrabEvent(
 // ---------------------------------------------------------------------------
 
 export function logFrameStats(frameTimeMs: number): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   logEvent('frame', 'debug', { frameTimeMs });
   const tuning = getDebugTuning();
-  if (frameTimeMs > tuning.frameStallThresholdMs) {
+  if (frameTimeMs >= tuning.frameStallThresholdMs) {
     void reportAnomaly('FRAME_STALL', { frameTimeMs, thresholdMs: tuning.frameStallThresholdMs });
   }
 }
@@ -359,7 +380,7 @@ export function logFrameStats(frameTimeMs: number): void {
 // ---------------------------------------------------------------------------
 
 export function triggerMarkBug(counter: number): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   logEvent('mark', 'info', { event: 'mark-bug', counter, wall: Date.now() });
   void flushImmediate();
 }
@@ -369,7 +390,10 @@ export function triggerMarkBug(counter: number): void {
 // ---------------------------------------------------------------------------
 
 async function reportAnomaly(type: string, details: unknown): Promise<void> {
-  logEvent('error', 'warn', { anomaly: type, details });
+  const payload = typeof details === 'object' && details !== null
+    ? { anomaly: type, ...details, details }
+    : { anomaly: type, details };
+  logEvent('error', 'warn', payload);
   await flushImmediate();
 }
 
@@ -434,7 +458,7 @@ export function updateHoverRayDir(
   hand: string,
   dir: { x: number; y: number; z: number }
 ): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   if (!hoverState[hand] || hoverState[hand].target === null) return;
   const state = hoverState[hand];
   const tuning = getDebugTuning();
@@ -480,7 +504,7 @@ export function trackGrabStart(
   interactorPos: { x: number; y: number; z: number },
   objectPos: { x: number; y: number; z: number }
 ): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   grabFollowState[hand] = {
     interactorPosAtGrab: { ...interactorPos },
     objectPosAtGrab: { ...objectPos },
@@ -493,7 +517,7 @@ export function checkGrabFollow(
   interactorPos: { x: number; y: number; z: number },
   objectPos: { x: number; y: number; z: number }
 ): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   const state = grabFollowState[hand];
   if (!state) return;
   const tuning = getDebugTuning();
@@ -521,7 +545,7 @@ export function checkGrabFollow(
 }
 
 export function clearGrabFollow(hand: string): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   delete grabFollowState[hand];
 }
 
@@ -537,7 +561,7 @@ function dist3(
 const inputSourceFlapHistory: number[] = [];
 
 export function logInputSourceChange(gained: boolean): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   const tuning = getDebugTuning();
   const now = performance.now();
   inputSourceFlapHistory.push(now);
@@ -564,7 +588,7 @@ export function checkRayBackward(
   rayDir: { x: number; y: number; z: number },
   headForward: { x: number; y: number; z: number }
 ): void {
-  if (!LOGGER_ENABLED) return;
+  if (!import.meta.env.DEV || !isLoggerEnabled()) return;
   if (rayBackwardFrameCount >= 10) return;
   rayBackwardFrameCount++;
   const tuning = getDebugTuning();
@@ -595,6 +619,7 @@ export function _testEnqueueRaw(event: LogEvent): void {
 
 /** For testing: reset all state (called between tests). */
 export function _testReset(): void {
+  sessionId = '';
   seq = 0;
   currentModule = 'hub';
   lastPoseLogMs = {};

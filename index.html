@@ -8,56 +8,82 @@
       body {
         margin: 0;
         padding: 0;
-        overflow: hidden;
-        background-color: #0b0d13;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        color: #ffffff;
+        min-height: 100vh;
+        background: #100c0a;
+        font-family: Georgia, 'Times New Roman', serif;
+        color: #f7ead2;
       }
       #canvas-container {
         width: 100vw;
         height: 100vh;
         display: block;
       }
-      #debug-overlay {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        background: rgba(11, 13, 19, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-size: 13px;
-        line-height: 1.5;
-        font-family: monospace;
-        pointer-events: none;
-        z-index: 100;
+      #landing-page {
+        box-sizing: border-box;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background:
+          radial-gradient(circle at 50% 20%, rgba(154, 100, 46, .28), transparent 34rem),
+          linear-gradient(135deg, #170d0a, #29170f 52%, #100b0b);
       }
+      .landing-card {
+        width: min(100%, 680px);
+        border: 1px solid rgba(215, 166, 93, .56);
+        border-radius: 18px;
+        padding: clamp(28px, 6vw, 56px);
+        background: rgba(28, 17, 13, .9);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, .45), inset 0 0 0 6px rgba(118, 73, 35, .14);
+        text-align: center;
+      }
+      .brand-mark { width: min(168px, 45vw); height: auto; margin: 0 auto 12px; display: block; }
+      h1 { margin: 0; font-size: clamp(3rem, 11vw, 5.8rem); font-style: italic; font-weight: 500; letter-spacing: .02em; }
+      .pitch { max-width: 34rem; margin: 12px auto 28px; color: #e5cfad; font-size: clamp(1rem, 2.8vw, 1.2rem); line-height: 1.55; }
       #enter-xr-btn {
-        position: absolute;
-        bottom: 24px;
-        right: 24px;
-        background: #2563eb;
-        color: white;
-        border: none;
-        border-radius: 30px;
-        padding: 14px 28px;
-        font-size: 16px;
+        width: min(100%, 360px);
+        background: linear-gradient(135deg, #d7a65d, #9f622d);
+        color: #1d100a;
+        border: 1px solid #f2ce91;
+        border-radius: 10px;
+        padding: 17px 24px;
+        font: 700 1.05rem/1 Georgia, serif;
         font-weight: 600;
         cursor: pointer;
-        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+        box-shadow: 0 8px 22px rgba(0, 0, 0, .35);
         transition: background 0.2s, transform 0.1s;
-        z-index: 100;
       }
-      #enter-xr-btn:hover {
-        background: #1d4ed8;
-      }
+      #enter-xr-btn:hover { background: #f2ce91; }
       #enter-xr-btn:active {
         transform: scale(0.98);
       }
+      #enter-xr-btn:disabled { cursor: not-allowed; opacity: .52; }
+      .readiness { margin: 28px auto 0; max-width: 30rem; text-align: left; color: #d7c09f; line-height: 1.65; }
+      .readiness strong { color: #f1d49d; }
+      .progress { height: 5px; margin-top: 22px; border-radius: 999px; background: #523526; overflow: hidden; }
+      .progress > span { display: block; width: 0; height: 100%; background: #d7a65d; transition: width .25s ease; }
+      #landing-status { min-height: 1.5rem; margin: 10px 0 0; color: #d7c09f; font: .9rem/1.4 system-ui, sans-serif; }
+      #landing-build { margin-top: 18px; color: #947759; font: .75rem/1.4 system-ui, sans-serif; }
     </style>
   </head>
   <body>
-    <button id="enter-xr-btn">Enter WebXR</button>
+    <main id="landing-page">
+      <section class="landing-card" aria-labelledby="maarify-title">
+        <img class="brand-mark" src="/assets/brand/maarify-logo.png" alt="Maarify crest" />
+        <h1 id="maarify-title">Maarify</h1>
+        <p class="pitch">Step into a living reading room, then learn by touching, building, and exploring ideas at their true scale.</p>
+        <button id="enter-xr-btn" type="button" disabled>Checking WebXR…</button>
+        <p id="landing-status" role="status">Use Quest Browser in a secure context to enter VR.</p>
+        <div class="progress" aria-label="Hub loading progress"><span id="landing-progress"></span></div>
+        <div class="readiness">
+          <strong>Before you begin</strong><br />
+          • Use Meta Quest Browser on Quest 3 or Quest 3S.<br />
+          • Set your room boundary and clear a comfortable play area.<br />
+          • Controllers or hands both work; choose seated or standing play.
+        </div>
+        <p id="landing-build"></p>
+      </section>
+    </main>
     <div id="canvas-container"></div>
 
     <script type="module" src="/src/main.ts"></script>

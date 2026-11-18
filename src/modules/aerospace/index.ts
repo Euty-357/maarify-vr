@@ -37,6 +37,11 @@ const moduleDef: ModuleDefinition = {
     activeScene?.anchorPrimitive.updateTier(tier);
   },
 
+  /** Task 28.2: Aerospace 15×10 m hangar footprint (Req 63.3) */
+  isWalkable(pos: THREE.Vector3): boolean {
+    return pos.x >= -7.5 && pos.x <= 7.5 && pos.z >= -5 && pos.z <= 5;
+  },
+
   getChallenges,
   getSpatialAnchors,
 };

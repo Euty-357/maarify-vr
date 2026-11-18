@@ -248,16 +248,23 @@ export function buildBlackHoleShader(
   group.add(horizonSphere);
 
   // ---- Relativistic plasma jets (3C 273 / M87-style bipolar) -----------------
-  const jetMat = new THREE.MeshBasicMaterial({
-    color: 0xec4899,
+  const northJetMat = new THREE.MeshBasicMaterial({
+    color: 0x3b82f6,
     transparent: true,
     opacity: 0.55,
     side: THREE.DoubleSide,
   });
-  const northJet = new THREE.Mesh(new THREE.ConeGeometry(rs * 0.4, rs * 5.5, 16, 1, true), jetMat);
+  const southJetMat = new THREE.MeshBasicMaterial({
+    color: 0x1e3a8a,
+    transparent: true,
+    opacity: 0.55,
+    side: THREE.DoubleSide,
+  });
+  const jetGeo = new THREE.ConeGeometry(rs * 0.4, rs * 5.5, 16, 1, true);
+  const northJet = new THREE.Mesh(jetGeo, northJetMat);
   northJet.name = 'plasma-jet-north';
   northJet.position.y = rs * 2.8;
-  const southJet = northJet.clone();
+  const southJet = new THREE.Mesh(jetGeo, southJetMat);
   southJet.name = 'plasma-jet-south';
   southJet.position.y = -rs * 2.8;
   southJet.rotation.x = Math.PI;
@@ -279,7 +286,7 @@ export function buildBlackHoleShader(
     ctx.fillStyle = '#94a3b8';
     ctx.font = '17px sans-serif';
     ctx.fillText('Sagittarius A* — simplified gravitational lensing model', 12, 28);
-    ctx.fillText('NOT engineering grade. NOT verified on headset.', 12, 54);
+    ctx.fillText('2D screen-space approximation; true ray-traced Kerr metric not reproduced', 12, 54);
     ctx.fillText('Shader vs EHT M87*: shadow shape ✓, photon ring ✓, Doppler ✓, disc warp ✗', 12, 72);
     const labelTex = new THREE.CanvasTexture(labelCanvas);
     const labelPlane = new THREE.Mesh(

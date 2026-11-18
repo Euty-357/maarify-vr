@@ -37,6 +37,11 @@ const moduleDef: ModuleDefinition = {
     activeScene?.anchorPrimitive.updateTier(tier);
   },
 
+  isWalkable(pos: THREE.Vector3): boolean {
+    // 10×10 m cryogenics lab footprint centred at origin
+    return pos.x >= -5 && pos.x <= 5 && pos.z >= -5 && pos.z <= 5;
+  },
+
   getChallenges,
   getSpatialAnchors,
 };

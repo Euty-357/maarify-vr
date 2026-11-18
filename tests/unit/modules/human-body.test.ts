@@ -7,7 +7,7 @@ import { DR_AMANI_BODY_BEATS } from '../../../src/modules/human-body/audio-guida
 describe('Human Body & Medicine Module Architecture & Ethics Compliance', () => {
   it('conforms strictly to the ModuleDefinition interface contract', () => {
     expect(humanBodyModule.id).toBe('human-body');
-    expect(humanBodyModule.displayName).toBe('Human Body & Medicine');
+    expect(humanBodyModule.displayName).toBe('Medicine');
     expect(humanBodyModule.estimatedMinutes[0]).toBeGreaterThanOrEqual(10);
     expect(humanBodyModule.estimatedMinutes[1]).toBeLessThanOrEqual(25);
     expect(typeof humanBodyModule.load).toBe('function');

@@ -197,8 +197,7 @@ describe('STICKY_HOVER detector', () => {
 
   it('fires STICKY_HOVER when ray moves >20° with same target for >1.5s', async () => {
     // Simulate time passing: override performance.now inside the test scope
-    const realNow = performance.now;
-    let fakeTime = realNow();
+    let fakeTime = performance.now();
     const nowSpy = vi.spyOn(performance, 'now').mockImplementation(() => fakeTime);
 
     logPointerDecision('right', 'stickyObject', 'hover-enter');
@@ -257,8 +256,7 @@ describe('GRAB_NO_FOLLOW detector', () => {
   });
 
   it('fires GRAB_NO_FOLLOW when interactor moves >15cm but object stays within 2cm', async () => {
-    const realNow = performance.now;
-    let fakeTime = realNow();
+    let fakeTime = performance.now();
     const nowSpy = vi.spyOn(performance, 'now').mockImplementation(() => fakeTime);
 
     trackGrabStart('right', { x: 0, y: 1, z: 0 }, { x: 0, y: 1, z: 0 });

@@ -50,7 +50,7 @@ All numbers are **NOT measured on device**. Quest 3S is the design floor where t
 - Locomotion: parabolic teleport, snap-turn, seated offset, smooth movement with vignette.
 - Diegetic Spatial Anchor kit (3D tags, leader lines, grab-and-pull micro-sim controller).
 - In-memory progress store behind `SwappableStorage`.
-- Central Hub scene with 7 physical portals and tier selector plinth.
+- Central Hub scene with 7 physical portals; depth selection lives in each exhibit folio.
 
 ---
 

@@ -5,7 +5,6 @@ import { SpatialAudioManager } from './core/audio/spatial-audio';
 import { ComfortSystem } from './core/comfort/comfort';
 import { HubWorld } from './hub/hub-world';
 import { InMemoryProgressStore } from './core/store/progress-store';
-import { RuntimeTuningPanel } from './core/tuning-panel/tuning-panel';
 import { DiegeticSpatialAnchor } from './core/spatial-anchors/diegetic-anchor';
 import {
   SpatialGrabPrimitive,
@@ -24,6 +23,10 @@ import { createTextPanel, setTextPanelText } from './core/ui/text-panel';
 import { nextPinch, poseFromMatrix, selectSource, toWorldPose } from './core/input/input-state';
 import { applyBrandDocument } from './core/brand/brand';
 import { FolioPanel } from './core/ui/folio-panel';
+import { placeFolioBesideExhibit } from './core/ui/folio-placement';
+import { MissionBoard, defaultMissionFor } from './core/mission/mission-board';
+import { TravelSystem, type TravelDestination } from './core/travel/travel-system';
+import { VignetteFade } from './core/travel/vignette-fade';
 import { findAnchorContent } from './core/content/loader';
 import cosmosModule from './modules/cosmos/index';
 import quantumModule from './modules/quantum/index';
@@ -31,6 +34,7 @@ import humanBodyModule from './modules/human-body/index';
 import aerospaceModule from './modules/aerospace/index';
 import dnaGeneticsModule from './modules/dna-genetics/index';
 import environmentModule from './modules/environment/index';
+import urbanDevelopmentModule from './modules/urban-development/index';
 import {
   logEvent,
   logPointerDecision,
@@ -47,11 +51,6 @@ declare const __BUILD_ID__: string;
 
 /** Build id injected by Vite; shown in-world so a stale headset page is obvious. */
 const BUILD_ID = typeof __BUILD_ID__ === 'string' ? __BUILD_ID__ : 'unknown-build';
-/** Dev tools (debug panel, stale notice, and logger) are opt-in via ?debug=1 or ?log=1. */
-const DEV_TOOLS_ENABLED = typeof window !== 'undefined'
-  && import.meta.env.DEV
-  && (new URLSearchParams(window.location.search).get('debug') === '1'
-   || new URLSearchParams(window.location.search).get('log') === '1');
 
 // --- Core state -----------------------------------------------------------
 let renderer: THREE.WebGLRenderer;
@@ -62,17 +61,19 @@ let cameraRig: THREE.Group;
 let soundManager: SpatialAudioManager;
 export let comfortSystem: ComfortSystem;
 let hubWorld: HubWorld;
-let tuningPanel: RuntimeTuningPanel;
 let folioPanel: FolioPanel | null = null;
-const folioCameraPosition = new THREE.Vector3();
+let activeFolioAnchor: DiegeticSpatialAnchor | null = null;
 let teleport: SpatialTeleportPrimitive;
 let snapTurn: SpatialSnapTurnPrimitive;
 let activeModuleDef: ModuleDefinition | null = null;
 let activeModuleRoot: THREE.Object3D | null = null;
+let missionBoard: MissionBoard | null = null;
+const travelSystem = new TravelSystem();
+let travelWasActive = false;
+let vignetteFade: VignetteFade;
 let currentModuleName = 'hub';
 type DepthTier = 'foundation' | 'advanced' | 'expert';
 let selectedTier: DepthTier = 'foundation';
-let tuningConsole: THREE.Group;
 const progressStore = new InMemoryProgressStore();
 const physicsAccumulator = new FixedTimestepAccumulator(ActiveTuning.physics.fixedStepHz);
 const activeGrabs = new Map<THREE.Object3D, SpatialGrabPrimitive>();
@@ -109,24 +110,21 @@ const xrControllers: XRControllerHandle[] = [];
 const xrRaycaster = new THREE.Raycaster();
 let teleportOwner: XRControllerHandle | null = null;
 let hitMarker: THREE.Mesh;
-let debugPanel: THREE.Mesh;
-let staleNotice: THREE.Mesh;
-let staleBuild = false;
-let lastDebugPaint = 0;
+let staleNotice: THREE.Mesh | null = null;
 let lastHitLabel = 'none';
 const debugEvents: string[] = [];
-const errorLog: string[] = [];
-let lastReason = 'boot';
 let walkInTimer = 0;
 let walkInPortal: string | null = null;
 /** Proximity entry is ignored for this long after XR starts, so the head pose can settle. */
-const WALK_IN_GRACE_MS = 2000;
+const WALK_IN_GRACE_MS = 4500;
 let xrEnteredAt = 0;
 let xrRecenterPending = false;
 let moduleEnteredAt = 0;
 let moduleLoadInProgress = false;
 let returnGate: THREE.Group;
+let returnGateLabel: THREE.Mesh | null = null;
 let returnTimer = 0;
+let returnRayArmUntil = 0;
 let grabHighlightGroup: THREE.Group | null = null;
 
 // Desktop framing (restored when an immersive session ends).
@@ -144,7 +142,12 @@ let frameTimeMs = 0;
 let teleportAiming = false;
 
 // The canvas and the XR entry button are the only DOM the test harness needs.
-const enterXrBtn = document.getElementById('enter-xr-btn');
+const enterXrBtn = document.getElementById('enter-xr-btn') as HTMLButtonElement | null;
+const landingPage = document.getElementById('landing-page');
+const landingStatus = document.getElementById('landing-status');
+const landingProgress = document.getElementById('landing-progress');
+const landingBuild = document.getElementById('landing-build');
+let appInitialized = false;
 
 // --- Boot -----------------------------------------------------------------
 function initApp() {
@@ -159,6 +162,8 @@ function initApp() {
   cameraRig.name = 'xr-camera-rig';
   cameraRig.add(camera);
   scene.add(cameraRig);
+
+  vignetteFade = new VignetteFade(cameraRig);
 
   // Renderer first: the studio environment needs it.
   // Automated browsers run software WebGL, so skip MSAA and image-based lighting there;
@@ -203,91 +208,54 @@ function initApp() {
 
   hubWorld = new HubWorld();
   scene.add(hubWorld);
+  hubWorld.exitLectern.userData.activate = () => { void exitMaarify(); };
+  hubWorld.exitLectern.traverse((object) => {
+    object.userData.activate = () => { void exitMaarify(); };
+  });
   applyBrandDocument();
   showHeadsetNotice();
 
-  tuningPanel = new RuntimeTuningPanel(camera);
-  scene.add(tuningPanel.panelGroup);
-
-  // Physical console that opens the tuning panel in VR (desktop keeps the T key).
-  tuningConsole = new THREE.Group();
-  tuningConsole.name = 'hub-tuning-console';
-  const consolePlate = new THREE.Mesh(
-    new THREE.BoxGeometry(0.26, 0.14, 0.03),
-    new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.6, roughness: 0.35 })
-  );
-  tuningConsole.add(consolePlate);
-  const consoleLabel = createTextPanel('TUNING PANEL', {
-    widthMeters: 0.24,
-    heightMeters: 0.1,
-    fontSizePx: 30,
-    align: 'center',
-  });
-  consoleLabel.position.z = 0.018;
-  tuningConsole.add(consoleLabel);
-  tuningConsole.position.set(-0.95, 1.08, -1.55);
-  tuningConsole.lookAt(0, 1.3, 0);
-  const openTuningConsole = () => tuningPanel.openInFrontOf(camera);
-  tuningConsole.userData.activate = openTuningConsole;
-  consoleLabel.userData.activate = openTuningConsole;
-  scene.add(tuningConsole);
-
-  // Head-relative debug panel: small, bottom of view, follows the head (dev aid only).
-  debugPanel = createTextPanel('BOOT', {
-    widthMeters: 0.5,
-    heightMeters: 0.34,
-    fontSizePx: 16,
-    align: 'left',
-    lines: 13,
-    pixelWidth: 900,
-    pixelHeight: 660,
-  });
-  debugPanel.name = 'xr-debug-panel';
-  debugPanel.position.set(0, -0.23, -0.55);
-  debugPanel.renderOrder = 10000;
-  const debugMaterial = debugPanel.material as THREE.MeshBasicMaterial;
-  debugMaterial.depthTest = false;
-  debugMaterial.transparent = true;
-  debugMaterial.opacity = 0.6;
-  debugPanel.visible = DEV_TOOLS_ENABLED;
-  camera.add(debugPanel);
+  // Show orientation tutorial on first hub entry (skipped if sessionStorage flag is set).
+  if (typeof sessionStorage === 'undefined' || !sessionStorage.getItem('maarify-hub-tutorial-dismissed')) {
+    hubWorld.showOrientationTutorial();
+  }
 
   window.addEventListener('error', (event) => recordError(`window.error: ${event.message}`));
   window.addEventListener('unhandledrejection', (event) => {
     recordError(`unhandledrejection: ${String((event as PromiseRejectionEvent).reason)}`);
   });
 
-  // Stale-build warning: the headset page polls the dev server's build id.
-  staleNotice = createTextPanel('STALE BUILD — RELOAD', {
-    widthMeters: 0.42,
-    heightMeters: 0.08,
-    fontSizePx: 30,
-    align: 'center',
-    background: '#7f1d1d',
-    accent: '#ef4444',
-    lines: 1,
-  });
-  staleNotice.position.set(0, 0.02, -0.55);
-  staleNotice.visible = false;
-  camera.add(staleNotice);
+  // Stale-build warning: dev-only; the headset page polls the dev server's build id.
+  if (import.meta.env.DEV) {
+    staleNotice = createTextPanel('STALE BUILD — RELOAD', {
+      widthMeters: 0.42,
+      heightMeters: 0.08,
+      fontSizePx: 30,
+      align: 'center',
+      background: '#7f1d1d',
+      accent: '#ef4444',
+      lines: 1,
+    });
+    staleNotice.position.set(0, 0.02, -0.55);
+    staleNotice.visible = false;
+    camera.add(staleNotice);
 
-  const checkBuildFreshness = async () => {
-    if (!import.meta.env.DEV || !DEV_TOOLS_ENABLED) return;
-    try {
-      const response = await fetch('/__build', { cache: 'no-store' });
-      if (!response.ok) return;
-      const data = (await response.json()) as { buildId?: string };
-      if (data.buildId && data.buildId !== BUILD_ID) {
-        staleBuild = true;
-        staleNotice.visible = true;
-        logDebug('STALE BUILD');
+    const checkBuildFreshness = async () => {
+      try {
+        const response = await fetch('/__build', { cache: 'no-store' });
+        if (!response.ok) return;
+        const data = (await response.json()) as { buildId?: string };
+        if (data.buildId && data.buildId !== BUILD_ID) {
+          if (staleNotice) staleNotice.visible = true;
+          logDebug('STALE BUILD');
+        }
+      } catch {
+        /* expected once the headset is unplugged; the app keeps running */
       }
-    } catch {
-      /* expected once the headset is unplugged; the app keeps running */
-    }
-  };
-  window.setInterval(() => { void checkBuildFreshness(); }, 10_000);
-  void checkBuildFreshness();
+    };
+    window.setInterval(() => { void checkBuildFreshness(); }, 10_000);
+    void checkBuildFreshness();
+  }
 
   // Return gate: present in every module, behind the spawn point.
   returnGate = new THREE.Group();
@@ -324,6 +292,7 @@ function initApp() {
   gateLabel.position.set(0, 1.05, 2.55);
   gateLabel.lookAt(0, 1.05, 0);
   returnGate.add(gateLabel);
+  returnGateLabel = gateLabel;
 
   const rewindButton = createTextPanel('REWIND DISPLACED OBJECTS (or press A/X)', {
     widthMeters: 0.75,
@@ -338,10 +307,18 @@ function initApp() {
   returnGate.add(rewindButton);
 
   const exitModule = () => {
-    if (activeModuleDef) {
-      logDebug('return gate');
-      returnToHub();
+    if (!activeModuleDef) return;
+    const now = performance.now();
+    if (now > returnRayArmUntil) {
+      returnRayArmUntil = now + 1500;
+      if (returnGateLabel) setTextPanelText(returnGateLabel, 'POINT AGAIN TO CONFIRM RETURN');
+      logDebug('return gate armed');
+      return;
     }
+    returnRayArmUntil = 0;
+    if (returnGateLabel) setTextPanelText(returnGateLabel, 'RETURN TO HUB (step on pad or point ray)');
+    logDebug('return gate confirmed');
+    returnToHub();
   };
   returnGate.userData.activate = exitModule;
   gatePad.userData.activate = exitModule;
@@ -374,12 +351,17 @@ function initApp() {
     }
   }
 
-  window.addEventListener('maarify:warp-to', (event: Event) => {
-    const detail = (event as CustomEvent<{ x: number; z: number }>).detail;
-    if (detail) {
-      cameraRig.position.set(detail.x, 0, detail.z);
-      comfortSystem.setMotionIntensity(0.85);
-      window.setTimeout(() => comfortSystem.setMotionIntensity(0), 150);
+  window.addEventListener('maarify:warp-to', async (event: Event) => {
+    const detail = (event as CustomEvent<{ x: number; z: number; id?: string; mode?: TravelDestination['mode'] }>).detail;
+    if (!detail) return;
+    // Fade to black before teleporting
+    await vignetteFade.fadeOut(0.4);
+    // Reposition the camera rig
+    cameraRig.position.set(detail.x, 0, detail.z);
+    // Fade back in
+    vignetteFade.fadeIn(0.4);
+    if (detail.id) {
+      travelSystem.begin({ id: detail.id, position: { x: detail.x, z: detail.z }, mode: detail.mode ?? 'cinematic-warp' });
     }
   });
 
@@ -393,12 +375,16 @@ function initApp() {
     if (!challenge) return;
     completedChallenges.add(challenge.id);
     progressStore.awardXp(challenge.xpReward);
+    missionBoard?.complete(challenge.id);
   });
   window.addEventListener('maarify:spatial-ping', (event: Event) => {
     const detail = (event as CustomEvent<{ emitter: THREE.Object3D; frequency: number }>).detail;
     if (detail?.emitter) soundManager.playSpatialPing(detail.emitter, detail.frequency);
   });
   window.addEventListener('maarify:return-to-hub', () => returnToHub());
+  window.addEventListener('maarify:exit-xr', () => {
+    renderer.xr.getSession()?.end().catch(() => {});
+  });
   window.addEventListener('maarify:comfort-pulse', (event: Event) => {
     const detail = (event as CustomEvent<{ intensity?: number }>).detail;
     const intensity = Math.max(0, Math.min(1, detail?.intensity ?? 0.4));
@@ -508,6 +494,21 @@ export function rewindModuleObjects(): void {
   });
 }
 
+/** Clears controller-held state and scene references before disposing a module. */
+function clearActiveModuleRuntime(): void {
+  for (const controller of Array.from(activeGrabs.keys())) releaseControllerGrab(controller);
+  activeGrabs.clear();
+  activeLevers.clear();
+  grabDistances.clear();
+  completedChallenges.clear();
+  clearGrabHighlights();
+  activeFolioAnchor = null;
+  if (folioPanel) folioPanel.visible = false;
+  missionBoard = null;
+  if (activeModuleRoot?.parent) activeModuleRoot.parent.remove(activeModuleRoot);
+  activeModuleRoot = null;
+}
+
 export async function loadModule(id: string): Promise<THREE.Object3D | null> {
   if (moduleLoadInProgress) return null;
   if (!isModuleAvailable(id)) return null;
@@ -516,14 +517,12 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
   const thisGen = loadGeneration;
   moduleLoadInProgress = true;
   try {
-    clearGrabHighlights();
     if (activeModuleDef) activeModuleDef.unload();
-    completedChallenges.clear();
+    clearActiveModuleRuntime();
 
     const mod = MODULE_DEFINITIONS[id];
     if (!mod) return null;
     hubWorld.visible = false;
-    tuningConsole.visible = false;
     if (folioPanel) folioPanel.visible = false;
     activeModuleDef = mod;
     if (teleport) {
@@ -546,8 +545,11 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
 
     activeModuleRoot = loadedRoot;
     hubWorld.visible = false;
-    tuningConsole.visible = false;
     mod.setDepthTier?.(selectedTier);
+    missionBoard = new MissionBoard(mod.mission ?? defaultMissionFor(mod.displayName), mod.getChallenges());
+    missionBoard.position.set(-1.6, 1.2, -1.1);
+    missionBoard.lookAt(0, 1.2, 0);
+    activeModuleRoot.add(missionBoard);
     highlightGrabbables(activeModuleRoot);
     currentModuleName = id;
     setCurrentModule(id);
@@ -578,6 +580,7 @@ const MODULE_DEFINITIONS: Record<string, ModuleDefinition> = {
   aerospace: aerospaceModule,
   'dna-genetics': dnaGeneticsModule,
   environment: environmentModule,
+  'urban-development': urbanDevelopmentModule,
 };
 
 function returnToHub(): void {
@@ -586,20 +589,14 @@ function returnToHub(): void {
     activeModuleDef.unload();
     activeModuleDef = null;
   }
-  if (activeModuleRoot) {
-    if (activeModuleRoot.parent) activeModuleRoot.parent.remove(activeModuleRoot);
-    activeModuleRoot = null;
-  }
+  clearActiveModuleRuntime();
   currentModuleName = 'hub';
   setCurrentModule('hub');
   if (teleport) {
     // Return to hub walkable platform constraint (radius <= 4.0m)
     teleport.setBoundsValidator((pos) => Math.hypot(pos.x, pos.z) <= 4.0);
   }
-  completedChallenges.clear();
   hubWorld.visible = true;
-  tuningConsole.visible = true;
-  if (folioPanel) folioPanel.visible = false;
   resetRigToOrigin();
   logEvent('module', 'info', { event: 'return-to-hub', hubVisible: true });
 }
@@ -633,6 +630,12 @@ function stripModuleParamFromUrl(): void {
 }
 
 // --- Desktop fallback -----------------------------------------------------
+function isIgnoredExplodableBase(obj: THREE.Object3D): boolean {
+  if (obj.userData?.isExplodablePart !== true) return false;
+  const worldY = obj.getWorldPosition(new THREE.Vector3()).y;
+  return obj.position.y <= 0.1 || worldY <= 0.1;
+}
+
 function setupDesktopInteraction() {
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
@@ -643,15 +646,15 @@ function setupDesktopInteraction() {
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(scene.children, true);
+    const intersects = raycaster.intersectObjects(scene.children, true)
+      // Task 28.1 / Req 48.2: Skip explodable parts whose base is at floor level
+      .filter((i) => !isIgnoredExplodableBase(i.object));
     if (intersects.length === 0) return;
 
     const hit = intersects[0].object;
     const anchor = findDiegeticAnchor(hit);
 
-    if (hit.userData.tuningPanelSurface && intersects[0].uv) {
-      tuningPanel.handlePointer(intersects[0].uv.x, intersects[0].uv.y);
-    } else if (anchor) {
+    if (anchor) {
       const camPos = camera.getWorldPosition(new THREE.Vector3());
       activeModuleRoot?.traverse((obj) => {
         if (obj instanceof DiegeticSpatialAnchor && obj !== anchor && obj.isExpanded) {
@@ -670,8 +673,6 @@ function setupDesktopInteraction() {
       if (grab.tryGrab(camera.position, camera.quaternion)) grab.release();
     } else if (findUserDataPrimitive(hit, 'activate')) {
       (findUserDataPrimitive(hit, 'activate') as () => void)();
-    } else if (hit.name.startsWith('tier-btn-')) {
-      applyDepthTier(hit.name.replace('tier-btn-', '') as DepthTier);
     } else {
       const portalId = findPortalAncestor(hit);
       if (portalId) loadModule(portalId);
@@ -680,6 +681,7 @@ function setupDesktopInteraction() {
 }
 
 function logDebug(message: string): void {
+  if (!import.meta.env.DEV) return;
   const stamp = (performance.now() / 1000).toFixed(1);
   debugEvents.unshift(`${stamp} ${message}`);
   if (debugEvents.length > 6) debugEvents.pop();
@@ -687,58 +689,13 @@ function logDebug(message: string): void {
   logEvent('pointer', 'debug', { message });
 }
 
-/** Records the reason an activation attempt stopped, for the on-device panel. */
+/** Records an activation decision in the development-only event logger. */
 function reason(code: string): void {
-  lastReason = code;
   logDebug(`RET ${code}`);
 }
 
 function recordError(message: string): void {
-  const stamp = (performance.now() / 1000).toFixed(1);
-  errorLog.unshift(`${stamp} ${message}`);
-  if (errorLog.length > 10) errorLog.pop();
   console.error('[maarify]', message);
-  lastDebugPaint = 0;
-}
-
-function updateDebugPanel(): void {
-  if (!DEV_TOOLS_ENABLED) return;
-  const now = performance.now();
-  if (now - lastDebugPaint < 250) return;
-  lastDebugPaint = now;
-
-  const session = renderer.xr.getSession();
-  const sources: XRInputSource[] = [];
-  if (session) {
-    for (let index = 0; index < session.inputSources.length; index += 1) {
-      sources.push(session.inputSources[index]);
-    }
-  }
-  const sourceRows = sources.length === 0
-    ? 'none'
-    : sources.map((source) => {
-        const kind = source.hand ? 'hand' : 'ctl';
-        const flags = `${source.gamepad ? 'gp' : '--'}${source.hand ? '/h' : ''}`;
-        return `${(source.handedness || 'n')[0].toUpperCase()}:${kind}:${flags}`;
-      }).join(' ');
-
-  const head = camera.getWorldPosition(new THREE.Vector3());
-  const lines = [
-    `BUILD ${BUILD_ID}`,
-    `VIS ${session?.visibilityState ?? 'none'} XR ${renderer.xr.isPresenting ? 'on' : 'off'}`,
-    `SCENE ${currentModuleName} FRAME ${frameTimeMs.toFixed(0)}ms`,
-    `STALE ${staleBuild ? 'YES — RELOAD' : 'no'}`,
-    `SRC ${sourceRows}`,
-    `POSE ${xrControllers.filter((entry) => entry.hasPose).length}/${xrControllers.length}`,
-    `RET ${lastReason}`,
-    `HIT ${lastHitLabel}`,
-    `EV ${debugEvents[0] ?? '-'}`,
-    `EV ${debugEvents[1] ?? ''}`,
-    `EV ${debugEvents[2] ?? ''}`,
-    `ERR ${errorLog[0] ?? '-'}`,
-    `HEAD ${head.x.toFixed(1)} ${head.z.toFixed(1)}`,
-  ];
-  setTextPanelText(debugPanel, lines.join('\n'));
 }
 
 /** Walking through a portal ring enters it; no button required. */
@@ -760,7 +717,7 @@ function updateWalkInEntry(deltaSeconds: number): void {
   for (const portal of hubWorld.portals) {
     const position = portal.portalMesh.getWorldPosition(new THREE.Vector3());
     const distance = head.distanceTo(position);
-    if (distance < 1.0 && (!nearest || distance < nearest.distance)) nearest = { id: portal.id, distance };
+    if (distance < 0.55 && (!nearest || distance < nearest.distance)) nearest = { id: portal.id, distance };
   }
   if (nearest) {
     if (walkInPortal === nearest.id) walkInTimer += deltaSeconds;
@@ -768,7 +725,7 @@ function updateWalkInEntry(deltaSeconds: number): void {
       walkInPortal = nearest.id;
       walkInTimer = 0;
     }
-    if (walkInTimer > 0.9) {
+    if (walkInTimer > 1.5) {
       logDebug(`proximity enter ${nearest.id}`);
       tryLoadModule(nearest.id);
       walkInTimer = 0;
@@ -786,7 +743,12 @@ function updateReturnGate(deltaSeconds: number): void {
   returnGate.visible = inModule;
   if (!inModule) {
     returnTimer = 0;
+    returnRayArmUntil = 0;
     return;
+  }
+  if (returnRayArmUntil > 0 && performance.now() > returnRayArmUntil) {
+    returnRayArmUntil = 0;
+    if (returnGateLabel) setTextPanelText(returnGateLabel, 'RETURN TO HUB (step on pad or point ray)');
   }
   // Grace period so arriving in a module never immediately bounces the learner out.
   if (performance.now() - moduleEnteredAt < 2500) return;
@@ -851,25 +813,24 @@ function syncFolioForAnchor(anchor: DiegeticSpatialAnchor): void {
   const content = findAnchorContent(anchor.anchorId);
   if (!content || !anchor.isExpanded) {
     if (folioPanel) folioPanel.visible = false;
+    if (activeFolioAnchor === anchor) activeFolioAnchor = null;
     return;
   }
   if (!folioPanel) {
     folioPanel = new FolioPanel();
     scene.add(folioPanel);
   }
-  const world = anchor.getWorldPosition(new THREE.Vector3());
-  const cameraPosition = camera.getWorldPosition(new THREE.Vector3());
-  const direction = world.clone().sub(cameraPosition).setY(0);
-  if (direction.lengthSq() < 0.0001) direction.set(0, 0, -1);
-  direction.normalize();
-  // Keep the folio beside the anchor but at 1.1 m, nearer than every anchor tag,
-  // so the body text stays legible and nothing occludes it.
-  const distance = 1.1;
-  const target = cameraPosition.clone().addScaledVector(direction, distance);
-  target.y = world.y;
-  const side = new THREE.Vector3(-direction.z, 0, direction.x).multiplyScalar(0.35);
-  target.add(side);
-  folioPanel.position.copy(target);
+  const placement = placeFolioBesideExhibit(
+    anchor.getWorldPosition(new THREE.Vector3()),
+    camera.getWorldPosition(new THREE.Vector3()),
+  );
+  folioPanel.position.copy(placement.position);
+  folioPanel.lookAt(placement.lookAt);
+  activeFolioAnchor = anchor;
+  folioPanel.onClose = () => {
+    if (activeFolioAnchor?.isExpanded) activeFolioAnchor.toggleExpansion();
+    activeFolioAnchor = null;
+  };
   folioPanel.setContent(content);
 }
 
@@ -884,13 +845,6 @@ function findPortalAncestor(object: THREE.Object3D): string | null {
 
 // --- WebXR ----------------------------------------------------------------
 function setupWebXR() {
-  if ('xr' in navigator && enterXrBtn) {
-    (navigator as any).xr.isSessionSupported('immersive-vr').then((supported: boolean) => {
-      enterXrBtn.textContent = supported ? 'Enter WebXR (Quest 3)' : 'WebXR Not Available (Desktop Mode)';
-      if (supported) enterXrBtn.addEventListener('click', onEnterVR);
-    });
-  }
-
   for (let i = 0; i < 2; i += 1) {
     const controller = renderer.xr.getController(i);
     controller.addEventListener('connected', (event: any) => {
@@ -1007,8 +961,6 @@ function dispatchRayInteraction(
   direction: THREE.Vector3,
   source?: XRInputSource
 ): string {
-  if (handleTuningPanelRay(origin, direction, source)) return 'panel';
-
   if (activeModuleRoot) {
     if (handleFolioRay(origin, direction, source)) return 'folio';
     const moduleReason = handleModuleRayInteraction(controller, origin, direction, source);
@@ -1070,24 +1022,10 @@ function getPointerRay(
   camera.getWorldDirection(direction);
 }
 
-/** Ray-to-UV routing for the tuning console; consumed before world interaction. */
-function handleTuningPanelRay(origin: THREE.Vector3, direction: THREE.Vector3, source?: XRInputSource): boolean {
-  if (!tuningPanel.isOpen) return false;
-  xrRaycaster.set(origin, direction);
-  xrRaycaster.far = 2;
-  const hits = xrRaycaster.intersectObject(tuningPanel.panelGroup, true);
-  if (hits.length === 0 || !hits[0].uv) return false;
-  const handled = tuningPanel.handlePointer(hits[0].uv.x, hits[0].uv.y);
-  if (handled) {
-    triggerHapticPulse(source, ActiveTuning.haptics.detent.intensity, ActiveTuning.haptics.detent.durationMs);
-  }
-  return true;
-}
-
 function handleHubRayInteraction(origin: THREE.Vector3, direction: THREE.Vector3, source?: XRInputSource): boolean {
   xrRaycaster.set(origin, direction);
   xrRaycaster.far = 5;
-  const hits = xrRaycaster.intersectObjects([hubWorld, tuningConsole], true);
+  const hits = xrRaycaster.intersectObjects([hubWorld], true);
   for (const hit of hits) {
     const activate = findUserDataPrimitive(hit.object, 'activate');
     if (typeof activate === 'function') {
@@ -1098,11 +1036,6 @@ function handleHubRayInteraction(origin: THREE.Vector3, direction: THREE.Vector3
     const portalId = findPortalAncestor(hit.object);
     if (portalId) {
       tryLoadModule(portalId, source);
-      return true;
-    }
-    if (hit.object.name.startsWith('tier-btn-')) {
-      applyDepthTier(hit.object.name.replace('tier-btn-', '') as DepthTier);
-      triggerHapticPulse(source, ActiveTuning.haptics.detent.intensity, ActiveTuning.haptics.detent.durationMs);
       return true;
     }
   }
@@ -1125,16 +1058,6 @@ function handleHubRayInteraction(origin: THREE.Vector3, direction: THREE.Vector3
   }
   if (nearestPortal) {
     tryLoadModule(nearestPortal.id, source);
-    return true;
-  }
-
-  // Last resort: look at a portal and press trigger. Also proves whether the controller
-  // ray or the head gaze is the part that is misbehaving.
-  const gazeOrigin = camera.getWorldPosition(new THREE.Vector3());
-  const gazeDirection = camera.getWorldDirection(new THREE.Vector3());
-  const looked = findAimedPortal(gazeOrigin, gazeDirection, 0.9, 6.5);
-  if (looked) {
-    tryLoadModule(looked, source);
     return true;
   }
 
@@ -1184,7 +1107,8 @@ function handleModuleRayInteraction(
   xrRaycaster.far = returnGate.visible ? 15.0 : 4.5;
   const targets: THREE.Object3D[] = [activeModuleRoot];
   if (returnGate.visible) targets.push(returnGate);
-  const hits = xrRaycaster.intersectObjects(targets, true);
+  const rawHits = xrRaycaster.intersectObjects(targets, true);
+  const hits = rawHits.filter((h) => !isIgnoredExplodableBase(h.object));
   if (hits.length === 0) return null;
 
   // Two-pass priority: interactive primitives beat anchor tags (BUG-07).
@@ -1262,14 +1186,20 @@ function handleFolioRay(origin: THREE.Vector3, direction: THREE.Vector3, source?
   xrRaycaster.set(origin, direction);
   xrRaycaster.far = 3;
   const hits = xrRaycaster.intersectObject(folioPanel, true);
-  // three raycasts hidden children too, so a collapsed panel would still page.
-  const hit = hits.find((candidate) => isVisibleTowardFolio(candidate.object));
+  // Prioritize interactive controls (tabs, arrows, close button) over the backing parchment board
+  const interactiveHit = hits.find((h) =>
+    isVisibleTowardFolio(h.object) && Boolean(findUserDataPrimitive(h.object, 'activate'))
+  );
+  const hit = interactiveHit ?? hits.find((candidate) => isVisibleTowardFolio(candidate.object));
   if (!hit) return false;
 
   const activate = findUserDataPrimitive(hit.object, 'activate');
   if (typeof activate === 'function') {
     (activate as () => void)();
     triggerHapticPulse(source, ActiveTuning.haptics.detent.intensity, ActiveTuning.haptics.detent.durationMs);
+  } else {
+    const grab = findUserDataPrimitive(hit.object, 'grabPrimitive') as SpatialGrabPrimitive | null;
+    if (grab && !grab.isGrabbed) grab.tryGrab(hit.point, new THREE.Quaternion(), source);
   }
   return true;
 }
@@ -1353,8 +1283,8 @@ function releaseControllerGrab(controller: THREE.Object3D): void {
   grabDistances.delete(controller);
 }
 
-async function onEnterVR() {
-  if (!('xr' in navigator)) return;
+async function onEnterVR(): Promise<boolean> {
+  if (!('xr' in navigator)) return false;
   try {
     const session = await (navigator as any).xr.requestSession('immersive-vr', {
       requiredFeatures: ['local-floor'],
@@ -1393,9 +1323,18 @@ async function onEnterVR() {
       xrControllers.forEach((entry) => { entry.rayLine.visible = false; entry.source = null; });
       comfortSystem.setMotionIntensity(0);
     });
+    return true;
   } catch (err) {
     console.warn('Failed to start WebXR session:', err);
+    return false;
   }
+}
+
+/** Ends the immersive session from the hub and returns to the browser landing page. */
+async function exitMaarify(): Promise<void> {
+  const session = renderer.xr.getSession();
+  if (session) await session.end();
+  window.location.reload();
 }
 
 // --- Per-frame XR locomotion ---------------------------------------------
@@ -1688,7 +1627,8 @@ function updateControllerRays(): void {
     if (folioPanel?.visible) targets.push(folioPanel);
     xrRaycaster.set(origin, direction);
     xrRaycaster.far = returnGate.visible ? 15.0 : 4.5;
-    const hits = xrRaycaster.intersectObjects(targets, true);
+    const rawHits = xrRaycaster.intersectObjects(targets, true);
+    const hits = rawHits.filter((h) => !isIgnoredExplodableBase(h.object));
     if (hits.length > 0) {
       end = hits[0].point;
       if (!bestHit || hits[0].distance < bestHit.distance) bestHit = hits[0];
@@ -1708,19 +1648,29 @@ function updateControllerRays(): void {
     const portalName = findPortalAncestor(bestHit.object);
     lastHitLabel = portalName ? `portal:${portalName}` : (bestHit.object.name || 'object');
     const isPortal = Boolean(portalName);
-    // Only show the hit dot when pointing at something interactive (portal, activate, primitive).
-    // Pointing at empty hub floor or module backdrop hides it so the dot isn't always on.
+    let isFolioHit = false;
+    if (folioPanel?.visible) {
+      let c: THREE.Object3D | null = bestHit.object;
+      while (c) {
+        if (c === folioPanel) { isFolioHit = true; break; }
+        c = c.parent;
+      }
+    }
+    // Show the hit dot when pointing at something interactive or on the folio overlay.
     const isInteractive = isPortal
+      || isFolioHit
       || Boolean(findUserDataPrimitive(bestHit.object, 'activate'))
       || Boolean(findUserDataPrimitive(bestHit.object, 'sliderPrimitive'))
       || Boolean(findUserDataPrimitive(bestHit.object, 'rotatorPrimitive'))
-      || Boolean(findUserDataPrimitive(bestHit.object, 'grabPrimitive'))
-      || Boolean(findUserDataPrimitive(bestHit.object, 'tuningPanelSurface'))
-      || bestHit.object.name.startsWith('tier-btn-');
+      || Boolean(findUserDataPrimitive(bestHit.object, 'grabPrimitive'));
     hitMarker.position.copy(bestHit.point);
     hitMarker.visible = isInteractive;
+    hitMarker.renderOrder = isFolioHit ? 1000 : 0;
+    (hitMarker.material as THREE.MeshBasicMaterial).depthTest = !isFolioHit;
     hitMarker.scale.setScalar(isPortal ? 1.8 : 1);
-    (hitMarker.material as THREE.MeshBasicMaterial).color.setHex(isPortal ? 0x10b981 : 0x38bdf8);
+    (hitMarker.material as THREE.MeshBasicMaterial).color.setHex(
+      isPortal ? 0x10b981 : (isFolioHit ? 0xf59e0b : 0x38bdf8)
+    );
 
     for (const entry of xrControllers) {
       if (entry.handedness) {
@@ -1768,8 +1718,6 @@ function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
   } catch (error) {
     const message = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
     recordError(`frame: ${message}`);
-    lastDebugPaint = 0;
-    try { updateDebugPanel(); } catch { /* keep the loop alive */ }
   }
 }
 
@@ -1819,6 +1767,14 @@ function updateTwoHandedInteractions(): void {
   }
 }
 
+/** Keep a single folio local to its exhibit; close it once the learner leaves. */
+function updateFolioLifecycle(): void {
+  if (!folioPanel?.visible || !activeFolioAnchor) return;
+  const viewer = camera.getWorldPosition(new THREE.Vector3());
+  const exhibit = activeFolioAnchor.getWorldPosition(new THREE.Vector3());
+  if (viewer.distanceTo(exhibit) > 3) folioPanel.close();
+}
+
 function renderFrame(frame?: XRFrame) {
   const now = performance.now();
   const deltaSec = Math.min((now - lastTime) / 1000, 0.1);
@@ -1832,11 +1788,28 @@ function renderFrame(frame?: XRFrame) {
     lastFpsUpdate = now;
   }
 
+  // Drive the vignette fade overlay every frame (covers both XR and desktop).
+  vignetteFade.update(deltaSec);
+
+  // Drive hub portal preview animations and the orientation tutorial state machine.
+  hubWorld.update(deltaSec);
+
   updateXRLocomotion(frame, deltaSec);
   updateWalkInEntry(deltaSec);
   updateReturnGate(deltaSec);
   updateTwoHandedInteractions();
-  updateDebugPanel();
+  updateFolioLifecycle();
+  const arrival = travelSystem.update(deltaSec);
+  if (arrival) {
+    cameraRig.position.set(arrival.position.x, 0, arrival.position.z);
+  }
+  if (travelSystem.state !== 'idle') {
+    travelWasActive = true;
+    comfortSystem.setMotionIntensity(0.85);
+  } else if (travelWasActive) {
+    travelWasActive = false;
+    comfortSystem.setMotionIntensity(0);
+  }
 
   // Fixed-timestep simulation stays decoupled from display refresh.
   physicsAccumulator.step(deltaSec, () => {
@@ -1861,16 +1834,11 @@ function renderFrame(frame?: XRFrame) {
     grab.update(origin.addScaledVector(direction, distance), quaternion);
   });
 
-  // Per-frame billboard: objects with userData.billboard face the camera
-  const camPos=camera.getWorldPosition(new THREE.Vector3());
+  // Per-frame billboard: compact anchor affordances face the camera. Folios do not.
+  const camPos = camera.getWorldPosition(new THREE.Vector3());
   scene.traverse((obj) => { if (obj.userData.billboard) obj.lookAt(camPos); });
 
-  // Per-frame billboard: objects with userData.billboard face the camera
 
-
-  if (folioPanel?.visible) {
-    folioPanel.update(camera.getWorldPosition(folioCameraPosition));
-  }
   renderer.render(scene, camera);
   publishTestHooks();
 }
@@ -1897,17 +1865,6 @@ function publishTestHooks() {
     tier: selectedTier,
   };
   (window as any).__MAARIFY_SET_TIER__ = (tier: DepthTier) => applyDepthTier(tier);
-  (window as any).__MAARIFY_TUNING__ = {
-    open: () => tuningPanel.openInFrontOf(camera),
-    close: () => tuningPanel.hide(),
-    isOpen: () => tuningPanel.isOpen,
-    press: (u: number, v: number) => tuningPanel.handlePointer(u, v),
-    state: () => ({
-      isOpen: tuningPanel.isOpen,
-      grabThreshold: ActiveTuning.input.grabThresholdMeters,
-      snapTurnAngleDeg: ActiveTuning.comfort.snapTurnAngleDeg,
-    }),
-  };
   (window as any).__MAARIFY_CHALLENGES__ = {
     completed: Array.from(completedChallenges),
     totalXp: progressStore.getProgress().totalXp,
@@ -1975,6 +1932,7 @@ function publishTestHooks() {
     if (action === 'next') folioPanel.goNext();
     else if (action === 'prev') folioPanel.goPrev();
     else if (action === 'collapse') folioPanel.toggleCollapse();
+    else if (action === 'close') folioPanel.close();
     else if (action === 'foundation' || action === 'advanced' || action === 'expert') {
       folioPanel.switchTier(action);
     } else {
@@ -1993,6 +1951,7 @@ function publishTestHooks() {
       'folio-tab-foundation',
       'folio-tab-advanced',
       'folio-tab-expert',
+      'folio-close',
     ];
     return names.map((name) => {
       const object = folioPanel?.getObjectByName(name);
@@ -2017,6 +1976,59 @@ function publishTestHooks() {
   };
 }
 
-// Start application
-initApp();
-animate();
+function setLandingProgress(percent: number, message: string): void {
+  if (landingProgress) landingProgress.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+  if (landingStatus) landingStatus.textContent = message;
+}
+
+async function startLandingExperience(): Promise<void> {
+  if (appInitialized) return;
+  appInitialized = true;
+  if (enterXrBtn) enterXrBtn.disabled = true;
+  setLandingProgress(25, 'Preparing the reading room…');
+  initApp();
+  setLandingProgress(70, 'Requesting your VR session…');
+  const entered = await onEnterVR();
+  if (!entered) {
+    appInitialized = false;
+    if (enterXrBtn) enterXrBtn.disabled = false;
+    setLandingProgress(0, 'VR session was not started. Check Quest Browser permissions and try again.');
+    return;
+  }
+  setLandingProgress(100, 'Entering the reading room…');
+  landingPage?.remove();
+  animate();
+}
+
+function configureLandingPage(): void {
+  if (landingBuild && import.meta.env.DEV) landingBuild.textContent = `Development build ${BUILD_ID}`;
+  if (!window.isSecureContext) {
+    if (enterXrBtn) enterXrBtn.textContent = 'WebXR requires a secure context';
+    setLandingProgress(0, 'Open Maarify through localhost with ADB reverse or an HTTPS URL.');
+    return;
+  }
+  if (!('xr' in navigator)) {
+    if (enterXrBtn) enterXrBtn.textContent = 'WebXR is unavailable';
+    setLandingProgress(0, 'Open this page in Meta Quest Browser on Quest 3 or Quest 3S.');
+    return;
+  }
+  (navigator as any).xr.isSessionSupported('immersive-vr').then((supported: boolean) => {
+    if (!supported) {
+      if (enterXrBtn) enterXrBtn.textContent = 'Immersive VR is unavailable';
+      setLandingProgress(0, 'This browser cannot start an immersive VR session.');
+      return;
+    }
+    if (enterXrBtn) {
+      enterXrBtn.disabled = false;
+      enterXrBtn.textContent = 'Enter VR';
+      enterXrBtn.addEventListener('click', () => { void startLandingExperience(); }, { once: true });
+    }
+    setLandingProgress(0, 'Ready for Quest 3 / 3S.');
+  }).catch(() => {
+    if (enterXrBtn) enterXrBtn.textContent = 'WebXR check failed';
+    setLandingProgress(0, 'Could not check WebXR support in this browser.');
+  });
+}
+
+// The landing page is intentionally the only rendered surface until the user enters VR.
+configureLandingPage();

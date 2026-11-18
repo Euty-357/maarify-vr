@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { createTextPanel } from '../../core/ui/text-panel.js';
 
 export interface QuantumHardwareModel {
   id: string;
@@ -84,6 +85,20 @@ export const QUANTUM_ARCHITECTURES: QuantumHardwareModel[] = [
   },
 ];
 
+/** Diegetic title labels for each architecture pedestal (Req 39.1, 39.2). */
+const ARCH_LABELS: Record<string, string> = {
+  'superconducting-transmon': 'Superconducting\nQubits',
+  'trapped-ion': 'Trapped Ion\nQubits',
+  'photonic': 'Photonic\nQubits',
+  'neutral-atom': 'Neutral Atom\nQubits',
+  'silicon-spin': 'Silicon Spin\nQubits',
+  'topological':
+    'Topological Qubits\nEXPERIMENTAL — no commercial\nquantum advantage demonstrated',
+};
+
+/** Height of the pedestal cylinder top surface (cylinder height 0.8, centred at 0.4). */
+const PEDESTAL_HEIGHT = 0.8;
+
 /**
  * Creates a physical 3D pedestal for a quantum hardware architecture.
  */
@@ -114,6 +129,22 @@ export function createHardwarePedestal(hw: QuantumHardwareModel): THREE.Group {
   const model = createIconicHardwareMesh(hw.id, hw.visualColor);
   model.position.set(0, 1.05, 0);
   group.add(model);
+
+  // Diegetic title badge above the pedestal (Req 39.1 / 39.2)
+  const archLabel = ARCH_LABELS[hw.id] ?? hw.name;
+  const isTopological = hw.id === 'topological';
+  const badge = createTextPanel(archLabel, {
+    widthMeters: 0.28,
+    heightMeters: isTopological ? 0.14 : 0.08,
+    fontSizePx: 16,
+    align: 'center',
+    background: '#0f172a',
+    color: '#e2e8f0',
+    accent: '#38bdf8',
+    lines: isTopological ? 3 : 2,
+  });
+  badge.position.set(0, PEDESTAL_HEIGHT + 0.12, 0);
+  group.add(badge);
 
   return group;
 }

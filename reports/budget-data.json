@@ -1,13 +1,13 @@
 {
   "m0-spatial-spike": {
-    "triangles": 4686,
-    "drawCalls": 38
+    "triangles": 4416,
+    "drawCalls": 32
   },
   "m1-hub": {
     "states": {
       "baseline": {
-        "triangles": 4686,
-        "drawCalls": 38
+        "triangles": 4416,
+        "drawCalls": 32
       }
     }
   },

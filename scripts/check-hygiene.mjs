@@ -35,9 +35,17 @@ const IGNORED_DIRS = new Set([
   '.vite',
   '.git',
   '.claude',
+  '.cursor',
+  '.windsurf',
+  '.kiro',
+  '.gemini',
+  '.antigravity',
   'coverage',
   'playwright-report',
-  'test-results'
+  'test-results',
+  'logs',
+  'history',
+  'clips',
 ]);
 
 // Forbidden raw WebXR APIs in src/modules (modules must use src/core/input/primitives instead)

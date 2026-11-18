@@ -9,7 +9,7 @@ let activeScene: HumanBodySceneComponents | null = null;
 
 const moduleDef: ModuleDefinition = {
   id: 'human-body',
-  displayName: 'Human Body & Medicine',
+  displayName: 'Medicine',
   description: 'From cardiac valves to CAR-T immunotherapy and destigmatizing HIV science.',
   estimatedMinutes: [15, 20],
   thumbnail: '/assets/thumbnails/human-body.ktx2',
@@ -42,6 +42,19 @@ const moduleDef: ModuleDefinition = {
 
   getChallenges,
   getSpatialAnchors,
+
+  isWalkable(pos: THREE.Vector3): boolean {
+    // Atrium footprint: circle of radius 4.7 m
+    if (Math.sqrt(pos.x * pos.x + pos.z * pos.z) <= 4.7) return true;
+    // Wing room footprints: 6 rooms at r=5.4 m
+    for (let i = 0; i < 6; i++) {
+      const angle = (i * Math.PI) / 3 - Math.PI / 2;
+      const cx = Math.sin(angle) * 5.4;
+      const cz = -Math.cos(angle) * 5.4;
+      if (Math.abs(pos.x - cx) <= 3 && Math.abs(pos.z - cz) <= 3) return true;
+    }
+    return false;
+  },
 };
 
 export default moduleDef;

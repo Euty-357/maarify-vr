@@ -34,14 +34,20 @@ describe('Hub World Structure & Tier Plinth Logic', () => {
     expect(hub.selectedTier).toBe('expert');
   });
 
-  it('instantiates the brand plaque with FrontSide materials and Swahili carved-door geometry', () => {
+  it('removes brand plaque and adds floor crest inlay per Req 12', () => {
     const hub = new HubWorld();
+    // Brand plaque above the arch removed per Req 12.2
     const brandPlaque = hub.getObjectByName('brand-plaque');
-    expect(brandPlaque).toBeDefined();
+    expect(brandPlaque).toBeUndefined();
 
-    // Verify position above the main arch (y = 2.75, z = -3.4)
-    expect(brandPlaque?.position.y).toBeCloseTo(2.75, 2);
-    expect(brandPlaque?.position.z).toBeCloseTo(-3.4, 2);
+    // Floor crest inlay present at world origin per Req 12.1
+    const floorInlay = hub.getObjectByName('hub-floor-crest-inlay');
+    expect(floorInlay).toBeDefined();
+    expect(floorInlay?.position.y).toBeCloseTo(0.003, 3);
+
+    // Central orrery removed per Req 12.3
+    const orrery = hub.getObjectByName('hub-orrery');
+    expect(orrery).toBeUndefined();
   });
 });
 

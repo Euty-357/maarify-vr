@@ -138,8 +138,8 @@ export const DEFAULT_TUNING: TuningConfig = {
     rotatorDetentStepDeg: 15,
   },
   comfort: {
-    teleportMaxDistanceMeters: 6.0,
-    teleportMaxRadiusMeters: 7.0,
+    teleportMaxDistanceMeters: 8.0,
+    teleportMaxRadiusMeters: 8.0,
     teleportArcGravity: 9.81,
     teleportLaunchVelocity: 6.0,
     smoothLocomotion: false,

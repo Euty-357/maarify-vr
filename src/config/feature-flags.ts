@@ -28,7 +28,7 @@ export const MODULE_FLAGS: Record<string, ModuleFeatureConfig> = {
   },
   'human-body': {
     id: 'human-body',
-    name: 'Human Body & Medicine',
+    name: 'Medicine',
     readiness: 'ready',
     enabled: true,
   },
@@ -46,14 +46,14 @@ export const MODULE_FLAGS: Record<string, ModuleFeatureConfig> = {
   },
   environment: {
     id: 'environment',
-    name: 'Climate & Environment',
-    readiness: 'ready',
-    enabled: true,
+    name: 'Climate \u0026 Environment',
+    readiness: 'planned',
+    enabled: false,
   },
   'urban-development': {
     id: 'urban-development',
-    name: 'Urban Infrastructure',
-    readiness: 'experimental',
+    name: 'Urban Development \u0026 Planning',
+    readiness: 'planned',
     enabled: false,
   },
 };

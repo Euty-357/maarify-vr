@@ -51,6 +51,7 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     });
     this.lineMesh = new THREE.Line(lineGeo, lineMat);
     this.lineMesh.raycast = () => {};
+    this.lineMesh.visible = false; // Information System V3: no persistent lines in world
     this.add(this.lineMesh);
 
     // Indicator glowing ⓘ badge (collapsed default state)
@@ -96,6 +97,7 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     this.indicatorMesh.name = 'anchor-indicator-' + id;
     this.indicatorMesh.userData.isAnchorIndicator = true;
     this.indicatorMesh.userData.billboard = true;
+    this.indicatorMesh.visible = false; // Information System V3: no persistent floating "i" glyphs
     this.add(this.indicatorMesh);
 
     // 2. Spatial Anchor Tag with HTML Canvas Texture (offline, zero network calls)
@@ -199,7 +201,7 @@ export class DiegeticSpatialAnchor extends THREE.Group {
   public toggleExpansion(cameraWorldPos?: THREE.Vector3): boolean {
     this.isExpanded = !this.isExpanded;
     this.tagMesh.visible = this.isExpanded;
-    this.indicatorMesh.visible = !this.isExpanded;
+    this.indicatorMesh.visible = false; // Always keep "i" glyph hidden
     this.microSimRoot.visible = this.isExpanded;
     this.renderTagCanvas(this.isExpanded);
     // Adapt tag position and face toward the opening camera position

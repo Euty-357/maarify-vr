@@ -9,6 +9,8 @@
 - [x] `HW-06a` Design tokens (`src/core/design/tokens.ts`) and warm hub re-skin
 - [x] `HW-06b` Brand plaque with automatic logo wiring, page title/favicon
 - [x] `HW-06c` Credits plaque generated from module SOURCES
+- [x] `CLEANUP-01` Removed the in-headset tuning/debug panels and hub tier-selector plinth; retained `src/config/tuning.ts` and made logger transport development-only (fixed, NOT verified on headset)
+- [x] `SHARED-01` Pre-VR landing page, hub exit lectern, object-adjacent folio placement, mission-board contract, Reading Room shell, and travel-state foundation (fixed, NOT verified on headset)
 - [ ] `HW-06d` Full Reading Room architecture (shelves, arched windows, orrery, lectern)
 - [x] `HW-07a` Content schema (`src/core/content/schema.ts`) + 5 unit tests
 - [x] `HW-07b` `audit-content-depth.mjs` and `npm run audit:content` (report-only; `--enforce` fails on gaps)

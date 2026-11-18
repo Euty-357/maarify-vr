@@ -107,7 +107,8 @@ describe('Diegetic Spatial Anchor State Machine', () => {
 
     const indicator = anchor.getObjectByName('anchor-indicator-indicator-test') as THREE.Mesh;
     expect(indicator).toBeDefined();
-    expect(indicator.visible).toBe(true);
+    // Information System V3: no persistent floating glyphs (collapsed indicator hidden by default)
+    expect(indicator.visible).toBe(false);
     expect(indicator.userData.isAnchorIndicator).toBe(true);
 
     const tag = anchor.getObjectByName('anchor-tag-indicator-test') as THREE.Mesh;

@@ -23,13 +23,16 @@ const TIER_LABELS: Record<TierId, string> = {
 /**
  * Panels v2 folio: a parchment board beside the anchor, not head-locked.
  * Brass tier tabs switch tier while keeping the page for each tier, arrows page the
- * body, and the header collapses the panel. The board is grabbable and turns gently
- * toward the viewer when it is not held.
+ * body, and the header collapses the panel. The board is grabbable and faces the
+ * learner only when it opens; it never follows their head movement.
  */
 export class FolioPanel extends THREE.Group {
   public state: FolioState = createFolioState();
   public content: AnchorContent | null = null;
   public grab: SpatialGrabPrimitive;
+  public onClose: (() => void) | null = null;
+  /** When true, the auto-close rule (Req 6) is bypassed. */
+  public pinned = false;
 
   private bodyCanvas: HTMLCanvasElement | null = null;
   private bodyTexture: THREE.CanvasTexture | null = null;
@@ -38,6 +41,8 @@ export class FolioPanel extends THREE.Group {
   private tabs: THREE.Mesh[] = [];
   private arrows: THREE.Mesh[] = [];
   private footer: THREE.Mesh | null = null;
+  private closeButton: THREE.Mesh;
+  private pinButton: THREE.Mesh;
 
   constructor() {
     super();
@@ -68,6 +73,18 @@ export class FolioPanel extends THREE.Group {
     this.header.name = 'folio-header';
     this.header.userData.activate = () => this.toggleCollapse();
     this.add(this.header);
+
+    this.closeButton = this.makeArrow('×');
+    this.closeButton.name = 'folio-close';
+    this.closeButton.position.set(0.405, 0.33, 0.014);
+    this.closeButton.userData.activate = () => this.close();
+    this.add(this.closeButton);
+
+    this.pinButton = this.makeArrow('⊙');
+    this.pinButton.name = 'folio-pin';
+    this.pinButton.position.set(0.405, 0.265, 0.014);
+    this.pinButton.userData.activate = () => this.togglePin();
+    this.add(this.pinButton);
 
     const tabNames: TierId[] = ['foundation', 'advanced', 'expert'];
     tabNames.forEach((tier, index) => {
@@ -206,16 +223,20 @@ export class FolioPanel extends THREE.Group {
     this.paint();
   }
 
-  /** Gently yaw toward the viewer; skipped while grabbed. */
-  public update(cameraPosition: THREE.Vector3): void {
-    if (!this.visible || !this.content || this.grab.isGrabbed) return;
-    const dx = cameraPosition.x - this.position.x;
-    const dz = cameraPosition.z - this.position.z;
-    const targetYaw = Math.atan2(dx, dz);
-    let delta = targetYaw - this.rotation.y;
-    while (delta > Math.PI) delta -= Math.PI * 2;
-    while (delta < -Math.PI) delta += Math.PI * 2;
-    this.rotation.y += delta * 0.08;
+  /**
+   * Toggles the pinned state. When pinned, the auto-close rule (Req 6) is bypassed.
+   * Updates the pin button glyph so the learner sees the current state.
+   * **Validates: Requirements 4.5**
+   */
+  public togglePin(): void {
+    this.pinned = !this.pinned;
+    setTextPanelText(this.pinButton, this.pinned ? '📌' : '⊙');
+  }
+
+  /** Explicit close affordance; the owner also collapses the attached anchor. */
+  public close(): void {
+    this.visible = false;
+    this.onClose?.();
   }
 
   private activeTierTab(): void {

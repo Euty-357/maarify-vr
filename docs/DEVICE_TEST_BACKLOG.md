@@ -163,3 +163,43 @@ _All items here cannot be verified in headless CI or emulator and are strictly l
 - **How to test:** Enter Environment portal from Hub; operate time lever with left/right controllers; grab sapling plot and plant on slope; rotate Naivasha valve wheel; inspect 3D stakeholder network and toggle policy interventions; walk to coastal mangrove station and observe wave attenuation.
 - **Pass criteria:** All controls reachable seated; time scrub is fluid; stakeholder beam lines are distinct in stereo; steady 90 fps maintained; zero motion discomfort.
 - **Status:** NOT verified on headset
+
+## DT-020 — Pre-VR Landing Page and XR Entry
+- **What:** Confirm the landing page is legible and usable in Quest Browser, reports an accurate readiness state, and enters immersive VR only after the learner presses **Enter VR**.
+- **Why device needed:** Quest Browser security context, real WebXR capability detection, page-scale readability, and the user-activation hand-off into an immersive session cannot be validated by a desktop browser alone.
+- **Module / System:** Core entry (`index.html`, `src/main.ts`)
+- **How to test:** Start the wireless Quest dev loop; open the localhost page in Quest Browser; review the safety checklist; press **Enter VR**; then end the session and reload the page.
+- **Pass criteria:** No Three.js scene appears behind the landing page before entry; Enter VR is enabled only when immersive VR is supported in a secure context; the session starts without a browser/system error; all landing text is comfortably legible on Quest 3 and 3S.
+- **Status:** NOT verified on headset
+
+## DT-021 — Information System V3 & Auto-positioning Folio
+- **What:** Confirm Information System V3 exhibits have engraved brass placards on plinths; pointing highlights the exhibit; trigger/pinch opens the folio panel 0.4–0.8 m on the user-facing side; tabs switch tier cleanly; grab handle repositions the panel; walking away (>2.5 m) auto-collapses it; text is legible at 1.5° angular height.
+- **Why device needed:** World-space spatial ergonomics, depth perception, pancake lens angular legibility, and head motion auto-collapse.
+- **Module / System:** Core / Info-System (src/core/info-system/, src/core/ui/)
+- **How to test:** In Hub and any module, trigger an exhibit placard; inspect folio positioning and angular font size; switch tiers; walk 3 meters away and verify auto-close.
+- **Pass criteria:** Panel never spawns inside geometry or user face; smooth grab handle dragging; zero overlap; auto-close cleanly fires.
+- **Status:** NOT verified on headset
+
+## DT-022 — Aerospace Engine Test Hall & Nozzle Base Raycast Bypass
+- **What:** Confirm pointer ray passes freely through the engine base colliders (y <= 0.1 m) to operate explode levers, throttle sliders, and cycle dials without getting stuck on the nozzle cone. Confirm 3 engine stands (Raptor FFSC, Hydrolox, SRM) render with orange/cyan flow lines.
+- **Why device needed:** 6DOF controller raycast precision and visual beam feedback in spatial room.
+- **Module / System:** Aerospace (src/modules/aerospace/scene.ts, src/main.ts)
+- **How to test:** Enter Aerospace module; aim controller ray at rocket engine and stand bases; verify ray hits levers/throttle and does not stick to floor cone; operate levers.
+- **Pass criteria:** Levers and sliders highlight and drag smoothly; zero beam latching to base cone; steady 90 fps.
+- **Status:** NOT verified on headset
+
+## DT-023 — Quantum Cryostat Dilution Plates & Bloch State Proximity
+- **What:** Confirm dilution refrigerator stage plates (50K to 15mK) can each be grabbed, pulling them out opens an explanation folio; approaching Bloch sphere within 1.5 m reveals state labels and proximity folio.
+- **Why device needed:** Direct grab ergonomics, 6DOF near-field proximity triggers, and tactile feel.
+- **Module / System:** Quantum (src/modules/quantum/scene.ts)
+- **How to test:** Walk up to dilution refrigerator; grab each plate; verify folio opens; walk to Bloch sphere; verify proximity folio.
+- **Pass criteria:** Grab works reliably; folio auto-positions comfortably; gate token tooltips appear on grab.
+- **Status:** NOT verified on headset
+
+## DT-024 — Cosmos Sgr A* Black Hole Shader & Relativistic Jets
+- **What:** Verify Sgr A* black hole renders with Einstein ring, photon sphere, Doppler-boosted accretion disc, and blue/white relativistic jet cones without visual artifacting or frame drops.
+- **Why device needed:** Stereo fragment shader performance, bloom/glare simulation in VR, and high-frequency noise textures through Quest pancake lenses.
+- **Module / System:** Cosmos (src/modules/cosmos/scene.ts, src/modules/cosmos/black-hole-shader.ts, src/modules/cosmos/quasar.ts)
+- **How to test:** Use navigation console to warp to Black Hole; observe accretion disc rotation, Einstein ring lensing, and jet cones from multiple angles.
+- **Pass criteria:** Accretion disc is Doppler-asymmetric (brighter on approaching side); no shader compilation stutter; steady frame rate.
+- **Status:** NOT verified on headset

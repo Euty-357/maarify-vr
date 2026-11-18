@@ -34,6 +34,19 @@ export interface ChallengeDefinition {
   seatedCompatible: boolean;
 }
 
+/** Data-driven onboarding and mission-board contract shared by every module. */
+export interface ModuleTutorialStep {
+  id: string;
+  instruction: string;
+  target: string;
+}
+
+export interface ModuleMission {
+  title: string;
+  guideName: string;
+  tutorial: ModuleTutorialStep[];
+}
+
 export interface ModuleSetting {
   id: string;
   name: string;
@@ -74,5 +87,7 @@ export interface ModuleDefinition {
   isWalkable?(position: THREE.Vector3): boolean;
   getChallenges(): ChallengeDefinition[];
   getSpatialAnchors(): SpatialAnchorDefinition[];
+  /** Optional authored tutorial; the core derives a safe default from challenges. */
+  mission?: ModuleMission;
 }
 

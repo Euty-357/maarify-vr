@@ -451,3 +451,155 @@ _Never delete entries. Append only._
 - **TEST PERFORMANCE OPTIMIZATION:** Batched anchor toggle loop in `tests/e2e/helpers/module-interaction-audit.ts`, reducing Playwright e2e test suite execution time from 15+ minutes down to 2.5 minutes.
 - **DEVICE TEST BACKLOG:** Added DT-012 through DT-018 in `docs/DEVICE_TEST_BACKLOG.md`.
 - **VERIFY PIPELINE 100% GREEN:** `npm run verify` passed completely (hygiene check, typecheck, lint with 0 errors, 115 unit tests, 7 Playwright e2e specs, budget check across all scenes, report generation).
+
+---
+## 2026-11-17T08:43 EAT | Session 1 | Codex | Phase 1 Cleanup Resume Checkpoint
+- Read the mandatory project rules, state, task list, module specifications, and all `.agents/skills` manuals. Inspected the dirty working tree without discarding or staging any user work.
+- Took the required pre-phase local backup: `C:\maarify-backups\maarify-20261117-083759` (excluded `node_modules`, `dist`, logs, Git metadata, and test results).
+- `npm run verify` passed `sync:agents`, hygiene, TypeScript typecheck, and ESLint (0 errors; 106 existing warnings). It then stopped before running unit tests because the Codex host denied Vitest's esbuild child process with `spawn EPERM`. The esbuild executable itself runs directly, so this is recorded as a host child-process restriction, not a verified source failure.
+- The in-progress cleanup remains **NOT verified on headset**. No commits or pushes were made.
+
+---
+## 2026-11-17T09:15 EAT | Session 2 | Codex | Phase 1 Cleanup Complete, Verification Deferred
+- Removed the remaining obsolete tuning compatibility hook, dead error-panel state, and stale control-guide references. `src/config/tuning.ts` is retained; the event logger and stale-build notice are development-only. Hub tier selection now exists only in folio panels.
+- Updated `docs/CONTROLS.md`, `docs/PLAN.md`, `docs/TASKS.md`, and this state record to match the cleanup. This is **fixed, NOT verified on headset**; the user explicitly deferred tests.
+- No commits or pushes were made. Next: required local backup, then the pre-VR landing page.
+
+---
+## 2026-11-17T09:25 EAT | Session 2 | Codex | Pre-VR Landing Page
+- Created `C:\maarify-backups\maarify-20261117-085702` before Phase 2 work (excluded `node_modules`, `dist`, logs, Git metadata, and test results).
+- Replaced the blank pre-entry canvas with a dark-academia landing page containing the Maarify logo, pitch, VR readiness checklist, comfort reminders, loading progress, and dev-only build ID. Three.js initialisation and the animation loop now wait for a supported, secure-context **Enter VR** gesture.
+- Added DT-020 for real Quest Browser entry and legibility. Fixed, NOT verified by tests or on headset. No commits or pushes were made.
+
+---
+## 2026-11-17T09:32 EAT | Session 2 | Codex | Hub Exit
+- Added a brass hub exit lectern beside the credits plaque. Activating it ends the active XR session and reloads to the browser landing page.
+- Updated controls and state. Fixed, NOT verified by tests or on headset. No commits or pushes were made.
+
+---
+## 2026-11-17T09:44 EAT | Session 3 | Codex | Information System V3 Placement
+- Replaced head-following folio placement with a shared, exhibit-adjacent placement rule. Folios face the learner once when opened, remain spatially anchored, provide a visible Ã— close control, and close automatically after the learner moves more than 3 m from the exhibit.
+- Updated controls and state. Fixed, NOT verified by tests or on headset. No commits or pushes were made.
+
+---
+## 2026-11-17T09:52 EAT | Session 3 | Codex | Shared Mission Board
+- Added reusable module tutorial/mission contracts and a diegetic mission-board lectern. Modules without authored mission data use a shared onboarding fallback; Cosmos now provides authored Dr. Amani instructions. Challenge completion updates the board rather than a HUD.
+- Fixed, NOT verified by tests or on headset. No commits or pushes were made.
+
+---
+## 2026-11-17T10:01 EAT | Session 3 | Codex | Reading Room Architecture
+- Enclosed the hub with seven walnut doorway bays, book shelving, a ceiling, brass trim, and a central non-interactive orrery map table. This replaces open-room ambiguity without reintroducing the removed tier-selector plinth.
+- Fixed, NOT verified by tests or on headset. No commits or pushes were made.
+
+---
+## 2026-11-17T10:08 EAT | Session 3 | Codex | Deliberate Return Gate
+- Kept the accessible 0.6-second walk-in return behavior and added a two-press, 1.5-second confirmation window for return-gate ray activation. The gate visibly changes its instruction while armed.
+- Fixed, NOT verified by tests or on headset. No commits or pushes were made.
+
+---
+## 2026-11-17T10:15 EAT | Session 3 | Codex | Travel State Machine
+- Replaced immediate Cosmos warp-pad reposition events with the reusable `TravelSystem` state machine (idle â†’ departing â†’ arriving â†’ idle). Existing pads now name their destination and label cinematic warp internally; movement stays user-initiated and applies a short comfort pulse.
+- Fixed, NOT verified by tests or on headset. No commits or pushes were made.
+
+---
+## 2026-11-17T10:25 EAT | Session 4 | Codex | Module Lifecycle Cleanup
+- Created `C:\maarify-backups\maarify-20261117-094055` before lifecycle work. Centralised teardown of grabbed objects, active levers, visual highlights, folios, mission boards, challenge state, and prior module roots. Direct module switches now remove the old root before attaching the next one.
+- Fixed, NOT verified by tests or on headset. No commits or pushes were made.
+
+---
+## 2026-11-17T10:38 EAT | Session 4 | Codex | Urban Development Foundation
+- Added the Urban Development & Planning module using only core interaction primitives and the shared stakeholder simulation. It includes a Nairobi planning-table scene, transit corridor, capacity lever, grabbable heat scanner, service/green policy network, anchors, challenge definitions, mission data, and mandatory simplified-model label.
+- The portal is now available in the hub. Fixed, NOT verified by tests or on headset. No commits or pushes were made.
+
+---
+## 2026-11-17T10:43 EAT | Session 4 | Codex | Urban Rooftop Lab
+- Added floor, walls, and ceiling to the Urban Development planning space so the city model and interactive stations live in an enclosed rooftop planning lab rather than an open scene.
+- Fixed, NOT verified by tests or on headset. No commits or pushes were made.
+
+---
+## 2026-11-17 | Session — Kiro | Phase 4 Module Buildouts (tests deferred per user instruction)
+
+### Backup
+- `C:\maarify-backups\maarify-20261117-095635` taken at session start.
+
+### Phase 1 / Phase 2 / Phase 3 Verification
+- Confirmed all Phase 1 cleanup already done (tuning panel, debug panel, tier plinth, dead scripts all removed by prior sessions).
+- Confirmed Phase 2 shared systems in place (folio panel, mission board, travel system, folio placement).
+- Confirmed Phase 3 hub in place (Reading Room architecture, portals with previews, exit lectern, brand plaque).
+
+### Climate & Urban locked (per plan — "do not start until user says so")
+- `src/config/feature-flags.ts`: environment and urban-development set to `readiness: 'planned', enabled: false`.
+- Portal badges show "IN DEVELOPMENT" for these two. Fixed, NOT verified on headset.
+
+### COSMOS upgrades (fixed, NOT verified on headset)
+- Added diegetic navigation console (`buildNavigationConsole`): brass lectern, mini orrery, 3 destination buttons (Black Hole Sgr A*, TRAPPIST-1, Exoplanet Gallery), return button. Buttons labelled with travel mode ("CINEMATIC WARP (fiction)" or "REAL LIGHT SPEED").
+- Added TRAPPIST-1 7-planet zone (`buildTrappist1Zone`): all 7 planets with correct orbital period ratios (Gillon 2017), habitable zone rings highlighted, artist''s conception label, return warp pad.
+- Added black hole physics lab (`buildBlackHolePhysicsLab`): Schwarzschild radius calculator (rs=2GM/c²), mass slider (0.1–10 solar masses), live readout of rs and ISCO, time dilation clock pair (exaggerated 30% rate for visibility), labelled "simplified model."
+- Sources: Schwarzschild formula added to SOURCES.md citing MTW Gravitation; TRAPPIST-1 periods already covered by GILLON-TRAPPIST-1-2017.
+
+### MEDICINE upgrades (fixed, NOT verified on headset)
+- All 6 wing rooms rebuilt from minimal boxes to proper 3D content:
+  - Heart: anatomy mesh + valve leaflets + ECG readout label + heart rate slider + pacemaker dial.
+  - Brain: colour-coded lobe hemispheres (frontal/parietal/temporal/occipital/cerebellum), lobe key, grabbable neurotransmitter vesicle.
+  - Spine: full vertebral column C1–S with region colour coding, spinal cord tube, herniated disc indicator at L4/L5, region label panel.
+  - Cancer: cell cycle sectors (G1/S/G2/M colour coded), CAR-T + tumour, treatment label.
+  - HIV: virion with spikes + capsid + enzyme globules, ART drug bench with 5 labelled pegs, comprehensive label (U=U noted, WHO/UNAIDS cited).
+  - Infection Prevention: capillary + RBC animation, hand-hygiene dispenser (activatable nozzle), PPE rack (4 grabbable items: gloves/mask/gown/shield), 24-figure herd immunity crowd (75% green/vaccinated, 25% red/susceptible), education-only label.
+
+### QUANTUM upgrades (fixed, NOT verified on headset)
+- Added cryogenic lab room shell: steel walls, gas handling panels (3 panels × 3 valve handles), equipment benches, ceiling cable racks.
+- Added circuit board mission label explaining Bell state building (H gate ? superposition; CNOT ? entanglement).
+
+### AEROSPACE upgrades (fixed, NOT verified on headset)
+- Added hangar room shell (walls + ceiling).
+- Added general-aviation aircraft: fuselage, main wings, ailerons (moveable), horizontal stabiliser + elevator (moveable), vertical stabiliser + rudder (moveable), piston engine cowling, spinning propeller.
+- Added 3-lever control surface station: aileron lever (blue), elevator lever (amber), rudder lever (red) — each connected live to corresponding surface rotation.
+- Added named engine identification plaque: "Full-Flow Staged Combustion (FFSC), Methalox" with Isp and chamber pressure, examples (SpaceX Raptor), propulsion safety scope reminder.
+
+### TypeScript compile: clean
+- `npx tsc --noEmit` exit 0 after all changes.
+
+### Not done
+- Tests (deferred by user)
+- npm run verify (deferred by user)
+- Commits (not done — user must say "commit")
+- Headset verification (NOT verified on device for all items above)
+
+---
+## 2026-11-18T08:45 EAT | Session 34 | Antigravity | Full Module Polish (Tasks 1â€“34) & Controls Raycast Fix
+
+### Core & Information System V3 (Tasks 1â€“4, 31)
+- Implemented Information System V3 (src/core/info-system/ and src/core/ui/folio-placement.ts):
+  - Engraved brass placards replace floating glyphs and persistent tags.
+  - Folio panels auto-position on user-facing side, 0.4â€“0.8 m away, never overlapping or intersecting geometry.
+  - Three large tier tabs (Foundation, Advanced, Expert) with distinct active state, page arrows, grab handle, close button, and pin.
+  - Auto-closes when user exceeds 2.5 m radius; maximum one open panel per zone.
+- Added comprehensive property tests in tests/unit/info-system.property.test.ts covering placement, overlap avoidance, tier propagation, and bounds.
+
+### Quantum Module Polish (Tasks 20â€“22, 24)
+- Added 6 Bloch sphere state labels (|0>, |1>, |+>, |->, |i>, |-i>) and 1.5 m proximity folio trigger.
+- Implemented computeCircuitState pure function wired to live circuit readout panel.
+- Added onGrab tooltips for H, X, Z, CNOT gate tokens explaining operations.
+- Added engraved dilution refrigerator stage plates (50K, 4K, 800mK, 100mK, 15mK) with grab-triggered explanation folios.
+- Verified hardware gallery badges with experimental topological caveat.
+- Added module walkable bounds (+/- 5 m).
+
+### Aerospace Module Polish & Pointer Ray Fix (Tasks 24â€“29)
+- Expanded hangar to 15 x 10 x 6 m with concrete floor, 4 industrial lights, and clearly zoned sections (x=-5 aircraft, x=+5 engines, z=-4 wind tunnel).
+- Added helicopter model with collective lever and spatial labels alongside general-aviation aircraft.
+- Added 3 engine stands (Raptor-class FFSC Methalox, Hydrolox Staged Combustion, SRM) with orange/cyan propellant lines, explode levers, throttle sliders, and Isp readouts.
+- Upgraded wind tunnel streamlines using LineSegments with vertex colors (blue/white/red gradient), dynamic scroll animation, Mach readout, and stall angle indicator.
+- Fixed pointer raycast sticking to engine cone/base collider: Implemented isIgnoredExplodableBase() across all raycast paths in src/main.ts (updatePointerRay, dispatchRaySelect, and desktop handler). Base colliders (y <= 0.1 m) on non-grabbed explodable parts are bypassed, allowing free ray targeting of controls.
+- Added module walkable bounds (+/- 7.5 m x +/- 5 m).
+
+### Mission & Travel Cross-Cutting Systems (Tasks 32â€“33)
+- Implemented pure function formatRealSpeedReadout in src/modules/cosmos/nav-console.ts for astronomical light-travel readouts.
+- Added property tests for travel transition (travel.property.test.ts), async load generation stale abort (load-gen.property.test.ts), and mission tutorial transitions (mission.property.test.ts).
+
+### Repository Hygiene & Cleanup
+- Updated .gitignore to ignore .kiro/, MAARIFY_KQ_AUDIT.md, *.mp4, *.mov, reports/*.log, *.tmp, *.bak, .gemini/, .antigravity/.
+- Updated scripts/check-hygiene.mjs to ignore history, clips, .kiro.
+- Removed ~40 stale CLI dump logs in reports/ and 0-byte logs in logs/.
+- check:hygiene PASSED. typecheck PASSED (0 errors).
+- All 34 unit test suites (189 tests) PASSED.
+- Zero git commit or push performed per user instruction. All headset items strictly marked: NOT verified on headset.

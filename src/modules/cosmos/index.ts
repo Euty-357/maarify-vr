@@ -12,6 +12,15 @@ const moduleDef: ModuleDefinition = {
   description: 'From Malindi to Sagittarius A*: orbital velocity, scale collapse, and exoplanets.',
   estimatedMinutes: [15, 20],
   thumbnail: '/assets/thumbnails/cosmos.ktx2',
+  mission: {
+    title: 'ORBITAL NAVIGATOR',
+    guideName: 'DR. AMANI',
+    tutorial: [
+      { id: 'point', instruction: 'Point at the nearest glowing exhibit, then press trigger or pinch.', target: 'anchor' },
+      { id: 'folio', instruction: 'Open its folio and choose a depth tab before you continue.', target: 'folio' },
+      { id: 'move', instruction: 'Use teleport to reach the next illuminated station.', target: 'locomotion' },
+    ],
+  },
   setting: {
     id: 'cosmos-space',
     name: 'Near-Earth Space',
