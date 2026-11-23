@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { SpatialAnchorPrimitive, SpatialGrabPrimitive, SpatialLeverPrimitive } from '../../core/input/primitives/index.js';
+import { SpatialAnchorPrimitive, SpatialGrabPrimitive, SpatialSliderPrimitive } from '../../core/input/primitives/index.js';
 import { StakeholderSimulation } from '../../core/simulation/stakeholder-sim.js';
 import { getSpatialAnchors } from './anchors.js';
 
@@ -59,13 +59,20 @@ export async function buildUrbanScene(): Promise<UrbanSceneComponents> {
   transit.add(line);
   root.add(transit);
 
-  const leverBase = new THREE.Group();
-  leverBase.position.set(-2.6, 0.62, 1.7);
-  const lever = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.46, 8), new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.7 }));
-  lever.position.y = 0.23;
-  leverBase.add(lever);
-  root.add(leverBase);
-  const capacityLever = new SpatialLeverPrimitive(leverBase, { minAngleDeg: -35, maxAngleDeg: 35 });
+  const sliderTrack = new THREE.Mesh(
+    new THREE.BoxGeometry(0.04, 0.02, 0.4),
+    new THREE.MeshStandardMaterial({ color: 0x334155 }),
+  );
+  sliderTrack.position.set(-2.6, 0.62, 1.7);
+  root.add(sliderTrack);
+  const sliderHandle = new THREE.Mesh(
+    new THREE.BoxGeometry(0.06, 0.04, 0.04),
+    new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.7 }),
+  );
+  sliderHandle.name = 'urban-capacity-slider';
+  sliderHandle.position.set(-2.6, 0.65, 1.7);
+  root.add(sliderHandle);
+  const capacitySlider = new SpatialSliderPrimitive(sliderHandle, { axis: 'z', minDistance: 1.5, maxDistance: 1.9 });
 
   const scanner = new THREE.Group();
   scanner.name = 'urban-heat-scanner';
@@ -109,8 +116,8 @@ export async function buildUrbanScene(): Promise<UrbanSceneComponents> {
   let elapsed = 0;
   return {
     root, anchorPrimitive,
-    update: (deltaSeconds) => { elapsed += deltaSeconds; sim.update(deltaSeconds); transit.position.x = -1.4 + capacityLever.normalizedValue * 0.25; scanner.rotation.y = Math.sin(elapsed) * 0.08; },
-    getState: () => ({ corridorPriority: capacityLever.normalizedValue, cityHealth: sim.getOverallHealth(), greenCover: sim.getResource('urban-green')?.quantity ?? 0 }),
+    update: (deltaSeconds) => { elapsed += deltaSeconds; sim.update(deltaSeconds); transit.position.x = -1.4 + capacitySlider.value * 0.25; scanner.rotation.y = Math.sin(elapsed) * 0.08; },
+    getState: () => ({ corridorPriority: capacitySlider.value, cityHealth: sim.getOverallHealth(), greenCover: sim.getResource('urban-green')?.quantity ?? 0 }),
     dispose: () => anchorPrimitive.dispose(),
   };
 }

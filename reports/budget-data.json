@@ -22,8 +22,8 @@
   "m3-quantum": {
     "states": {
       "gallery-and-cryostat-preloaded": {
-        "triangles": 7182,
-        "drawCalls": 60
+        "triangles": 13282,
+        "drawCalls": 104
       }
     }
   },

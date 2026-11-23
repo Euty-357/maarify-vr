@@ -17,6 +17,9 @@ import {
   ExplodableAssembly,
 } from './core/input/primitives/index';
 import { triggerHapticPulse } from './core/haptics/haptics';
+import { selectRayHit, isInteractiveObject, isHiddenInHierarchy } from './core/input/ray-hit.js';
+import { CourseController, courseEventBus } from './core/course/index.js';
+import { ASSET_REGISTRY } from './core/assets/registry.generated.js';
 import { ActiveTuning } from './config/tuning';
 import { isModuleAvailable } from './config/feature-flags';
 import { createTextPanel, setTextPanelText } from './core/ui/text-panel';
@@ -35,6 +38,7 @@ import aerospaceModule from './modules/aerospace/index';
 import dnaGeneticsModule from './modules/dna-genetics/index';
 import environmentModule from './modules/environment/index';
 import urbanDevelopmentModule from './modules/urban-development/index';
+import assetLabModule from './modules/asset-lab/index';
 import {
   logEvent,
   logPointerDecision,
@@ -67,6 +71,8 @@ let teleport: SpatialTeleportPrimitive;
 let snapTurn: SpatialSnapTurnPrimitive;
 let activeModuleDef: ModuleDefinition | null = null;
 let activeModuleRoot: THREE.Object3D | null = null;
+/** Course runner for the active module's missions (Prompt 0 course system). */
+let activeCourse: CourseController | null = null;
 let missionBoard: MissionBoard | null = null;
 const travelSystem = new TravelSystem();
 let travelWasActive = false;
@@ -383,7 +389,7 @@ function initApp() {
   });
   window.addEventListener('maarify:return-to-hub', () => returnToHub());
   window.addEventListener('maarify:exit-xr', () => {
-    renderer.xr.getSession()?.end().catch(() => {});
+    renderer.xr.getSession()?.end().catch(() => { });
   });
   window.addEventListener('maarify:comfort-pulse', (event: Event) => {
     const detail = (event as CustomEvent<{ intensity?: number }>).detail;
@@ -505,6 +511,8 @@ function clearActiveModuleRuntime(): void {
   activeFolioAnchor = null;
   if (folioPanel) folioPanel.visible = false;
   missionBoard = null;
+  activeCourse?.dispose();
+  activeCourse = null;
   if (activeModuleRoot?.parent) activeModuleRoot.parent.remove(activeModuleRoot);
   activeModuleRoot = null;
 }
@@ -550,6 +558,25 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
     missionBoard.position.set(-1.6, 1.2, -1.1);
     missionBoard.lookAt(0, 1.2, 0);
     activeModuleRoot.add(missionBoard);
+
+    // Course system: build the mission runner for this module's missions.
+    if (mod.missions && mod.missions.length > 0) {
+      activeCourse = new CourseController({
+        missions: mod.missions,
+        bus: courseEventBus,
+        tier: selectedTier,
+        scoreSink: {
+          awardXp: (amount) => { progressStore.awardXp(amount); },
+          unlockBadge: (badgeId) => { progressStore.unlockBadge(badgeId); },
+          completeMission: (missionId, xp) => { progressStore.completeMission(missionId, xp); },
+        },
+        missionBoard: missionBoard ?? undefined,
+        resolveHighlight: (targetId) => activeModuleRoot?.getObjectByName(targetId),
+      });
+      activeCourse.captionPanel.position.set(0, 1.5, 1.2);
+      loadedRoot.add(activeCourse.captionPanel);
+    }
+
     highlightGrabbables(activeModuleRoot);
     currentModuleName = id;
     setCurrentModule(id);
@@ -581,6 +608,7 @@ const MODULE_DEFINITIONS: Record<string, ModuleDefinition> = {
   'dna-genetics': dnaGeneticsModule,
   environment: environmentModule,
   'urban-development': urbanDevelopmentModule,
+  'asset-lab': assetLabModule,
 };
 
 function returnToHub(): void {
@@ -630,28 +658,55 @@ function stripModuleParamFromUrl(): void {
 }
 
 // --- Desktop fallback -----------------------------------------------------
-function isIgnoredExplodableBase(obj: THREE.Object3D): boolean {
-  if (obj.userData?.isExplodablePart !== true) return false;
-  const worldY = obj.getWorldPosition(new THREE.Vector3()).y;
-  return obj.position.y <= 0.1 || worldY <= 0.1;
+/**
+ * True when the object (or an ancestor) is something the pointer can act on.
+ * Portals are resolved by name; the return gate carries an `activate`
+ * callback; folio panels carry their own controls.
+ */
+function isPointerInteractive(object: THREE.Object3D): boolean {
+  if (isInteractiveObject(object)) return true;
+  if (findPortalAncestor(object)) return true;
+  if (object.userData.explodableAssembly || findUserDataPrimitive(object, 'explodableAssembly')) return true;
+  if (object.userData.leverPrimitive || findUserDataPrimitive(object, 'leverPrimitive')) return true;
+  return false;
 }
+
+const desktopKeys = new Set<string>();
+let desktopMouseDragging = false;
+let prevDesktopMouseX = 0;
+let prevDesktopMouseY = 0;
 
 function setupDesktopInteraction() {
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
 
+  window.addEventListener('keydown', (e) => {
+    desktopKeys.add(e.code);
+  });
+  window.addEventListener('keyup', (e) => {
+    desktopKeys.delete(e.code);
+  });
+
   window.addEventListener('pointerdown', (e) => {
+    if ((e.target as HTMLElement)?.tagName === 'CANVAS') {
+      desktopMouseDragging = true;
+      prevDesktopMouseX = e.clientX;
+      prevDesktopMouseY = e.clientY;
+    }
+
+    if (renderer.xr.isPresenting) return;
     soundManager.initContext();
     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(scene.children, true)
-      // Task 28.1 / Req 48.2: Skip explodable parts whose base is at floor level
-      .filter((i) => !isIgnoredExplodableBase(i.object));
-    if (intersects.length === 0) return;
+    const intersects = raycaster.intersectObjects(scene.children, true);
+    // Same rule as the VR beam: only an interactable target can be clicked,
+    // and hidden objects never take the click (see src/core/input/ray-hit.ts).
+    const selected = selectRayHit(intersects, { isInteractiveObject: isPointerInteractive });
+    if (!selected) return;
 
-    const hit = intersects[0].object;
+    const hit = selected.object;
     const anchor = findDiegeticAnchor(hit);
 
     if (anchor) {
@@ -668,6 +723,13 @@ function setupDesktopInteraction() {
       slider.setNormalizedValue(slider.value >= 0.95 ? 0 : 1);
     } else if (hit.userData.rotatorPrimitive instanceof SpatialRotatorPrimitive) {
       (hit.userData.rotatorPrimitive as SpatialRotatorPrimitive).addDeltaDeg(30);
+    } else if (hit.userData.leverPrimitive instanceof SpatialLeverPrimitive || findUserDataPrimitive(hit, 'leverPrimitive')) {
+      const lever = (hit.userData.leverPrimitive || findUserDataPrimitive(hit, 'leverPrimitive')) as SpatialLeverPrimitive;
+      lever.throwToExtreme(lever.normalizedValue >= 0.5 ? 'min' : 'max');
+    } else if (hit.userData.explodableAssembly instanceof ExplodableAssembly || findUserDataPrimitive(hit, 'explodableAssembly')) {
+      const assembly = (hit.userData.explodableAssembly || findUserDataPrimitive(hit, 'explodableAssembly')) as ExplodableAssembly;
+      const cur = assembly.explodeAmount;
+      assembly.setExplodeAmount(cur >= 0.5 ? 0 : 1);
     } else if (hit.userData.grabPrimitive instanceof SpatialGrabPrimitive) {
       const grab = hit.userData.grabPrimitive as SpatialGrabPrimitive;
       if (grab.tryGrab(camera.position, camera.quaternion)) grab.release();
@@ -678,6 +740,49 @@ function setupDesktopInteraction() {
       if (portalId) loadModule(portalId);
     }
   });
+
+  window.addEventListener('pointermove', (e) => {
+    if (!desktopMouseDragging || renderer?.xr?.isPresenting) return;
+    const dx = e.clientX - prevDesktopMouseX;
+    const dy = e.clientY - prevDesktopMouseY;
+    prevDesktopMouseX = e.clientX;
+    prevDesktopMouseY = e.clientY;
+    // Rotate camera rig around Y, camera around X
+    cameraRig.rotation.y -= dx * 0.0035;
+    camera.rotation.x = THREE.MathUtils.clamp(camera.rotation.x - dy * 0.003, -Math.PI / 2.2, Math.PI / 2.2);
+  });
+
+  window.addEventListener('pointerup', () => {
+    desktopMouseDragging = false;
+  });
+}
+
+function updateDesktopLocomotion(deltaSec: number): void {
+  if (renderer?.xr?.isPresenting) return;
+  if (desktopKeys.size === 0) return;
+
+  const moveSpeed = (desktopKeys.has('ShiftLeft') || desktopKeys.has('ShiftRight') ? 5.0 : 2.5) * deltaSec;
+  const forward = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraRig.rotation.y);
+  const right = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraRig.rotation.y);
+  const move = new THREE.Vector3();
+
+  if (desktopKeys.has('KeyW') || desktopKeys.has('ArrowUp')) move.add(forward);
+  if (desktopKeys.has('KeyS') || desktopKeys.has('ArrowDown')) move.sub(forward);
+  if (desktopKeys.has('KeyD') || desktopKeys.has('ArrowRight')) move.add(right);
+  if (desktopKeys.has('KeyA') || desktopKeys.has('ArrowLeft')) move.sub(right);
+
+  if (move.lengthSq() > 0) {
+    move.normalize().multiplyScalar(moveSpeed);
+    const targetPos = cameraRig.position.clone().add(move);
+    if (!activeModuleDef?.isWalkable || activeModuleDef.isWalkable(targetPos)) {
+      cameraRig.position.copy(targetPos);
+    } else {
+      const posX = cameraRig.position.clone(); posX.x += move.x;
+      if (!activeModuleDef.isWalkable || activeModuleDef.isWalkable(posX)) cameraRig.position.x = posX.x;
+      const posZ = cameraRig.position.clone(); posZ.z += move.z;
+      if (!activeModuleDef.isWalkable || activeModuleDef.isWalkable(posZ)) cameraRig.position.z = posZ.z;
+    }
+  }
 }
 
 function logDebug(message: string): void {
@@ -1108,7 +1213,8 @@ function handleModuleRayInteraction(
   const targets: THREE.Object3D[] = [activeModuleRoot];
   if (returnGate.visible) targets.push(returnGate);
   const rawHits = xrRaycaster.intersectObjects(targets, true);
-  const hits = rawHits.filter((h) => !isIgnoredExplodableBase(h.object));
+  // Hidden objects never take the click (THREE.Raycaster ignores visible=false).
+  const hits = rawHits.filter((h) => !isHiddenInHierarchy(h.object));
   if (hits.length === 0) return null;
 
   // Two-pass priority: interactive primitives beat anchor tags (BUG-07).
@@ -1122,7 +1228,9 @@ function handleModuleRayInteraction(
     )
   );
   const anchorHit = hits.find((h) => findDiegeticAnchor(h.object));
-  const hit = interactiveHit ?? anchorHit ?? hits[0];
+  // Decorative geometry is never clickable: the beam must reach the control.
+  const hit = interactiveHit ?? anchorHit ?? null;
+  if (!hit) return null;
 
   const activate = findUserDataPrimitive(hit.object, 'activate');
   if (typeof activate === 'function') {
@@ -1302,8 +1410,8 @@ async function onEnterVR(): Promise<boolean> {
 
     if (session.supportedFrameRates && session.updateTargetFrameRate) {
       const rates: number[] = session.supportedFrameRates;
-      if (rates.includes(90)) session.updateTargetFrameRate(90).catch(() => {});
-      else if (rates.includes(72)) session.updateTargetFrameRate(72).catch(() => {});
+      if (rates.includes(90)) session.updateTargetFrameRate(90).catch(() => { });
+      else if (rates.includes(72)) session.updateTargetFrameRate(72).catch(() => { });
     }
 
     session.addEventListener('visibilitychange', () => {
@@ -1438,14 +1546,25 @@ function updateXRLocomotion(frame?: XRFrame, deltaSeconds = 0): void {
       entry.lastTurnPush = magnitude;
     }
 
-    // Polled trigger: the same path the sticks use, so it survives missing select events.
-    const triggerPressed = Boolean(gamepad.buttons[0]?.pressed);
-    if (triggerPressed && !entry.lastTriggerPress) {
-      onControllerTrigger(entry.controller, 'poll');
-    } else if (!triggerPressed && entry.lastTriggerPress) {
-      releaseControllerGrab(entry.controller);
+    // Polled trigger: only for physical controllers (never hands), with deadzone (>=0.5) and hysteresis.
+    // Prevents resting capacitive touch, analog resting offset, and hair-trigger flutter from clicking on hover.
+    const isHand = Boolean(entry.source?.hand);
+    if (!isHand) {
+      const btn = gamepad.buttons[0];
+      const val = btn ? (typeof btn.value === 'number' ? btn.value : (btn.pressed ? 1 : 0)) : 0;
+      const triggerPressed = entry.lastTriggerPress
+        ? (val > 0.25)
+        : (Boolean(btn?.pressed) && val >= 0.5);
+
+      if (triggerPressed && !entry.lastTriggerPress) {
+        onControllerTrigger(entry.controller, 'poll');
+      } else if (!triggerPressed && entry.lastTriggerPress) {
+        releaseControllerGrab(entry.controller);
+      }
+      entry.lastTriggerPress = triggerPressed;
+    } else {
+      entry.lastTriggerPress = false;
     }
-    entry.lastTriggerPress = triggerPressed;
 
     // Primary face button (A or X): rewinds objects when in a module, or enters aimed portal in hub.
     const primaryFacePressed = Boolean(gamepad.buttons[4]?.pressed);
@@ -1626,12 +1745,15 @@ function updateControllerRays(): void {
     // The folio is an overlay in front of the world; the beam should stop on it.
     if (folioPanel?.visible) targets.push(folioPanel);
     xrRaycaster.set(origin, direction);
-    xrRaycaster.far = returnGate.visible ? 15.0 : 4.5;
+    const maxDistance = returnGate.visible ? 15.0 : 4.5;
+    xrRaycaster.far = maxDistance;
     const rawHits = xrRaycaster.intersectObjects(targets, true);
-    const hits = rawHits.filter((h) => !isIgnoredExplodableBase(h.object));
-    if (hits.length > 0) {
-      end = hits[0].point;
-      if (!bestHit || hits[0].distance < bestHit.distance) bestHit = hits[0];
+    // Only an interactable target stops the beam: decorative geometry and
+    // hidden objects are ignored (see src/core/input/ray-hit.ts).
+    const hits = selectRayHit(rawHits, { isInteractiveObject: isPointerInteractive });
+    if (hits) {
+      end = hits.point.clone();
+      if (!bestHit || hits.distance < bestHit.distance) bestHit = hits;
     }
 
     const points = entry.rayLine.geometry.getAttribute('position') as THREE.BufferAttribute;
@@ -1640,7 +1762,7 @@ function updateControllerRays(): void {
     points.needsUpdate = true;
     entry.rayLine.geometry.computeBoundingSphere();
     (entry.rayLine.material as THREE.LineBasicMaterial).color.setHex(
-      hits.length > 0 ? 0x7dd3fc : 0x38bdf8
+      hits ? 0x7dd3fc : 0x38bdf8
     );
   }
 
@@ -1740,8 +1862,12 @@ function updateTwoHandedInteractions(): void {
 
   const leftGrip = Boolean(left.source?.gamepad?.buttons[1]?.pressed);
   const rightGrip = Boolean(right.source?.gamepad?.buttons[1]?.pressed);
-  const leftTrigger = Boolean(left.source?.gamepad?.buttons[0]?.pressed);
-  const rightTrigger = Boolean(right.source?.gamepad?.buttons[0]?.pressed);
+  const leftBtn0 = left.source?.gamepad?.buttons[0];
+  const rightBtn0 = right.source?.gamepad?.buttons[0];
+  const leftTriggerVal = leftBtn0 ? (typeof leftBtn0.value === 'number' ? leftBtn0.value : (leftBtn0.pressed ? 1 : 0)) : 0;
+  const rightTriggerVal = rightBtn0 ? (typeof rightBtn0.value === 'number' ? rightBtn0.value : (rightBtn0.pressed ? 1 : 0)) : 0;
+  const leftTrigger = Boolean(leftBtn0?.pressed) && leftTriggerVal >= 0.5;
+  const rightTrigger = Boolean(rightBtn0?.pressed) && rightTriggerVal >= 0.5;
   const leftPinch = left.pinchActive;
   const rightPinch = right.pinchActive;
 
@@ -1795,6 +1921,7 @@ function renderFrame(frame?: XRFrame) {
   hubWorld.update(deltaSec);
 
   updateXRLocomotion(frame, deltaSec);
+  updateDesktopLocomotion(deltaSec);
   updateWalkInEntry(deltaSec);
   updateReturnGate(deltaSec);
   updateTwoHandedInteractions();
@@ -1818,6 +1945,9 @@ function renderFrame(frame?: XRFrame) {
 
   // Module animation tick (helix sway, plume pulse, heart beat...).
   activeModuleDef?.update?.(deltaSec);
+
+  // Course tick: drives the hint ladder for the active mission.
+  activeCourse?.update(deltaSec);
 
   activeLevers.forEach((lever, controller) => {
     const lEntry = xrControllers.find((candidate) => candidate.controller === controller) ?? null;
@@ -1865,6 +1995,70 @@ function publishTestHooks() {
     tier: selectedTier,
   };
   (window as any).__MAARIFY_SET_TIER__ = (tier: DepthTier) => applyDepthTier(tier);
+  // Course system hooks: start a mission, read its state, and drive the event bus.
+  (window as any).__MAARIFY_MISSIONS__ = activeModuleDef?.missions?.map((m) => ({
+    id: m.id,
+    title: m.title,
+    objective: m.objective,
+    tier: activeCourse?.runner.getTier() ?? selectedTier,
+    outcomes: m.outcomes,
+  })) ?? [];
+  (window as any).__MAARIFY_START_MISSION__ = (id: string) => {
+    if (!activeCourse) return false;
+    // Unlock on demand so a test can run any mission in isolation.
+    activeCourse.runner.unlock(id);
+    return activeCourse.startMission(id);
+  };
+  (window as any).__MAARIFY_MISSION_STATE__ = () => {
+    if (!activeCourse) return null;
+    const ids = activeCourse.runner.getMissionIds();
+    return {
+      active: activeCourse.runner.getActiveMission()?.id ?? null,
+      tier: activeCourse.runner.getTier(),
+      states: Object.fromEntries(ids.map((id) => [id, activeCourse!.runner.getState(id)])),
+      hintsUsed: Object.fromEntries(ids.map((id) => [id, activeCourse!.runner.getHintsUsed(id)])),
+    };
+  };
+  (window as any).__MAARIFY_COURSE_EVENT__ = (
+    type: string,
+    target?: string,
+    value?: number,
+    meta?: Record<string, unknown>,
+  ) => {
+    courseEventBus.emit(type as any, target, value, meta);
+    return true;
+  };
+  // Asset Lab hooks: place a registry asset and read the lab state.
+  (window as any).__MAARIFY_ASSET_REGISTRY__ = ASSET_REGISTRY;
+  (window as any).__MAARIFY_ASSET_LAB__ = () => {
+    const lab = activeModuleRoot?.getObjectByName('asset-lab-root');
+    return {
+      loaded: Boolean(lab),
+      shelfSlots: lab?.getObjectByName('asset-shelf')?.children.length ?? 0,
+    };
+  };
+  (window as any).__MAARIFY_PLACE_ASSET__ = async (assetName: string) => {
+    const lab = activeModuleRoot?.getObjectByName('asset-lab-root');
+    const slot = lab?.getObjectByName('asset-shelf')?.children.find(
+      (child) => (child.userData.entry as { assetName?: string })?.assetName === assetName,
+    );
+    if (!slot) return false;
+    // The shelf slot's activate callback is the same path a ray press takes.
+    const activate = slot.userData.activate as (() => void) | undefined;
+    if (!activate) return false;
+    activate();
+    // Give the async GLB load a frame to settle.
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    return true;
+  };
+  (window as any).__MAARIFY_SET_EXPLODE__ = (amount: number) => {
+    const lab = activeModuleRoot?.getObjectByName('asset-lab-root');
+    const lever = lab?.getObjectByName('explode-lever');
+    const primitive = lever?.userData.leverPrimitive;
+    if (!primitive) return false;
+    primitive.setAngle(-40 + Math.max(0, Math.min(1, amount)) * 80);
+    return true;
+  };
   (window as any).__MAARIFY_CHALLENGES__ = {
     completed: Array.from(completedChallenges),
     totalXp: progressStore.getProgress().totalXp,
@@ -1921,11 +2115,11 @@ function publishTestHooks() {
   (window as any).__MAARIFY_SETTING__ = activeModuleDef?.setting ?? null;
   (window as any).__MAARIFY_FOLIO__ = folioPanel && folioPanel.visible
     ? {
-        label: folioPanel.content?.label ?? null,
-        tier: folioPanel.state.tier,
-        page: folioPanel.state.pages[folioPanel.state.tier],
-        collapsed: folioPanel.state.collapsed,
-      }
+      label: folioPanel.content?.label ?? null,
+      tier: folioPanel.state.tier,
+      page: folioPanel.state.pages[folioPanel.state.tier],
+      collapsed: folioPanel.state.collapsed,
+    }
     : null;
   (window as any).__MAARIFY_FOLIO_ACTION__ = (action: string) => {
     if (!folioPanel) return false;
@@ -2001,6 +2195,19 @@ async function startLandingExperience(): Promise<void> {
 }
 
 function configureLandingPage(): void {
+  const isAutomatedBrowser = typeof navigator !== 'undefined' && (navigator as any).webdriver === true;
+  const hasModuleParam = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('module');
+  const hasDesktopParam = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('desktop');
+  if (isAutomatedBrowser || hasModuleParam || hasDesktopParam) {
+    if (!appInitialized) {
+      appInitialized = true;
+      initApp();
+      landingPage?.remove();
+      animate();
+    }
+    return;
+  }
+
   if (landingBuild && import.meta.env.DEV) landingBuild.textContent = `Development build ${BUILD_ID}`;
   if (!window.isSecureContext) {
     if (enterXrBtn) enterXrBtn.textContent = 'WebXR requires a secure context';

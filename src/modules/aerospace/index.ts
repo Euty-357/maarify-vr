@@ -3,6 +3,7 @@ import type { ModuleDefinition } from '../../core/types.js';
 import { buildAerospaceScene, type AerospaceSceneComponents } from './scene.js';
 import { getChallenges } from './challenges.js';
 import { getSpatialAnchors } from './anchors.js';
+import { getMissions } from './missions.js';
 
 let activeScene: AerospaceSceneComponents | null = null;
 
@@ -44,6 +45,7 @@ const moduleDef: ModuleDefinition = {
 
   getChallenges,
   getSpatialAnchors,
+  missions: getMissions(),
 };
 
 export default moduleDef;

@@ -517,7 +517,7 @@ _Never delete entries. Append only._
 - Fixed, NOT verified by tests or on headset. No commits or pushes were made.
 
 ---
-## 2026-11-17 | Session � Kiro | Phase 4 Module Buildouts (tests deferred per user instruction)
+## 2026-11-17 | Session � Kiro | Phase 4 Module Buildouts (tests deferred per user instruction)
 
 ### Backup
 - `C:\maarify-backups\maarify-20261117-095635` taken at session start.
@@ -527,33 +527,33 @@ _Never delete entries. Append only._
 - Confirmed Phase 2 shared systems in place (folio panel, mission board, travel system, folio placement).
 - Confirmed Phase 3 hub in place (Reading Room architecture, portals with previews, exit lectern, brand plaque).
 
-### Climate & Urban locked (per plan � "do not start until user says so")
+### Climate & Urban locked (per plan � "do not start until user says so")
 - `src/config/feature-flags.ts`: environment and urban-development set to `readiness: 'planned', enabled: false`.
 - Portal badges show "IN DEVELOPMENT" for these two. Fixed, NOT verified on headset.
 
 ### COSMOS upgrades (fixed, NOT verified on headset)
 - Added diegetic navigation console (`buildNavigationConsole`): brass lectern, mini orrery, 3 destination buttons (Black Hole Sgr A*, TRAPPIST-1, Exoplanet Gallery), return button. Buttons labelled with travel mode ("CINEMATIC WARP (fiction)" or "REAL LIGHT SPEED").
 - Added TRAPPIST-1 7-planet zone (`buildTrappist1Zone`): all 7 planets with correct orbital period ratios (Gillon 2017), habitable zone rings highlighted, artist''s conception label, return warp pad.
-- Added black hole physics lab (`buildBlackHolePhysicsLab`): Schwarzschild radius calculator (rs=2GM/c�), mass slider (0.1�10 solar masses), live readout of rs and ISCO, time dilation clock pair (exaggerated 30% rate for visibility), labelled "simplified model."
+- Added black hole physics lab (`buildBlackHolePhysicsLab`): Schwarzschild radius calculator (rs=2GM/c�), mass slider (0.1�10 solar masses), live readout of rs and ISCO, time dilation clock pair (exaggerated 30% rate for visibility), labelled "simplified model."
 - Sources: Schwarzschild formula added to SOURCES.md citing MTW Gravitation; TRAPPIST-1 periods already covered by GILLON-TRAPPIST-1-2017.
 
 ### MEDICINE upgrades (fixed, NOT verified on headset)
 - All 6 wing rooms rebuilt from minimal boxes to proper 3D content:
   - Heart: anatomy mesh + valve leaflets + ECG readout label + heart rate slider + pacemaker dial.
   - Brain: colour-coded lobe hemispheres (frontal/parietal/temporal/occipital/cerebellum), lobe key, grabbable neurotransmitter vesicle.
-  - Spine: full vertebral column C1�S with region colour coding, spinal cord tube, herniated disc indicator at L4/L5, region label panel.
+  - Spine: full vertebral column C1�S with region colour coding, spinal cord tube, herniated disc indicator at L4/L5, region label panel.
   - Cancer: cell cycle sectors (G1/S/G2/M colour coded), CAR-T + tumour, treatment label.
   - HIV: virion with spikes + capsid + enzyme globules, ART drug bench with 5 labelled pegs, comprehensive label (U=U noted, WHO/UNAIDS cited).
   - Infection Prevention: capillary + RBC animation, hand-hygiene dispenser (activatable nozzle), PPE rack (4 grabbable items: gloves/mask/gown/shield), 24-figure herd immunity crowd (75% green/vaccinated, 25% red/susceptible), education-only label.
 
 ### QUANTUM upgrades (fixed, NOT verified on headset)
-- Added cryogenic lab room shell: steel walls, gas handling panels (3 panels � 3 valve handles), equipment benches, ceiling cable racks.
+- Added cryogenic lab room shell: steel walls, gas handling panels (3 panels � 3 valve handles), equipment benches, ceiling cable racks.
 - Added circuit board mission label explaining Bell state building (H gate ? superposition; CNOT ? entanglement).
 
 ### AEROSPACE upgrades (fixed, NOT verified on headset)
 - Added hangar room shell (walls + ceiling).
 - Added general-aviation aircraft: fuselage, main wings, ailerons (moveable), horizontal stabiliser + elevator (moveable), vertical stabiliser + rudder (moveable), piston engine cowling, spinning propeller.
-- Added 3-lever control surface station: aileron lever (blue), elevator lever (amber), rudder lever (red) � each connected live to corresponding surface rotation.
+- Added 3-lever control surface station: aileron lever (blue), elevator lever (amber), rudder lever (red) � each connected live to corresponding surface rotation.
 - Added named engine identification plaque: "Full-Flow Staged Combustion (FFSC), Methalox" with Isp and chamber pressure, examples (SpaceX Raptor), propulsion safety scope reminder.
 
 ### TypeScript compile: clean
@@ -562,7 +562,7 @@ _Never delete entries. Append only._
 ### Not done
 - Tests (deferred by user)
 - npm run verify (deferred by user)
-- Commits (not done � user must say "commit")
+- Commits (not done � user must say "commit")
 - Headset verification (NOT verified on device for all items above)
 
 ---
@@ -603,3 +603,202 @@ _Never delete entries. Append only._
 - check:hygiene PASSED. typecheck PASSED (0 errors).
 - All 34 unit test suites (189 tests) PASSED.
 - Zero git commit or push performed per user instruction. All headset items strictly marked: NOT verified on headset.
+
+---
+
+## 2026-11-22 | Asset Pipeline & Choreography (WP1–WP7)
+
+### WP1 — GLB pipeline (`src/core/assets/`)
+- Added `src/core/assets/types.ts`, `glb-loader.ts`, `asset-parser.ts`, `asset-cache.ts`, `registry.generated.ts`, `explodable-adapter.ts`, `docking-system.ts`, `flow-path-player.ts`.
+- Added `scripts/sync-assets.mjs` (`npm run sync:assets`) — copies GLBs from C:\MaarifyAssets into public/models/<module>/, verifies SHA-256 vs manifest, generates registry.
+- Registered `sync:assets` and `check:asset-budgets` in package.json; added asset-budgets to `npm run verify`.
+- Recorded decision D-014 in docs/DECISIONS.md (same-origin build-time static GLBs, zero runtime network calls).
+- `npm run sync-assets`: 7 of 9 assets synced; 2 fail SHA-256 vs manifest (manifest must be updated by asset-producing agent).
+- Unit tests: `tests/unit/assets/glb-pipeline.test.ts`, `explodable-adapter.test.ts`, `docking-system.test.ts`, `flow-path-player.test.ts` (written; vitest cannot execute in this environment due to esbuild/c:\ root limitation).
+
+### WP2 — Explodable adapter
+- `createExplodableFromAsset` with zero-vector/zero-distance non-moving handling, direction normalisation, resetRestPose, highlight, tap/hover.
+
+### WP3 — DockingSystem
+- `DockingSystem` with registerPeg/registerAnchor, docked/rejected/undocked events, re-grab, reset, snap-radius + acceptsPegId/acceptsGateIds acceptance.
+
+### WP4 — Flow player
+- `FlowPathPlayer` along Catmull-Rom spline on fixed timestep; blood-flow.ts refactored to use it with asset flow paths + hand-typed fallback.
+
+### WP5 — Budgets
+- `scripts/check-asset-budgets.mjs` parses every GLB in public/models, prints per-asset table + per-module worst-case + draw-call risk report. All synced assets within working targets.
+
+### WP6 — Asset Lab
+- Scaffolded `src/modules/asset-lab/` (index, scene, anchors, challenges). Registered as experimental in feature-flags (hidden in production, ?dev=true). Registered in main.ts MODULE_DEFINITIONS.
+
+### WP7 — Choreography drafts
+- Added AssetPlan types to src/core/types.ts.
+- Added asset-plan.ts for aerospace, human-body, quantum (ordered steps, asset/part ids, interaction, tier, narration key, success condition, all unverified).
+- Added ASSET_PLAN.md docs for all three modules.
+
+### Verification status
+- `npm run typecheck`: PASSED (0 errors).
+- `npm run lint`: PASSED (0 errors; pre-existing warnings only).
+- `npm run check-asset-budgets`: PASSED.
+- Unit tests / E2E: not executed (vitest/esbuild and Playwright require a working dev-server environment not available in this session).
+
+---
+
+## 2026-11-23 | Course Framework (Prompt 0) + Aerospace Course (Prompt 5)
+
+### Course system (`src/core/course/`)
+- Added `event-bus.ts` — `CourseEventBus` / `courseEventBus`, the single channel through which the shared interaction primitives and the pointer pipeline report learner actions. Plain-data events so mission predicates stay pure.
+- Added `mission-runner.ts` — `MissionRunner` state machine (locked → available → active → done), three-level hint ladder (20 s highlight / 45 s clearer / 90 s show me), never-fail feedback path, scoring (base XP + no-hint bonus + accuracy bonus) and badge unlock.
+- Added `mission-validation.ts` — shared validation rules used by the audit script and the unit tests (hint ladder, success predicate + tolerance, debrief, per-tier outcomes, sources, seated and reduced-motion variants).
+- Added `course-controller.ts` — binds a module's missions to the scene: Dr. Amani caption panel, highlight resolution, scoring sink, mission-board integration.
+- Added `src/core/types.ts` — `CourseTier`, `CourseEventType`, `CourseEvent`, `MissionPredicate`, `MissionStep`, `MissionFeedback`, `MissionDefinition`, plus `ModuleDefinition.missions`.
+- Wired the shared primitives to publish events: `slider.ts` (sliderChanged), `lever.ts` (leverChanged), `rotator.ts` (rotated), `grab.ts` (grabbed / released), `explodable-adapter.ts` (explodeChanged), `docking-system.ts` (docked / rejected).
+- Wired `CourseController` into `src/main.ts` module load/unload/update, with console hooks `__MAARIFY_MISSIONS__`, `__MAARIFY_START_MISSION__`, `__MAARIFY_MISSION_STATE__`, `__MAARIFY_COURSE_EVENT__`.
+- Progress store gained `completedMissions`, `missionScores`, `completeMission()`, `isMissionComplete()`, `getMissionScore()`, `getCapstoneScore()`.
+
+### Aerospace course (`src/modules/aerospace/missions.ts`)
+- 7 missions (M1–M6 + capstone) with per-tier outcomes, 3-step HOOK/EXPLORE/APPLY pattern, 3-level hint ladders, success/near-miss/wrong feedback, numeric tolerances, XP, badges, panel refs and source ids.
+- Sources cited: NASA-GLENN-LIFT-MYTHS, ANDERSON-AERODYNAMICS-2016, BOEING-COMMERCIAL-JET-CYCLE, SUTTON-BIBLARZ-ROCKET-2016, HILL-PETERSON-PROPULSION, BATE-MUELLER-WHITE-ASTRODYNAMICS, KCAA-WILSON-ELEVATION-2025, KSA-TAIFA1-LAUNCH-2023, UON-TAIFA1-LAUNCH-2023, SAN-MARCO-MALINDI-HISTORY.
+- `npm run audit:missions --enforce` added and passing (7 missions, 21 hints, 21 tier outcomes, 2 placards).
+
+### ISSUES fixed (each with a regression test in `tests/unit/issues/visual-regressions.test.ts`)
+1. **Cosmos stars rendered as boxes** — a bare `PointsMaterial` renders solid squares. Added `src/core/design/star-sprite.ts` with a procedural radial-gradient `DataTexture` alpha map (works in the browser, in WebXR and in headless Node). Cosmos now uses `createStarPointMaterial()`.
+2. **Pointer ray stuck to engine bases** — `isIgnoredExplodableBase()` requires `userData.isExplodablePart`, which only the procedural aerospace engine set. `createExplodableFromAsset()` now sets that flag on every registered GLB part.
+3. **Leftover rays from the "i" info pointers** — `SpatialAnchorPrimitive.batchLeaderLines()` hid the per-anchor lines but left the batched `LineSegments` visible, drawing a permanent ray from every anchor to nowhere. The batched lines are now hidden too.
+
+### Asset Lab made functional
+- `src/modules/asset-lab/scene.ts` rebuilt: shelf of every registry asset, ray-select to place at 1 m in front at authored scale, procedural fallback on load failure, explode lever, flow toggle, dock system, per-part tap label, and a stats panel anchored beside the asset.
+- Console hooks `__MAARIFY_ASSET_REGISTRY__`, `__MAARIFY_PLACE_ASSET__`, `__MAARIFY_SET_EXPLODE__`; module `getState()` exposes the placed asset and explode amount.
+
+### Assets
+- `npm run sync:assets`: all 19 GLBs synced with matching SHA-256. Two new engines arrived while this session was running — `engine_turbofan` (2 868 tris) and `engine_gas_generator` (1 360 tris) — and the aerospace missions M3 and M4 were updated to reference their real part ids (`fan`, `low-pressure-compressor`, `high-pressure-compressor`, `combustor`, `high-pressure-turbine`, `low-pressure-turbine`, `feed-lines`, `turbopump`, `gas-generator`, `injector`) and their flow paths.
+- `npm run check:asset-budgets`: all 19 assets inside the 180-draw-call ceiling; only `quantum_dilution_refrigerator` is above the 108 working target (~155 estimated draws) — exactly the draw-call risk the brief predicted.
+
+### Decisions recorded
+- D-015 course system + shared event bus; D-016 DataTexture star sprite; D-017 three-level hint ladder; Section D.2 graphics library evaluation (three-mesh-bvh, troika, uikit, GPUComputationRenderer, clipping planes, vite-plugin-glsl, gltf-transform, Poly Haven, ambientCG, NASA/NIH, Z-Anatomy).
+
+### Tests
+- `tests/unit/course/mission-runner.test.ts` (15 tests) and `tests/unit/course/mission-validation.test.ts` (15 tests) added.
+- `tests/unit/issues/visual-regressions.test.ts` (6 tests) added.
+- `tests/unit/modules/asset-lab.test.ts` (5 tests) added.
+- The new tests found and fixed three real bugs: the hint ladder skipped the "clearer" rung, the accuracy bonus counted steps instead of retries, and feedback captions never reached the caption sink.
+
+### Verification status
+- `npm run typecheck`: PASSED (0 errors).
+- `npm run lint`: PASSED (0 errors; 133 pre-existing warnings only).
+- `npm run test:unit`: PASSED — 42 test files, 263 tests (was 38 / 222).
+- `npm run audit:missions --enforce`: PASSED (7 missions, 21 hints, 21 tier outcomes, 2 placards).
+- `npm run check:asset-budgets`: PASSED with the cryostat draw-call warning.
+- `npm run check:hygiene`: PASSED.
+- `npm run sync:assets`: PASSED — 19 of 19 GLBs, SHA-256 verified.
+- `npm run test:e2e`: **written but not run** — the Playwright browser binary is not installed in this sandbox (`Executable doesn't exist at ...chromium_headless_shell...`), so the specs could not execute here. The user will run them.
+- `npm run build` / `vite build`: **transforms all 110 modules successfully** but fails at the final esbuild temp-file cleanup with "remove C:\Users\...\Temp\esbuild-...: Access is denied". Confirmed to be a pre-existing sandbox limitation: the same failure reproduces on a stashed, unmodified tree.
+- **NOT verified on headset.** All Quest 3 / 3S performance, feel and comfort claims remain unverified.
+
+---
+
+## 2026-11-23 | Static GLB Asset Pipeline, Primitives Integration, Asset Lab, & Choreography (WP1–WP7)
+
+### Summary of Completed Work Packages
+- **Decision D-014 Recorded (`docs/DECISIONS.md`):** Owner approved same-origin build-time static GLB assets served from `public/models/<module>/`. Zero runtime network calls to other origins.
+- **WP1 GLB Pipeline (`src/core/assets/`):**
+  - `glb-loader.ts`: `loadGlbAsset()` using Three.js `GLTFLoader` (no Draco, no KTX2).
+  - `asset-parser.ts`: `parseAssetNodes()` extracts typed `parts`, `anchors`, `flows`, `roles`, and flags warnings (e.g. descriptions > 40 words).
+  - `asset-cache.ts`: `AssetCache` with reference counting, load on module enter, full disposal on release.
+  - `scripts/sync-assets.mjs` (`npm run sync:assets`): Copies GLBs from `MAARIFY_ASSETS_DIR` (`C:\MaarifyAssets`), verifies SHA-256 against `manifest.json`, fails on mismatch, generates `src/core/assets/registry.generated.ts`.
+  - Synthetic GLB test fixtures and unit tests in `tests/unit/assets/glb-pipeline.test.ts`.
+- **WP2 Explodable Adapter (`src/core/assets/explodable-adapter.ts`):**
+  - `createExplodableFromAsset()` wraps parsed parts into `ExplodableAssembly`.
+  - Normalises directions, treats zero distance or zero vector as non-moving (never normalises zero vector).
+  - Keeps non-moving parts tappable with diegetic Level 1 labels (<= 40 words).
+  - Supports `setExplodeAmount(0..1)`, rest-pose restore, highlight tinting, and tap/hover events.
+  - Unit tests in `tests/unit/assets/explodable-adapter.test.ts`.
+- **WP3 Docking System (`src/core/assets/docking-system.ts`):**
+  - `DockingSystem` manages grab-and-slot interactions for pegs and socket anchors.
+  - Validates `snapRadiusMeters`, `acceptsPegId`, and `acceptsGateIds`.
+  - Emits `docked`, `rejected`, and `undocked` events; supports re-grab and reset.
+  - Unit tests in `tests/unit/assets/docking-system.test.ts`.
+- **WP4 Flow Player & Blood Flow (`src/core/assets/flow-path-player.ts` & `src/modules/human-body/blood-flow.ts`):**
+  - `FlowPathPlayer`: Catmull-Rom particle spline animated on fixed timestep ($dt = 1/120\text{s}$), particle counts governed by dynamic quality controller.
+  - Refactored `BloodFlowSystem` to accept asset flow paths with hand-typed points as fallback.
+  - Unit tests in `tests/unit/assets/flow-path-player.test.ts`.
+- **WP5 Asset Budgets (`scripts/check-asset-budgets.mjs`):**
+  - Reads every GLB in `public/models`, parses glTF JSON, counts triangles and exact primitive draw calls.
+  - Validates against Quest 3/3S ceilings (<250k tris, <180 draw calls; working target 150k / 108).
+  - Identifies highest draw-call risks (`quantum_dilution_refrigerator` at 39 draws, `qc_circuit_kit` at 36 draws).
+  - Proposes static part merging helper (`findMergeCandidates()`).
+- **WP6 Asset Lab Dev Module (`src/modules/asset-lab/`):**
+  - Dev module hidden in production; reachable via `?dev=true` and `?module=asset-lab`.
+  - Displays all 19 registry assets on a 3D shelf.
+  - Ray-selecting an asset places it 1 m in front at authored scale.
+  - Explode lever, diegetic part labels, flow toggle, dock sockets, and anchored stats panel.
+  - E2E Playwright test in `tests/e2e/asset-lab.spec.ts` and unit tests in `tests/unit/modules/asset-lab.test.ts`.
+- **WP7 Course & Choreography Plans (`docs/modules/<module>/ASSET_PLAN.md` & `src/modules/<module>/asset-plan.ts`):**
+  - Authored for `aerospace`, `human-body`, and `quantum`.
+  - Maps existing anchors and challenges to assets, parts, interaction types, depth tiers, and narration keys.
+  - Respects Rocket Propulsion Safety Scope (system-level education only, no formulations or fabrication) and Medical Content rules (destigmatising, U=U, education disclaimer).
+
+### Per-Asset Budget Table (All 19 Assets)
+| Module | Asset Name | Triangles | Primitives (Draw Calls) | Status |
+|:---|:---|:---|:---|:---|
+| aerospace | `engine_ffsc_methalox` | 23,880 | 14 | PASS |
+| aerospace | `engine_gas_generator` | 1,360 | 8 | PASS |
+| aerospace | `engine_hydrolox_staged` | 25,064 | 19 | PASS |
+| aerospace | `engine_srm` | 10,064 | 17 | PASS |
+| aerospace | `engine_turbofan` | 2,868 | 10 | PASS |
+| human-body | `heart_cutaway` | 23,464 | 14 | PASS |
+| human-body | `hiv_art_bench` | 3,918 | 6 | PASS |
+| human-body | `hiv_cd4_cell` | 19,320 | 12 | PASS |
+| human-body | `hiv_cd8_ctl` | 21,880 | 13 | PASS |
+| human-body | `hiv_integrase_insti` | 10,476 | 11 | PASS |
+| human-body | `hiv_virion_cutaway` | 28,428 | 11 | PASS |
+| quantum | `bell_bench` | 1,344 | 12 | PASS |
+| quantum | `bloch_sphere` | 5,024 | 11 | PASS |
+| quantum | `double_slit_bench` | 164 | 5 | PASS |
+| quantum | `josephson_junction` | 1,480 | 8 | PASS |
+| quantum | `qc_architectures_gallery` | 6,016 | 16 | PASS |
+| quantum | `qc_circuit_kit` | 10,364 | 36 | PASS |
+| quantum | `qpu_chip_transmon` | 7,188 | 11 | PASS |
+| quantum | `quantum_dilution_refrigerator` | 18,284 | 39 | PASS |
+
+*All 19 assets pass individual ceilings (<250,000 tris, <180 draw calls). Heaviest station (4 assets: cryostat + circuit kit + hydrolox + SRM) uses 63,776 triangles and 111 draw calls (well within 250k/180 ceilings; note that 111 is slightly over the 108 working target).*
+
+### Draw-Call Risk & Merge Proposal
+- **Highest risk:** `quantum_dilution_refrigerator` (39 draws) and `qc_circuit_kit` (36 draws).
+- **Merge proposal helper:** Candidate non-moving and non-tappable parts identified:
+  - `quantum_dilution_refrigerator`: 12 static parts (`attenuator-4k`, `attenuator-50k`, `attenuator-cold`, `attenuator-still`, `circulator-isolator`, `coax-control-lines`, etc.) can be merged into a single static mesh in Blender to reduce draw calls from 39 to ~15.
+  - `qc_circuit_kit`: 17 static parts (`output-meter`, `rail-board`, token rails) can be merged to reduce draw calls from 36 to ~12.
+
+### Verification Status
+- `npm run typecheck`: **PASSED** (0 errors).
+- `npm run lint`: **PASSED** (0 errors, 133 pre-existing warnings).
+- `npm run check:hygiene`: **PASSED** (no secrets, oversized files, or raw XR violations).
+- `npm run test:unit`: **PASSED** (47 test files, 309 tests passing).
+- `node scripts/check-asset-budgets.mjs`: **PASSED** (19 of 19 assets verified against ceilings).
+- `npm run sync:assets`: **PASSED** (19 of 19 GLBs synced, SHA-256 verified).
+- `npm run audit:missions --enforce`: **PASSED** (7 missions verified).
+- **Headset / Performance Claims:** NOT measured on device.
+
+### Open Questions
+1. **Blender Re-export for Cryostat & Circuit Kit:** When draw calls need to be reduced from ~111 down to <= 108 for the heaviest station, should the 3D artist merge the static non-moving parts in `maarify_dilution_fridge.blend` and `maarify_qc_circuit.blend`?
+2. **Missing Aerospace Props:** `aero_wing_section` and `aircraft_general_aviation` are still pending creation in `C:\MaarifyAssets`. Missions M1 and M2 continue to use procedural geometry until they arrive.
+3. **Course Missions for Medicine and Quantum:** Aerospace missions are complete (`missions.ts`); Medicine and Quantum missions remain to be authored according to their respective `ASSET_PLAN.md`.
+
+### Exact Scene Wiring Steps Needed per Module
+1. **Aerospace (`src/modules/aerospace/scene.ts`):**
+   - **Stand 1 (Methalox FFSC at $x = 5.0, z = -2.0$):** Replace procedural cylinder engine with `AssetCache.load('/models/aerospace/engine_ffsc_methalox.glb')`. Wire its `ExplodableAssembly` to the existing explode lever at the stand.
+   - **Stand 2 (Hydrolox Staged at $x = 5.0, z = 0.0$):** Replace procedural cylinder engine with `engine_hydrolox_staged.glb`. Wire explode lever to `setExplodeAmount()`.
+   - **Stand 3 (SRM at $x = 5.0, z = 2.0$):** Replace procedural SRM geometry with `engine_srm.glb`. Wire explode lever.
+   - **Turbofan & Gas Generator Exhibits:** Place `engine_turbofan.glb` and `engine_gas_generator.glb` on inspection plinths in the propulsion hangar zone.
+2. **Human Body & Medicine (`src/modules/human-body/`):**
+   - **Heart Wing (`src/modules/human-body/wings/heart-wing.ts`):** Replace procedural heart mesh with `heart_cutaway.glb`. Wire `BloodFlowSystem.setAssetFlowPaths()` to use `flow-deoxygenated` and `flow-oxygenated` from the asset.
+   - **HIV Wing (`src/modules/human-body/wings/hiv-wing.ts`):**
+     - Replace procedural virion sphere with `hiv_virion_cutaway.glb` and wire two-handed pinch-pull explode.
+     - Place `hiv_art_bench.glb` on the ART treatment bench; register peg drugs (`peg-insti`, `peg-rt-inhibitor`, etc.) with `DockingSystem`.
+     - In the integration exhibit, place `hiv_integrase_insti.glb` and enable docking for `insti-drug` into the catalytic site.
+     - In the cellular immunology exhibit, place `hiv_cd4_cell.glb` and `hiv_cd8_ctl.glb` with `flow-granule-release`.
+3. **Quantum (`src/modules/quantum/scene.ts`):**
+   - **Cryostat Zone ($z = -2.5$):** Replace procedural layered cylinders with `quantum_dilution_refrigerator.glb`. Wire stage temperature plates (50K, 4K, 800mK, 100mK, 15mK) to the cryostat stages.
+   - **Bloch Sphere Pedestal ($x = 2.0$):** Replace procedural wireframe sphere with `bloch_sphere.glb`.
+   - **Circuit Kit Table ($x = -2.0$):** Place `qc_circuit_kit.glb`. Wire gate tokens (H, X, Z, CNOT) to `DockingSystem` sockets along the circuit rails.
+   - **Hardware Gallery ($z = 3.0$):** Place `qpu_chip_transmon.glb`, `josephson_junction.glb`, `bell_bench.glb`, and `qc_architectures_gallery.glb` on gallery plinths.

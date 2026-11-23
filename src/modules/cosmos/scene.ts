@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ActiveTuning } from '../../config/tuning.js';
+import { createStarPointMaterial } from '../../core/design/star-sprite.js';
 import { EXOPLANET_CATALOG, createExoplanetDisplay } from './exoplanets.js';
 import { getSpatialAnchors } from './anchors.js';
 import { buildBlackHoleShader } from './black-hole-shader.js';
@@ -9,7 +10,6 @@ import {
   SpatialScalePinchPrimitive,
   SpatialAnchorPrimitive,
   SpatialRotatorPrimitive,
-  SpatialLeverPrimitive,
   SpatialSliderPrimitive,
 } from '../../core/input/primitives/index.js';
 import { createTextPanel, setTextPanelText } from '../../core/ui/text-panel.js';
@@ -23,7 +23,7 @@ export interface CosmosSceneComponents {
   anchorPrimitive: SpatialAnchorPrimitive;
   scalePinchPrimitive: SpatialScalePinchPrimitive;
   transitRotator: SpatialRotatorPrimitive;
-  marsThrustLever: SpatialLeverPrimitive;
+  marsThrustSlider: SpatialSliderPrimitive;
   navConsole: THREE.Group;
   update: (deltaSeconds: number) => void;
   dispose: () => void;
@@ -494,7 +494,9 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   }
   starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
   starGeo.setAttribute('color', new THREE.BufferAttribute(starColors, 3));
-  const starMat = new THREE.PointsMaterial({ size: 0.18, vertexColors: true, transparent: true, opacity: 0.9 });
+  // Round, soft-edged points: a bare PointsMaterial renders squares, which made
+  // the starfield read as a grid of boxes.
+  const starMat = createStarPointMaterial(0xffffff, 0.18, true);
   const starfield = new THREE.Points(starGeo, starMat);
   root.add(starfield);
 
@@ -787,16 +789,20 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
   const transitRotator = new SpatialRotatorPrimitive(rotatorMesh, { detentStepDeg: 15 });
   root.add(rotatorMesh);
 
-  const leverBase = new THREE.Group();
-  leverBase.position.set(-0.6, 0.85, -0.7);
-  const leverArm = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.02, 0.02, 0.25, 8),
+  const sliderTrack = new THREE.Mesh(
+    new THREE.BoxGeometry(0.04, 0.02, 0.3),
+    new THREE.MeshStandardMaterial({ color: 0x334155 }),
+  );
+  sliderTrack.position.set(-0.6, 0.85, -0.7);
+  root.add(sliderTrack);
+  const sliderHandle = new THREE.Mesh(
+    new THREE.BoxGeometry(0.06, 0.04, 0.04),
     new THREE.MeshStandardMaterial({ color: 0xef4444, metalness: 0.8 }),
   );
-  leverArm.position.y = 0.125;
-  leverBase.add(leverArm);
-  const marsThrustLever = new SpatialLeverPrimitive(leverBase, { minAngleDeg: -30, maxAngleDeg: 30 });
-  root.add(leverBase);
+  sliderHandle.name = 'cosmos-thrust-slider';
+  sliderHandle.position.set(-0.6, 0.88, -0.7);
+  root.add(sliderHandle);
+  const marsThrustSlider = new SpatialSliderPrimitive(sliderHandle, { axis: 'z', minDistance: -0.85, maxDistance: -0.55 });
 
   // Animation tick
   function update(deltaSeconds: number): void {
@@ -846,7 +852,7 @@ export async function buildCosmosScene(): Promise<CosmosSceneComponents> {
 
   return {
     root, starfield, solarSystemRoot, blackHoleRoot, exoplanetDisplays,
-    anchorPrimitive, scalePinchPrimitive, transitRotator, marsThrustLever,
+    anchorPrimitive, scalePinchPrimitive, transitRotator, marsThrustSlider,
     navConsole,
     update, dispose,
   };

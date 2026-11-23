@@ -65,6 +65,120 @@ export interface ModuleSection {
   entryPosition: [number, number, number];
 }
 
+export type AssetPlanInteraction = 'explode' | 'scrub' | 'flow' | 'dock' | 'gaze-hold' | 'tune';
+
+/** Depth tier ids used across the course system. Matches the repo's tier names. */
+export type CourseTier = 'foundation' | 'advanced' | 'expert';
+
+/**
+ * Interaction events the MissionRunner consumes. These are emitted by the
+ * shared interaction primitives and the pointer pipeline — never by raw XR
+ * input. Mission code subscribes to these instead of polling controllers.
+ */
+export type CourseEventType =
+  | 'grabbed'
+  | 'released'
+  | 'placed'
+  | 'docked'
+  | 'rejected'
+  | 'sliderChanged'
+  | 'leverChanged'
+  | 'rotated'
+  | 'measured'
+  | 'enteredZone'
+  | 'panelOpened'
+  | 'panelClosed'
+  | 'tierChanged'
+  | 'explodeChanged'
+  | 'flowToggled'
+  | 'gazeHeld';
+
+/** A single interaction event delivered to the MissionRunner. */
+export interface CourseEvent {
+  type: CourseEventType;
+  /** Object or part id the event refers to (stable asset part id when available). */
+  target?: string;
+  /** Numeric value for continuous controls (slider, lever, rotator). */
+  value?: number;
+  /** Free-form extra payload (docked anchor name, measured distance, ...). */
+  meta?: Record<string, unknown>;
+}
+
+/**
+ * Completion predicate over the interaction event stream.
+ * Pure function — must not touch Three.js or raw input.
+ */
+export type MissionPredicate = (events: CourseEvent[]) => boolean;
+
+/** One beat inside a mission. */
+export interface MissionStep {
+  id: string;
+  /** Instruction caption shown to the learner (second person, <= 18 words per sentence). */
+  caption: string;
+  /** Object/part ids this step highlights (soft light path / emissive pulse). */
+  highlights?: string[];
+  /** Predicate over the events seen during this step. */
+  completed: MissionPredicate;
+}
+
+/** Feedback copy for the three learner-facing outcomes. Never a fail state. */
+export interface MissionFeedback {
+  success: string;
+  nearMiss: string;
+  wrong: string;
+}
+
+/** A data-driven mission definition. Content lives in each module's missions.ts. */
+export interface MissionDefinition {
+  id: string;
+  title: string;
+  /** One sentence stating what the learner will achieve. */
+  objective: string;
+  /** Per-tier outcome text. Foundation plain, Advanced quantitative, Expert formal. */
+  outcomes: Record<CourseTier, string>;
+  steps: MissionStep[];
+  /** Exactly three hint levels: highlight (20 s), clearer hint (45 s), show me (90 s). */
+  hints: [string, string, string];
+  feedback: MissionFeedback;
+  /** Final measurable success condition, with tolerance. */
+  successPredicate: MissionPredicate;
+  /** Numeric tolerance for the success check (metres, degrees, normalised units). */
+  tolerance: number;
+  xp: number;
+  badge?: string;
+  /** Folio / panel content ids that carry the supporting detail. */
+  panelRefs?: string[];
+  /** Source ids backing every factual claim in this mission. */
+  sources: string[];
+  /** Asset ids this mission depends on (from the asset registry). */
+  assetIds?: string[];
+  /** Part ids this mission interacts with. */
+  partIds?: string[];
+  /** Seated-reachable variant note (how the learner completes this seated). */
+  seatedVariant?: string;
+  /** Reduced-motion variant note (what is toned down). */
+  reducedMotionVariant?: string;
+}
+
+export interface AssetPlanStep {
+  step: number;
+  anchorId?: string;
+  challengeId?: string;
+  asset: string;
+  partIds: string[];
+  interaction: AssetPlanInteraction;
+  tier: 'foundation' | 'advanced' | 'expert';
+  narrationKey: string;
+  successCondition: string;
+  /** True when this step relies on facts not yet cited in the module SOURCES.md. */
+  unverified?: boolean;
+}
+
+export interface AssetPlan {
+  moduleId: string;
+  steps: AssetPlanStep[];
+}
+
 export interface ModuleDefinition {
   id: string;
   displayName: string;
@@ -89,5 +203,7 @@ export interface ModuleDefinition {
   getSpatialAnchors(): SpatialAnchorDefinition[];
   /** Optional authored tutorial; the core derives a safe default from challenges. */
   mission?: ModuleMission;
+  /** Optional course missions. The core wires the MissionRunner to these. */
+  missions?: MissionDefinition[];
 }
 

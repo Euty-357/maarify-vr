@@ -1,108 +1,109 @@
 import * as THREE from 'three';
+import { FlowPathPlayer } from '../../core/assets/flow-path-player.js';
 
-/** Two particle streams (aorta red, pulmonary blue) animated along spline paths. */
+/**
+ * Two particle streams (aorta red, pulmonary blue) animated along spline paths.
+ *
+ * Uses asset flow paths when present (from a parsed heart_cutaway GLB via
+ * parseAssetNodes), falling back to the hand-typed aorta/pulmonary spline
+ * points. Particle counts are governed by the dynamic quality controller via
+ * the constructor options.
+ *
+ * Simplified model — not engineering grade.
+ */
 export class BloodFlowSystem {
-  private readonly aortaPoints: THREE.Points;
-  private readonly pulmonaryPoints: THREE.Points;
-  private readonly aortaPositions: Float32Array;
-  private readonly pulmonaryPositions: Float32Array;
-  private readonly aortaSpline: THREE.CatmullRomCurve3;
-  private readonly pulmonarySpline: THREE.CatmullRomCurve3;
-  private readonly aortaTs: Float32Array;
-  private readonly pulmonaryTs: Float32Array;
+  private aortaPlayer: FlowPathPlayer;
+  private pulmonaryPlayer: FlowPathPlayer;
   private heartRateNorm = 0.5;
 
   readonly group: THREE.Group;
 
-  constructor() {
+  constructor(options: { aortaParticleCount?: number; pulmonaryParticleCount?: number } = {}) {
     this.group = new THREE.Group();
     this.group.name = 'blood-flow-system';
 
     // Aorta path: left ventricle → aortic arch → descending aorta
-    this.aortaSpline = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(0.05, 0, 0),
-      new THREE.Vector3(0.05, 0.25, 0),
-      new THREE.Vector3(0.1, 0.35, 0),
-      new THREE.Vector3(0.0, 0.4, 0),
-      new THREE.Vector3(-0.1, 0.35, 0),
-      new THREE.Vector3(-0.05, 0.1, 0),
-      new THREE.Vector3(-0.05, -0.3, 0),
-    ], false);
+    // Hand-typed fallback (used when no asset flow path is present).
+    const aortaFallback: [number, number, number][] = [
+      [0.05, 0, 0],
+      [0.05, 0.25, 0],
+      [0.1, 0.35, 0],
+      [0.0, 0.4, 0],
+      [-0.1, 0.35, 0],
+      [-0.05, 0.1, 0],
+      [-0.05, -0.3, 0],
+    ];
 
     // Pulmonary trunk path: right ventricle → pulmonary artery → lungs
-    this.pulmonarySpline = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-0.05, 0, 0),
-      new THREE.Vector3(-0.1, 0.2, 0),
-      new THREE.Vector3(-0.2, 0.3, 0.1),
-      new THREE.Vector3(-0.15, 0.1, 0.2),
-      new THREE.Vector3(0.0, 0.0, 0.2),
-      new THREE.Vector3(0.15, 0.1, 0.1),
-      new THREE.Vector3(0.1, 0.3, 0.05),
-    ], false);
+    const pulmonaryFallback: [number, number, number][] = [
+      [-0.05, 0, 0],
+      [-0.1, 0.2, 0],
+      [-0.2, 0.3, 0.1],
+      [-0.15, 0.1, 0.2],
+      [0.0, 0.0, 0.2],
+      [0.15, 0.1, 0.1],
+      [0.1, 0.3, 0.05],
+    ];
 
-    const COUNT = 48;
-    this.aortaPositions = new Float32Array(COUNT * 3);
-    this.pulmonaryPositions = new Float32Array(COUNT * 3);
-    this.aortaTs = new Float32Array(COUNT);
-    this.pulmonaryTs = new Float32Array(COUNT);
+    this.aortaPlayer = new FlowPathPlayer({
+      flowPath: aortaFallback,
+      flowColor: 0xef4444,
+      particleCount: options.aortaParticleCount ?? 48,
+      particleSize: 0.015,
+      speed: 0.15,
+    });
 
-    // Distribute particles evenly along their paths
-    for (let i = 0; i < COUNT; i++) {
-      this.aortaTs[i] = i / COUNT;
-      this.pulmonaryTs[i] = i / COUNT;
-    }
+    this.pulmonaryPlayer = new FlowPathPlayer({
+      flowPath: pulmonaryFallback,
+      flowColor: 0x3b82f6,
+      particleCount: options.pulmonaryParticleCount ?? 48,
+      particleSize: 0.015,
+      speed: 0.15,
+    });
 
-    const aortaGeo = new THREE.BufferGeometry();
-    aortaGeo.setAttribute('position', new THREE.BufferAttribute(this.aortaPositions, 3));
-    this.aortaPoints = new THREE.Points(aortaGeo, new THREE.PointsMaterial({ color: 0xef4444, size: 0.015, sizeAttenuation: true }));
-    this.aortaPoints.name = 'aorta-particles';
+    this.group.add(this.aortaPlayer.mesh);
+    this.group.add(this.pulmonaryPlayer.mesh);
+  }
 
-    const pulmonaryGeo = new THREE.BufferGeometry();
-    pulmonaryGeo.setAttribute('position', new THREE.BufferAttribute(this.pulmonaryPositions, 3));
-    this.pulmonaryPoints = new THREE.Points(pulmonaryGeo, new THREE.PointsMaterial({ color: 0x3b82f6, size: 0.015, sizeAttenuation: true }));
-    this.pulmonaryPoints.name = 'pulmonary-particles';
-
-    this.group.add(this.aortaPoints);
-    this.group.add(this.pulmonaryPoints);
-
-    // Initial position update
-    this._syncBuffers();
+  /**
+   * Replace the fallback paths with asset-authored flow paths.
+   * Called by module scene code after parsing a heart_cutaway GLB.
+   */
+  setAssetFlowPaths(aortaPath: [number, number, number][], pulmonaryPath: [number, number, number][]): void {
+    this.aortaPlayer = new FlowPathPlayer({
+      flowPath: aortaPath,
+      flowColor: 0x2266dd, // asset flow-deoxygenated color
+      particleCount: this.aortaPlayer.particleCount,
+      particleSize: 0.015,
+      speed: 0.15,
+    });
+    this.pulmonaryPlayer = new FlowPathPlayer({
+      flowPath: pulmonaryPath,
+      flowColor: 0xee3344, // asset flow-oxygenated color
+      particleCount: this.pulmonaryPlayer.particleCount,
+      particleSize: 0.015,
+      speed: 0.15,
+    });
+    // Rebuild group with new players
+    this.group.remove(...this.group.children);
+    this.group.add(this.aortaPlayer.mesh);
+    this.group.add(this.pulmonaryPlayer.mesh);
   }
 
   setHeartRate(normalised: number): void {
     this.heartRateNorm = Math.max(0, Math.min(1, normalised));
+    const speed = 0.08 + this.heartRateNorm * 0.22; // 0.08–0.30 turns/sec
+    this.aortaPlayer.setSpeed(speed);
+    this.pulmonaryPlayer.setSpeed(speed);
   }
 
   update(dt: number): void {
-    const speed = 0.08 + this.heartRateNorm * 0.22; // 0.08–0.30 turns/sec
-    const COUNT = 48;
-    for (let i = 0; i < COUNT; i++) {
-      this.aortaTs[i] = (this.aortaTs[i] + speed * dt) % 1;
-      this.pulmonaryTs[i] = (this.pulmonaryTs[i] + speed * dt) % 1;
-    }
-    this._syncBuffers();
-  }
-
-  private _syncBuffers(): void {
-    const COUNT = 48;
-    const tmp = new THREE.Vector3();
-    for (let i = 0; i < COUNT; i++) {
-      this.aortaSpline.getPoint(this.aortaTs[i], tmp);
-      this.aortaPositions[i * 3] = tmp.x;
-      this.aortaPositions[i * 3 + 1] = tmp.y;
-      this.aortaPositions[i * 3 + 2] = tmp.z;
-
-      this.pulmonarySpline.getPoint(this.pulmonaryTs[i], tmp);
-      this.pulmonaryPositions[i * 3] = tmp.x;
-      this.pulmonaryPositions[i * 3 + 1] = tmp.y;
-      this.pulmonaryPositions[i * 3 + 2] = tmp.z;
-    }
-    (this.aortaPoints.geometry.attributes['position'] as THREE.BufferAttribute).needsUpdate = true;
-    (this.pulmonaryPoints.geometry.attributes['position'] as THREE.BufferAttribute).needsUpdate = true;
+    this.aortaPlayer.update(dt);
+    this.pulmonaryPlayer.update(dt);
   }
 
   dispose(): void {
-    this.aortaPoints.geometry.dispose();
-    this.pulmonaryPoints.geometry.dispose();
+    this.aortaPlayer.dispose();
+    this.pulmonaryPlayer.dispose();
   }
 }

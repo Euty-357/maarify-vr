@@ -1,12 +1,15 @@
 import * as THREE from 'three';
 import { ActiveTuning } from '../../../config/tuning.js';
 import { triggerHapticPulse } from '../../haptics/haptics.js';
+import { courseEventBus } from '../../course/event-bus.js';
 
 export interface GrabbableOptions {
   onGrab?: (hand: 'left' | 'right' | 'pointer') => void;
   onRelease?: (inputSource?: XRInputSource) => void;
   onMove?: (newPosition: THREE.Vector3, newQuaternion: THREE.Quaternion) => void;
   constrainY?: boolean;
+  /** Stable id used by the course system to identify this object. */
+  courseId?: string;
 }
 
 export class SpatialGrabPrimitive {
@@ -71,6 +74,7 @@ export class SpatialGrabPrimitive {
 
       const hand = inputSource?.handedness === 'left' ? 'left' : inputSource?.handedness === 'right' ? 'right' : 'pointer';
       this.options.onGrab?.(hand);
+      courseEventBus.emit('grabbed', this.options.courseId ?? this.targetObject.name);
       return true;
     }
 
@@ -120,6 +124,7 @@ export class SpatialGrabPrimitive {
     }
 
     this.options.onRelease?.(inputSource);
+    courseEventBus.emit('released', this.options.courseId ?? this.targetObject.name);
   }
 }
 

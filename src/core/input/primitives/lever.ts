@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ActiveTuning } from '../../../config/tuning.js';
 import { triggerHapticPulse } from '../../haptics/haptics.js';
+import { courseEventBus } from '../../course/event-bus.js';
 
 export interface LeverOptions {
   axis?: 'x' | 'y' | 'z';
@@ -8,6 +9,8 @@ export interface LeverOptions {
   maxAngleDeg?: number;
   onAngleChange?: (angleDeg: number, normalized: number) => void;
   onSnapExtreme?: (extreme: 'min' | 'max') => void;
+  /** Stable id used by the course system to identify this control. */
+  courseId?: string;
 }
 
 export class SpatialLeverPrimitive {
@@ -38,6 +41,13 @@ export class SpatialLeverPrimitive {
     const rad = (this.currentAngleDeg * Math.PI) / 180;
     this.pivotObject.rotation[this.axis] = rad;
     this.options.onAngleChange?.(this.currentAngleDeg, this.normalizedValue);
+    this.publishChange();
+  }
+
+  /** Publish the change to the course bus so missions can observe it. */
+  private publishChange(): void {
+    const id = this.options.courseId ?? this.pivotObject.name;
+    courseEventBus.emit('leverChanged', id, this.normalizedValue);
   }
 
   public throwToExtreme(extreme: 'min' | 'max', inputSource?: XRInputSource): void {

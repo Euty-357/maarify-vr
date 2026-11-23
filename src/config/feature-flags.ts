@@ -50,6 +50,12 @@ export const MODULE_FLAGS: Record<string, ModuleFeatureConfig> = {
     readiness: 'planned',
     enabled: false,
   },
+  'asset-lab': {
+    id: 'asset-lab',
+    name: 'Asset Lab (Dev)',
+    readiness: 'experimental',
+    enabled: false,
+  },
   'urban-development': {
     id: 'urban-development',
     name: 'Urban Development \u0026 Planning',

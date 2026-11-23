@@ -1,12 +1,15 @@
 import * as THREE from 'three';
 import { ActiveTuning } from '../../../config/tuning.js';
 import { triggerHapticPulse } from '../../haptics/haptics.js';
+import { courseEventBus } from '../../course/event-bus.js';
 
 export interface RotatorOptions {
   axis?: 'x' | 'y' | 'z';
   detentStepDeg?: number;
   continuous?: boolean;
   onRotate?: (angleDeg: number, totalRotations: number) => void;
+  /** Stable id used by the course system to identify this control. */
+  courseId?: string;
 }
 
 export class SpatialRotatorPrimitive {
@@ -45,6 +48,7 @@ export class SpatialRotatorPrimitive {
 
     this.totalRotations = this.angleDeg / 360;
     this.options.onRotate?.(this.angleDeg, this.totalRotations);
+    courseEventBus.emit('rotated', this.options.courseId ?? this.dialObject.name, this.angleDeg);
   }
 
   public addDeltaDeg(deltaDeg: number, inputSource?: XRInputSource): void {

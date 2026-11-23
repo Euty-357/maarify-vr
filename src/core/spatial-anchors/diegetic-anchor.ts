@@ -17,12 +17,12 @@ export class DiegeticSpatialAnchor extends THREE.Group {
   public anchorLabel: string;
   public isExpanded = false;
   public activeTier: 'foundation' | 'advanced' | 'expert' = 'foundation';
-  private lineMesh: THREE.Line;
-  private indicatorMesh!: THREE.Mesh;
   private tagMesh: THREE.Mesh;
   private microSimRoot: THREE.Group;
   private tagCanvas: HTMLCanvasElement;
   private tagTexture: THREE.CanvasTexture | THREE.Texture;
+  /** True once dispose() has run, so a double dispose is harmless. */
+  private disposed = false;
 
   constructor(
     id: string,
@@ -39,68 +39,14 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     this.anchorLabel = label;
     this.name = `diegetic-anchor-${id}`;
 
-    // 1. Leader Line from target object to spatial label tag
-    const lineGeo = new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(0, 0, 0),
-      new THREE.Vector3(0.2, 0.24, 0),
-    ]);
-    const lineMat = new THREE.LineBasicMaterial({
-      color: ActiveTuning.anchors.leaderLineColor,
-      transparent: true,
-      opacity: ActiveTuning.anchors.leaderLineOpacity,
-    });
-    this.lineMesh = new THREE.Line(lineGeo, lineMat);
-    this.lineMesh.raycast = () => {};
-    this.lineMesh.visible = false; // Information System V3: no persistent lines in world
-    this.add(this.lineMesh);
+    // Information System V3: the floating "i" badge and the leader line were
+    // replaced by engraved brass placards. Both were permanently hidden but
+    // still allocated a geometry, a material and a canvas texture per anchor,
+    // and the hidden leader line was the source of the "leftover rays from the
+    // i pointers" bug. They are deleted rather than kept hidden.
 
-    // Indicator glowing ⓘ badge (collapsed default state)
+    // 1. Spatial Anchor Tag with HTML Canvas Texture (offline, zero network calls)
     const isBrowser = typeof document !== 'undefined';
-    let indicatorTexture: THREE.Texture;
-    if (isBrowser) {
-      const icanvas = document.createElement('canvas');
-      icanvas.width = 128;
-      icanvas.height = 128;
-      const ictx = icanvas.getContext('2d');
-      if (ictx) {
-        ictx.beginPath();
-        ictx.arc(64, 64, 56, 0, Math.PI * 2);
-        ictx.fillStyle = 'rgba(2, 132, 199, 0.45)';
-        ictx.fill();
-        ictx.lineWidth = 8;
-        ictx.strokeStyle = '#38bdf8';
-        ictx.stroke();
-
-        ictx.beginPath();
-        ictx.arc(64, 64, 46, 0, Math.PI * 2);
-        ictx.fillStyle = '#0f172a';
-        ictx.fill();
-
-        ictx.fillStyle = '#38bdf8';
-        ictx.font = 'bold 64px Georgia, serif';
-        ictx.textAlign = 'center';
-        ictx.textBaseline = 'middle';
-        ictx.fillText('i', 64, 64);
-      }
-      indicatorTexture = new THREE.CanvasTexture(icanvas);
-    } else {
-      indicatorTexture = new THREE.Texture();
-    }
-
-    const indicatorGeo = new THREE.PlaneGeometry(0.08, 0.08);
-    const indicatorMat = new THREE.MeshBasicMaterial({
-      map: indicatorTexture,
-      transparent: true,
-      side: THREE.FrontSide,
-    });
-    this.indicatorMesh = new THREE.Mesh(indicatorGeo, indicatorMat);
-    this.indicatorMesh.name = 'anchor-indicator-' + id;
-    this.indicatorMesh.userData.isAnchorIndicator = true;
-    this.indicatorMesh.userData.billboard = true;
-    this.indicatorMesh.visible = false; // Information System V3: no persistent floating "i" glyphs
-    this.add(this.indicatorMesh);
-
-    // 2. Spatial Anchor Tag with HTML Canvas Texture (offline, zero network calls)
     if (isBrowser) {
       this.tagCanvas = document.createElement('canvas');
       this.tagCanvas.width = 512;
@@ -201,7 +147,6 @@ export class DiegeticSpatialAnchor extends THREE.Group {
   public toggleExpansion(cameraWorldPos?: THREE.Vector3): boolean {
     this.isExpanded = !this.isExpanded;
     this.tagMesh.visible = this.isExpanded;
-    this.indicatorMesh.visible = false; // Always keep "i" glyph hidden
     this.microSimRoot.visible = this.isExpanded;
     this.renderTagCanvas(this.isExpanded);
     // Adapt tag position and face toward the opening camera position
@@ -240,5 +185,39 @@ export class DiegeticSpatialAnchor extends THREE.Group {
       simulationType: this.simulationData.type,
       simulationCaption: this.simulationData.caption,
     };
+  }
+
+  /**
+   * Release every GPU resource this anchor owns: geometries, materials and the
+   * canvas texture behind the tag.
+   *
+   * Called when the anchor is removed from a module and when the module
+   * unloads, so anchors do not leak a texture per instance across module
+   * transitions. Safe to call twice.
+   */
+  public dispose(): void {
+    if (this.disposed) return;
+    this.disposed = true;
+
+    this.traverse((object) => {
+      if (object instanceof THREE.Mesh || object instanceof THREE.Line || object instanceof THREE.Points) {
+        object.geometry?.dispose();
+        const material = object.material as THREE.Material | THREE.Material[] | undefined;
+        if (Array.isArray(material)) {
+          material.forEach((m) => m.dispose());
+        } else if (material) {
+          material.dispose();
+        }
+      }
+    });
+
+    // The tag texture is a CanvasTexture owned by this anchor.
+    (this.tagTexture as THREE.Texture).dispose();
+
+    // Remove the tag mesh and micro-sim content from the graph.
+    this.remove(this.tagMesh);
+    while (this.microSimRoot.children.length > 0) {
+      this.microSimRoot.remove(this.microSimRoot.children[0]);
+    }
   }
 }

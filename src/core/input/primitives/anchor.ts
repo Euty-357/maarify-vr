@@ -35,43 +35,17 @@ export class SpatialAnchorPrimitive {
   }
 
   /**
-   * Merge every anchor's leader line into one LineSegments draw call. With 24+
-   * anchors this saves 20+ draw calls per frame; the individual lines are hidden.
+   * Information System V3 removed the per-anchor leader line entirely, so
+   * there is nothing left to batch. The method is kept as a no-op so the
+   * existing module call sites do not need to change, and so a future
+   * diegetic leader line has an obvious home.
+   *
+   * The previous implementation built a batched LineSegments from the hidden
+   * per-anchor lines and left it VISIBLE, which drew a permanent ray from
+   * every anchor to nowhere — the "leftover rays from the i pointers" bug.
    */
   public batchLeaderLines(): void {
-    const positions: number[] = [];
-    for (const anchor of this.anchors.values()) {
-      anchor.updateMatrixWorld(true);
-      const line = anchor.children.find(
-        (child) => child instanceof THREE.Line && !(child instanceof THREE.LineSegments)
-      ) as THREE.Line | undefined;
-      if (!line) continue;
-      const attribute = line.geometry.getAttribute('position');
-      const points: THREE.Vector3[] = [];
-      for (let index = 0; index < attribute.count; index += 1) {
-        const point = new THREE.Vector3().fromBufferAttribute(attribute, index);
-        line.localToWorld(point);
-        points.push(point);
-      }
-      for (let index = 0; index < points.length - 1; index += 1) {
-        const start = points[index];
-        const end = points[index + 1];
-        positions.push(start.x, start.y, start.z, end.x, end.y, end.z);
-      }
-      line.visible = false;
-    }
-    if (positions.length === 0) return;
-    const geometry = new THREE.BufferGeometry();
-    geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-    const material = new THREE.LineBasicMaterial({
-      color: ActiveTuning.anchors.leaderLineColor,
-      transparent: true,
-      opacity: ActiveTuning.anchors.leaderLineOpacity,
-    });
-    const batched = new THREE.LineSegments(geometry, material);
-    batched.name = 'anchor-leader-lines-batched';
-    batched.raycast = () => {};
-    this.containerGroup.add(batched);
+    // Intentionally empty: no leader lines exist any more.
   }
 
   public getAllAnchors(): DiegeticSpatialAnchor[] {
@@ -133,9 +107,12 @@ export class SpatialAnchorPrimitive {
 
   public dispose(): void {
     for (const anchor of this.anchors.values()) {
+      // Release the anchor's own geometries, materials and canvas texture.
+      anchor.dispose();
       this.containerGroup.remove(anchor);
     }
     this.anchors.clear();
+    this.definitions.clear();
   }
 }
 

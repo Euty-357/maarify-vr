@@ -1,11 +1,15 @@
 /**
- * Aerospace module scene — full polish pass (Tasks 24-28)
+ * Aerospace module scene — GLB engines on stands (Phase 2 wiring)
  *
  * Task 24: Hangar room layout & lighting — 15×10×6 m, 4× RectAreaLight, concrete floor
  * Task 25: Helicopter exhibit at (−5, 0, −3) with collective lever
- * Task 26: Engine test hall with 3 engine stands (Raptor, Hydrolox, SRM)
+ * Task 26: Engine test hall — GLB engines: engine_ffsc_methalox, engine_hydrolox_staged, engine_srm
  * Task 27: Wind tunnel relocate to z=−4, Mach readout, stall indicator, streamline quality
  * Task 28: Raycasting collider fix, isWalkable, budget comment
+ *
+ * Procedural engine meshes (nozzle bell, injector, chamber, turbopump, cooling helix)
+ * replaced by GLB assets loaded via AssetCache + createExplodableFromAsset.
+ * engine_turbofan and engine_gas_generator are NOT placed (mission deferred).
  *
  * NOT measured on device.
  */
@@ -20,79 +24,46 @@ import {
   SpatialAnchorPrimitive,
   SpatialSliderPrimitive,
   SpatialRotatorPrimitive,
-  SpatialLeverPrimitive,
   SpatialScalePinchPrimitive,
-  ExplodableAssembly,
 } from '../../core/input/primitives/index.js';
 import { createTextPanel, setTextPanelText } from '../../core/ui/text-panel.js';
+import { createRoundPointMaterial } from '../../core/design/point-sprite.js';
 import { buildHelicopterExhibit } from './helicopter.js';
+import { AssetCache } from '../../core/assets/asset-cache.js';
+import { parseAssetNodes } from '../../core/assets/asset-parser.js';
+import { createExplodableFromAsset } from '../../core/assets/explodable-adapter.js';
+import { FlowPathPlayer } from '../../core/assets/flow-path-player.js';
 import type { RectAreaLight } from 'three';
 
 export interface AerospaceSceneComponents {
   root: THREE.Group;
   wingSparRoot: THREE.Group;
-  rocketEngineRoot: THREE.Group;
   nozzlePlumeRoot: THREE.Group;
   taifaCubeSatRoot: THREE.Group;
   anchorPrimitive: SpatialAnchorPrimitive;
   wingPitchSlider: SpatialSliderPrimitive;
-  explodeAssembly: ExplodableAssembly;
+  explodeAssembly?: any;
   cycleRotator: SpatialRotatorPrimitive;
   nozzlePressureSlider: SpatialSliderPrimitive;
   update: (deltaSeconds: number) => void;
   dispose: () => void;
 }
 
-/** Mark all direct Mesh children of an ExplodableAssembly as explodable parts (Req 48.1). */
-function markExplodableParts(root: THREE.Object3D): void {
-  root.traverse((obj) => {
-    if ((obj as THREE.Mesh).isMesh) {
-      obj.userData.isExplodablePart = true;
-    }
-  });
-}
-
-/** Build a single engine stand (Task 26.1, Req 46). */
-function buildEngineStand(
+/** Build a pedestal base for an engine stand. GLB asset placed on top. */
+function buildStandPedestal(
   label: string,
   position: THREE.Vector3,
-  fuelColor: number,
-  oxColor: number,
   ispValue: number,
 ): THREE.Group {
   const group = new THREE.Group();
   group.name = `engine-stand-${label.substring(0, 10)}`;
   group.position.copy(position);
 
-  // Pedestal: BoxGeometry(0.6, 0.9, 0.6)
+  // Pedestal base
   const pedestalMat = new THREE.MeshStandardMaterial({ color: 0x374151, metalness: 0.5, roughness: 0.5 });
   const pedestal = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.9, 0.6), pedestalMat);
   pedestal.position.set(0, 0.45, 0);
   group.add(pedestal);
-
-  // Nozzle bell: CylinderGeometry(0.14, 0.22, 0.6, 12) above pedestal
-  const nozzleMat = new THREE.MeshStandardMaterial({ color: 0x94a3b8, metalness: 0.7, roughness: 0.3 });
-  const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.22, 0.6, 12), nozzleMat);
-  nozzle.position.set(0, 1.2, 0);
-  group.add(nozzle);
-
-  // Propellant flow lines: fuel = orange, oxidiser = cyan (Req 46.4)
-  const fuelPoints = [
-    new THREE.Vector3(-0.14, 1.5, 0),
-    new THREE.Vector3(-0.22, 1.1, 0),
-    new THREE.Vector3(-0.22, 0.6, 0),
-    new THREE.Vector3(-0.18, 0.1, 0),
-  ];
-  const oxPoints = [
-    new THREE.Vector3(0.14, 1.5, 0),
-    new THREE.Vector3(0.22, 1.1, 0),
-    new THREE.Vector3(0.22, 0.6, 0),
-    new THREE.Vector3(0.18, 0.1, 0),
-  ];
-  const fuelLineGeo = new THREE.BufferGeometry().setFromPoints(fuelPoints);
-  group.add(new THREE.LineSegments(fuelLineGeo, new THREE.LineBasicMaterial({ color: fuelColor })));
-  const oxLineGeo = new THREE.BufferGeometry().setFromPoints(oxPoints);
-  group.add(new THREE.LineSegments(oxLineGeo, new THREE.LineBasicMaterial({ color: oxColor })));
 
   // Engine label
   const labelPanel = createTextPanel(label, {
@@ -102,7 +73,7 @@ function buildEngineStand(
   labelPanel.position.set(0, 1.72, 0);
   group.add(labelPanel);
 
-  // Isp readout label (Req 46.5)
+  // Isp readout label
   const ispReadout = createTextPanel(`Isp ≈ ${ispValue} s`, {
     widthMeters: 0.28, heightMeters: 0.06, fontSizePx: 16, align: 'center',
     background: '#0f172a', color: '#38bdf8', accent: '#38bdf8',
@@ -110,56 +81,7 @@ function buildEngineStand(
   ispReadout.position.set(0, 0.06, 0.32);
   group.add(ispReadout);
 
-  // Throttle slider (Req 46.5)
-  const throttleHandle = new THREE.Mesh(
-    new THREE.BoxGeometry(0.08, 0.05, 0.05),
-    new THREE.MeshStandardMaterial({ color: 0x0284c7 }),
-  );
-  throttleHandle.position.set(0, 0.5, 0.35);
-  group.add(throttleHandle);
-  new SpatialSliderPrimitive(throttleHandle, {
-    axis: 'y',
-    minDistance: 0.3,
-    maxDistance: 0.7,
-    onValueChange: (norm) => {
-      const pct = Math.round(norm * 100);
-      setTextPanelText(ispReadout, `Throttle ${pct}%\nIsp ≈ ${ispValue} s`);
-      nozzle.scale.y = 0.8 + norm * 0.4;
-    },
-  });
-  // Throttle label
-  const throttleLbl = createTextPanel('Throttle — engine power 0–100%', {
-    widthMeters: 0.28, heightMeters: 0.05, fontSizePx: 12, align: 'center',
-    background: '#0f172a', color: '#94a3b8',
-  });
-  throttleLbl.position.set(0, 0.78, 0.35);
-  group.add(throttleLbl);
-
-  // Explode lever (Req 46.5) — simple visual; actual explode for assembly is in main scene
-  const explodeLeverBase = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.04, 0.04, 0.03, 8),
-    new THREE.MeshStandardMaterial({ color: 0x475569 }),
-  );
-  explodeLeverBase.position.set(-0.35, 0.5, 0.35);
-  group.add(explodeLeverBase);
-  const explodeLeverHandle = new THREE.Mesh(
-    new THREE.BoxGeometry(0.015, 0.14, 0.015),
-    new THREE.MeshStandardMaterial({ color: 0xf59e0b }),
-  );
-  explodeLeverHandle.position.set(-0.35, 0.57, 0.35);
-  group.add(explodeLeverHandle);
-  const explodeLbl = createTextPanel('Explode — separates assembly', {
-    widthMeters: 0.24, heightMeters: 0.05, fontSizePx: 12, align: 'center',
-    background: '#0f172a', color: '#94a3b8',
-  });
-  explodeLbl.position.set(-0.35, 0.78, 0.35);
-  group.add(explodeLbl);
-
   group.position.copy(position);
-
-  // Mark all parts for raycaster filtering (Req 48)
-  markExplodableParts(group);
-
   return group;
 }
 
@@ -431,29 +353,184 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   // fuel = orange 0xff7700, oxidiser = cyan 0x22d3ee
   const engineStands: THREE.Group[] = [];
 
-  const raptorStand = buildEngineStand(
+  const raptorStand = buildStandPedestal(
     'Raptor-class FFSC\nMethalox Engine',
     new THREE.Vector3(3, 0, -1),
-    0xff7700, 0x22d3ee, 380,
+    380,
   );
   root.add(raptorStand);
   engineStands.push(raptorStand);
 
-  const hydroloxStand = buildEngineStand(
+  const hydroloxStand = buildStandPedestal(
     'Hydrolox Staged\nCombustion Engine\n(e.g. Vinci/RL-10)',
     new THREE.Vector3(5, 0, -1),
-    0xff7700, 0x22d3ee, 450,
+    450,
   );
   root.add(hydroloxStand);
   engineStands.push(hydroloxStand);
 
-  const srmStand = buildEngineStand(
+  const srmStand = buildStandPedestal(
     'Solid Rocket Motor\n(Shuttle SRB-class)',
     new THREE.Vector3(7, 0, -1),
-    0xff7700, 0x22d3ee, 270,
+    270,
   );
   root.add(srmStand);
   engineStands.push(srmStand);
+
+  // ─── GLB Engine assets ───────────────────────────────────────────────────
+  // Load all three engines via AssetCache. Each engine is placed at y=0.9 (top of pedestal).
+  // Explode lever on each pedestal drives setExplodeAmount(). Pinch-pull wired.
+  // Flow paths (fuel=orange, oxidiser=cyan) played on liquid engines; none on SRM.
+  // Label shows part.label only (not description). Safety scope: system-level only (D-013).
+  const assetCache = new AssetCache();
+  const glbDisposals: Array<() => void> = [];
+  let primaryExplodeAssembly: any = null;
+
+  async function placeGlbEngine(options: {
+    url: string;
+    _standGroup: THREE.Group;
+    standPos: THREE.Vector3;
+    engineLabel: string;
+    ispValue: number;
+    hasFlows: boolean;
+    fuelFlowName?: string;
+    oxFlowName?: string;
+  }): Promise<void> {
+    const { url, standPos, engineLabel, ispValue, hasFlows, fuelFlowName, oxFlowName } = options;
+    try {
+      const loaded = await assetCache.load(url);
+      const engineScene = loaded.scene.clone();
+
+      // Scale to fit on pedestal (engines authored ~1 m; pedestal top at y=0.9)
+      const box = new THREE.Box3().setFromObject(engineScene);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const targetSize = 0.9; // metres — fits on pedestal
+      const scaleFactor = maxDim > 0 ? targetSize / maxDim : 1;
+      engineScene.scale.setScalar(scaleFactor);
+
+      // Centre X/Z, place on pedestal top (y=0.9)
+      const scaledBox = new THREE.Box3().setFromObject(engineScene);
+      engineScene.position.set(
+        standPos.x - (scaledBox.min.x + scaledBox.max.x) / 2,
+        0.9 - scaledBox.min.y,
+        standPos.z - (scaledBox.min.z + scaledBox.max.z) / 2,
+      );
+      // Face +Z toward learner (engines authored front = +Z per CONVENTIONS.md)
+      root.add(engineScene);
+
+      // Parse the placed scene instance so parts bind to actual cloned meshes
+      const parsed = parseAssetNodes(engineScene);
+
+      // Wire explodable adapter
+      const assembly = createExplodableFromAsset(parsed, engineScene as unknown as THREE.Group, {
+        onEvent: (ev) => {
+          if (ev.type === 'tap') {
+            // Show diegetic label next to tapped part (label only, not description per rules)
+            const labelTag = createTextPanel(ev.part.label, {
+              widthMeters: 0.22, heightMeters: 0.06, fontSizePx: 14, align: 'center',
+              background: '#0f172a', color: '#e2e8f0', accent: '#38bdf8',
+            });
+            const worldPos = new THREE.Vector3();
+            ev.part.object.getWorldPosition(worldPos);
+            labelTag.position.copy(worldPos).add(new THREE.Vector3(0, 0.12, 0));
+            root.add(labelTag);
+            // Auto-remove label after 4 s
+            setTimeout(() => { root.remove(labelTag); }, 4000);
+          }
+        },
+      });
+      engineScene.userData.explodableAssembly = assembly;
+      if (!primaryExplodeAssembly) primaryExplodeAssembly = assembly;
+
+      // Two-handed pinch-pull explode gesture (or direct tap/click on desktop) — NO LEVERS
+      const scalePinch = new SpatialScalePinchPrimitive(engineScene as unknown as THREE.Group, {
+        minScale: 0.8, maxScale: 1.4, preventObjectScale: true,
+        onExplodeFraction: (frac) => {
+          assembly.setExplodeAmount(frac);
+        },
+      });
+      engineScene.userData.scalePinchPrimitive = scalePinch;
+
+      // ISP readout label below lever
+      const ispPanel = createTextPanel(`${engineLabel}\nIsp ≈ ${ispValue} s`, {
+        widthMeters: 0.3, heightMeters: 0.08, fontSizePx: 13, align: 'center',
+        background: '#0f172a', color: '#38bdf8', accent: '#38bdf8', lines: 2,
+      });
+      ispPanel.position.set(standPos.x, 1.85, standPos.z);
+      root.add(ispPanel);
+
+      // Flow paths on liquid engines (orange = fuel, cyan = oxidiser)
+      const flowPlayers: FlowPathPlayer[] = [];
+      if (hasFlows) {
+        const fuelFlow = loaded.parsed.flows.find((f) => f.flowName === (fuelFlowName ?? 'flow-fuel'));
+        const oxFlow = loaded.parsed.flows.find((f) => f.flowName === (oxFlowName ?? 'flow-oxidiser'));
+        if (fuelFlow) {
+          const fp = new FlowPathPlayer({ flowPath: fuelFlow.flowPath, flowColor: 0xff7700, particleCount: 24, speed: 0.12 });
+          // Transform path by engine world matrix (apply engine position/scale)
+          fp.mesh.position.copy(engineScene.position);
+          fp.mesh.scale.copy(engineScene.scale);
+          root.add(fp.mesh);
+          flowPlayers.push(fp);
+        }
+        if (oxFlow) {
+          const fp = new FlowPathPlayer({ flowPath: oxFlow.flowPath, flowColor: 0x22d3ee, particleCount: 24, speed: 0.12 });
+          fp.mesh.position.copy(engineScene.position);
+          fp.mesh.scale.copy(engineScene.scale);
+          root.add(fp.mesh);
+          flowPlayers.push(fp);
+        }
+      }
+
+      glbDisposals.push(() => {
+        assetCache.release(url);
+        for (const fp of flowPlayers) {
+          fp.mesh.parent?.remove(fp.mesh);
+          (fp.mesh.geometry as THREE.BufferGeometry).dispose();
+        }
+        if (engineScene.parent) engineScene.parent.remove(engineScene);
+        ispPanel.parent?.remove(ispPanel);
+      });
+    } catch (err) {
+      // Diegetic error plaque on load failure
+      const errPlaque = createTextPanel(`⚠ Failed to load\n${engineLabel}`, {
+        widthMeters: 0.4, heightMeters: 0.1, fontSizePx: 14, align: 'center',
+        background: '#7f1d1d', color: '#fecaca', accent: '#ef4444', lines: 2,
+      });
+      errPlaque.position.set(standPos.x, 1.5, standPos.z);
+      root.add(errPlaque);
+      console.warn('[Aerospace] GLB load failed:', err);
+    }
+  }
+
+  // Fire all three engine loads in parallel
+  await Promise.all([
+    placeGlbEngine({
+      url: '/models/aerospace/engine_ffsc_methalox.glb',
+      _standGroup: raptorStand,
+      standPos: new THREE.Vector3(3, 0, -1),
+      engineLabel: 'FFSC Methalox',
+      ispValue: 380,
+      hasFlows: true,
+    }),
+    placeGlbEngine({
+      url: '/models/aerospace/engine_hydrolox_staged.glb',
+      _standGroup: hydroloxStand,
+      standPos: new THREE.Vector3(5, 0, -1),
+      engineLabel: 'Hydrolox Staged',
+      ispValue: 450,
+      hasFlows: true,
+    }),
+    placeGlbEngine({
+      url: '/models/aerospace/engine_srm.glb',
+      _standGroup: srmStand,
+      standPos: new THREE.Vector3(7, 0, -1),
+      engineLabel: 'Solid Rocket Motor',
+      ispValue: 270,
+      hasFlows: false, // SRM has no liquid flow paths
+    }),
+  ]);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Task 27: Wind tunnel section at z=−4 (Req 47, 49, 50)
@@ -539,7 +616,14 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
     particleSpeeds[p] = 0.8 + Math.random() * 0.6;
   }
   particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePositions, 3));
-  const particleMat = new THREE.PointsMaterial({ color: 0x7dd3fc, size: 0.028, transparent: true, opacity: 0.85 });
+  // Round points via the shared material: a bare PointsMaterial renders squares.
+  const particleMat = createRoundPointMaterial({
+    color: 0x7dd3fc,
+    size: 0.028,
+    opacity: 0.85,
+    additive: false,
+    depthWrite: false,
+  });
   const smokeParticles = new THREE.Points(particleGeo, particleMat);
   smokeParticles.name = 'wind-tunnel-particles';
   smokeParticles.raycast = () => {};
@@ -574,62 +658,57 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   stallLabel.position.set(-0.9, 0.42, 0);
   wingSparRoot.add(stallLabel);
 
-  // Flow on/off lever
-  const flowLeverPivot = new THREE.Group();
-  flowLeverPivot.name = 'wind-tunnel-flow-lever';
-  flowLeverPivot.position.set(-1.0, -0.45, 0.6);
-  const flowLeverBase = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.06, 0.06, 0.03, 16),
+  // Flow on/off slider
+  const flowSliderTrack = new THREE.Mesh(
+    new THREE.BoxGeometry(0.04, 0.02, 0.2),
     new THREE.MeshStandardMaterial({ color: 0x334155 }),
   );
-  flowLeverPivot.add(flowLeverBase);
-  const flowLeverHandle = new THREE.Mesh(
-    new THREE.BoxGeometry(0.025, 0.16, 0.025),
+  flowSliderTrack.position.set(-1.0, -0.45, 0.6);
+  wingSparRoot.add(flowSliderTrack);
+  const flowHandle = new THREE.Mesh(
+    new THREE.BoxGeometry(0.05, 0.04, 0.04),
     new THREE.MeshStandardMaterial({ color: 0x38bdf8, metalness: 0.5 }),
   );
-  flowLeverHandle.position.y = 0.08;
-  flowLeverPivot.add(flowLeverHandle);
-  const flowLever = new SpatialLeverPrimitive(flowLeverPivot, {
-    axis: 'z', minAngleDeg: -35, maxAngleDeg: 35,
-    onAngleChange: (_a, norm) => { flowEnabled = norm > 0.15; streamlineGroup.visible = flowEnabled; },
+  flowHandle.name = 'wind-tunnel-flow-slider';
+  flowHandle.position.set(-1.0, -0.42, 0.6);
+  wingSparRoot.add(flowHandle);
+  new SpatialSliderPrimitive(flowHandle, {
+    axis: 'z', minDistance: 0.52, maxDistance: 0.68,
+    onValueChange: (val) => { flowEnabled = val > 0.15; streamlineGroup.visible = flowEnabled; },
   });
-  flowLever.setAngle(35);
-  wingSparRoot.add(flowLeverPivot);
   // Label (Req 50)
-  const flowLbl = createTextPanel('Flow On/Off\n(0 = off, max = on)', {
+  const flowLbl = createTextPanel('Flow On/Off\n(slide to control flow)', {
     widthMeters: 0.22, heightMeters: 0.06, fontSizePx: 13, align: 'center',
     background: '#0f172a', color: '#94a3b8',
   });
   flowLbl.position.set(-1.0, -0.2, 0.6);
   wingSparRoot.add(flowLbl);
 
-  // Density lever
-  const densityLeverPivot = new THREE.Group();
-  densityLeverPivot.name = 'wind-tunnel-density-lever';
-  densityLeverPivot.position.set(-0.72, -0.45, 0.6);
-  densityLeverPivot.add(new THREE.Mesh(
-    new THREE.CylinderGeometry(0.05, 0.05, 0.025, 12),
+  // Density slider
+  const densitySliderTrack = new THREE.Mesh(
+    new THREE.BoxGeometry(0.04, 0.02, 0.2),
     new THREE.MeshStandardMaterial({ color: 0x334155 }),
-  ));
+  );
+  densitySliderTrack.position.set(-0.72, -0.45, 0.6);
+  wingSparRoot.add(densitySliderTrack);
   const densityHandle = new THREE.Mesh(
-    new THREE.BoxGeometry(0.022, 0.13, 0.022),
+    new THREE.BoxGeometry(0.05, 0.04, 0.04),
     new THREE.MeshStandardMaterial({ color: 0x7dd3fc, metalness: 0.5 }),
   );
-  densityHandle.position.y = 0.065;
-  densityLeverPivot.add(densityHandle);
-  const densityLever = new SpatialLeverPrimitive(densityLeverPivot, {
-    axis: 'z', minAngleDeg: -35, maxAngleDeg: 35,
-    onAngleChange: (_a, norm) => {
-      const density = 0.25 + norm * 0.75;
+  densityHandle.name = 'wind-tunnel-density-slider';
+  densityHandle.position.set(-0.72, -0.42, 0.6);
+  wingSparRoot.add(densityHandle);
+  new SpatialSliderPrimitive(densityHandle, {
+    axis: 'z', minDistance: 0.52, maxDistance: 0.68,
+    onValueChange: (val) => {
+      const density = 0.25 + val * 0.75;
       streamlineMat.opacity = density;
       particleMat.opacity = density;
-      smokeParticles.visible = norm > 0.05;
+      smokeParticles.visible = val > 0.05;
     },
   });
-  densityLever.setAngle(25);
-  wingSparRoot.add(densityLeverPivot);
   // Label (Req 50)
-  const densityLbl = createTextPanel('Flow Density\n(smoke opacity 0–100%)', {
+  const densityLbl = createTextPanel('Flow Density\n(slide opacity 0–100%)', {
     widthMeters: 0.22, heightMeters: 0.06, fontSizePx: 13, align: 'center',
     background: '#0f172a', color: '#94a3b8',
   });
@@ -699,102 +778,9 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   root.add(wingSparRoot);
 
   // ─────────────────────────────────────────────────────────────────────────
-  // Original rocket engine & systems (kept from prior implementation)
-  // Repositioned to x=+5 zone (Task 24.2)
+  // Nozzle plume (shock diamonds) — kept for the backpressure slider demo
+  // Now positioned in engine test hall near stand 2 (hydrolox)
   // ─────────────────────────────────────────────────────────────────────────
-  const rocketEngineRoot = new THREE.Group();
-  rocketEngineRoot.name = 'rocket-engine-exploded-assembly';
-  rocketEngineRoot.position.set(5.0, 1.2, -1.3);  // Task 24.2: engine test hall x=+5
-
-  const injectorGeo = new THREE.CylinderGeometry(0.24, 0.26, 0.12, 24);
-  const injectorMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, metalness: 0.8, roughness: 0.2 });
-  const injectorMesh = new THREE.Mesh(injectorGeo, injectorMat);
-  injectorMesh.position.y = 0.55;
-  injectorMesh.name = 'injector-dome';
-  rocketEngineRoot.add(injectorMesh);
-
-  const chamberGeo = new THREE.CylinderGeometry(0.25, 0.18, 0.28, 24);
-  const chamberMat = new THREE.MeshStandardMaterial({ color: 0x0284c7, metalness: 0.6, roughness: 0.3 });
-  const chamberMesh = new THREE.Mesh(chamberGeo, chamberMat);
-  chamberMesh.position.y = 0.35;
-  chamberMesh.name = 'combustion-chamber';
-  rocketEngineRoot.add(chamberMesh);
-
-  const turbopumpGroup = new THREE.Group();
-  turbopumpGroup.name = 'turbopump-assembly';
-  turbopumpGroup.position.set(0.35, 0.45, 0);
-  const loxPump = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.08, 0.08, 0.14, 16),
-    new THREE.MeshStandardMaterial({ color: 0x06b6d4 }),
-  );
-  loxPump.rotation.z = Math.PI / 2;
-  turbopumpGroup.add(loxPump);
-  const fuelPump = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.14, 16), new THREE.MeshStandardMaterial({ color: 0xf97316 }));
-  fuelPump.position.x = 0.18;
-  fuelPump.rotation.z = Math.PI / 2;
-  turbopumpGroup.add(fuelPump);
-  rocketEngineRoot.add(turbopumpGroup);
-
-  const coolingJacketGroup = new THREE.Group();
-  coolingJacketGroup.name = 'regenerative-cooling-jacket';
-  const helixPoints: THREE.Vector3[] = [];
-  for (let t = 0; t <= Math.PI * 12; t += 0.25) {
-    const y = 0.25 - (t / (Math.PI * 12)) * 0.5;
-    const radius = 0.16 + (0.25 - y) * 0.35;
-    helixPoints.push(new THREE.Vector3(Math.cos(t) * radius, y, Math.sin(t) * radius));
-  }
-  coolingJacketGroup.add(new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints(helixPoints),
-    new THREE.LineBasicMaterial({ color: 0x38bdf8 }),
-  ));
-  rocketEngineRoot.add(coolingJacketGroup);
-
-  const nozzleBellGeo = new THREE.CylinderGeometry(0.14, 0.38, 0.5, 24, 1, true);
-  const nozzleBellMesh = new THREE.Mesh(nozzleBellGeo, new THREE.MeshStandardMaterial({ color: 0x334155, metalness: 0.8, roughness: 0.25, side: THREE.DoubleSide }));
-  nozzleBellMesh.position.y = -0.05;
-  nozzleBellMesh.name = 'nozzle-bell';
-  rocketEngineRoot.add(nozzleBellMesh);
-
-  const explodeAssembly = new ExplodableAssembly(rocketEngineRoot);
-  explodeAssembly.addPart('injector', injectorMesh, { explodeDirection: new THREE.Vector3(0, 1, 0), explodeDistanceMeters: 0.35 });
-  explodeAssembly.addPart('chamber', chamberMesh, { explodeDirection: new THREE.Vector3(0, 0.8, 0), explodeDistanceMeters: 0.28 });
-  explodeAssembly.addPart('turbopump', turbopumpGroup, { explodeDirection: new THREE.Vector3(1, 0.2, 0), explodeDistanceMeters: 0.4 });
-  explodeAssembly.addPart('cooling-jacket', coolingJacketGroup, { explodeDirection: new THREE.Vector3(0, -0.3, 0.6), explodeDistanceMeters: 0.25 });
-  explodeAssembly.addPart('nozzle', nozzleBellMesh, { explodeDirection: new THREE.Vector3(0, -1, 0), explodeDistanceMeters: 0.35 });
-
-  // Task 28.1: Mark all explodable parts (Req 48.1)
-  markExplodableParts(rocketEngineRoot);
-
-  const explodeLeverPivot = new THREE.Group();
-  explodeLeverPivot.name = 'explode-lever';
-  explodeLeverPivot.position.set(0.55, -0.52, -1.35);
-  explodeLeverPivot.add(new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.07, 0.03, 16), new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.6, roughness: 0.4 })));
-  const leverHandle = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.18, 0.03), new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.5 }));
-  leverHandle.position.y = 0.09;
-  explodeLeverPivot.add(leverHandle);
-  const explodeLever = new SpatialLeverPrimitive(explodeLeverPivot, {
-    axis: 'x', minAngleDeg: -40, maxAngleDeg: 40,
-    onAngleChange: (_a, norm) => explodeAssembly.setExplodeAmount(norm),
-  });
-  explodeLever.setAngle(-40);
-  rocketEngineRoot.add(explodeLeverPivot);
-  // Label (Req 50)
-  const explodeLbl = createTextPanel('Explode lever — separates engine parts\n(full back = assembled, full forward = exploded)', {
-    widthMeters: 0.4, heightMeters: 0.07, fontSizePx: 13, align: 'center',
-    background: '#0f172a', color: '#94a3b8',
-  });
-  explodeLbl.position.set(0.55, -0.2, -1.35);
-  rocketEngineRoot.add(explodeLbl);
-
-  const engineScalePinch = new SpatialScalePinchPrimitive(rocketEngineRoot, {
-    minScale: 1.0, maxScale: 2.2, preventObjectScale: true,
-    onExplodeFraction: (frac) => { explodeAssembly.setExplodeAmount(frac); explodeLever.setAngle(-40 + frac * 80); },
-  });
-  rocketEngineRoot.userData.scalePinchPrimitive = engineScalePinch;
-  rocketEngineRoot.userData.explodableAssembly = explodeAssembly;
-  root.add(rocketEngineRoot);
-
-  // Engine cycle rotator plinth
   const cycleDialGeo = new THREE.CylinderGeometry(0.14, 0.14, 0.06, 16);
   const cycleDial = new THREE.Mesh(cycleDialGeo, new THREE.MeshStandardMaterial({ color: 0x475569 }));
   cycleDial.position.set(5.6, 0.8, -1.0);
@@ -813,10 +799,11 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
       const step = 360 / cycleKeys.length;
       const idx = Math.abs(Math.round(angleDeg / step)) % cycleKeys.length;
       const cycle = ROCKET_ENGINE_CYCLES[cycleKeys[idx]];
-      if (cycle.id.includes('fuel-rich')) chamberMat.color.setHex(0xf97316);
-      else if (cycle.id.includes('oxidizer-rich')) chamberMat.color.setHex(0x06b6d4);
-      else if (cycle.id.includes('full-flow')) chamberMat.color.setHex(0x8b5cf6);
-      else chamberMat.color.setHex(0x0284c7);
+      const dialMat = cycleDial.material as THREE.MeshStandardMaterial;
+      if (cycle.id.includes('fuel-rich')) dialMat.color.setHex(0xf97316);
+      else if (cycle.id.includes('oxidizer-rich')) dialMat.color.setHex(0x06b6d4);
+      else if (cycle.id.includes('full-flow')) dialMat.color.setHex(0x8b5cf6);
+      else dialMat.color.setHex(0x0284c7);
     },
   });
 
@@ -940,12 +927,12 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
 
   const dispose = (): void => {
     wingPitchSlider.handleMesh.parent?.remove(wingPitchSlider.handleMesh);
-    delete injectorMesh.userData.grabPrimitive;
-    delete injectorMesh.userData.isGrabbable;
     cycleRotator.dialObject.parent?.remove(cycleRotator.dialObject);
     nozzlePressureSlider.handleMesh.parent?.remove(nozzlePressureSlider.handleMesh);
     anchorPrimitive.dispose();
     if (safetyTexture) safetyTexture.dispose();
+    // Release GLB engines and their flows
+    for (const cleanup of glbDisposals) cleanup();
     root.traverse((obj) => {
       if ((obj as THREE.Mesh).isMesh || (obj as THREE.Line).isLine) {
         const mesh = obj as THREE.Mesh;
@@ -960,12 +947,11 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
   return {
     root,
     wingSparRoot,
-    rocketEngineRoot,
     nozzlePlumeRoot,
     taifaCubeSatRoot,
     anchorPrimitive,
     wingPitchSlider,
-    explodeAssembly,
+    explodeAssembly: primaryExplodeAssembly,
     cycleRotator,
     nozzlePressureSlider,
     update,
@@ -978,13 +964,14 @@ export async function buildAerospaceScene(): Promise<AerospaceSceneComponents> {
  * Hangar room (floor + 3 walls + ceiling + 4 light fixtures): ~600 tris
  * Safety plinth + sign: ~80 tris
  * Helicopter exhibit: ~444 tris
- * 3 engine stands (pedestal + nozzle + lines + labels): ~900 tris
- * Main rocket engine assembly (5 parts + helix + plume): ~1,200 tris
+ * 3 engine stand pedestals (box each): ~300 tris
+ * GLB engines (3 × ~20k tris avg): ~60,000 tris — well under 180-draw ceiling
  * Wind tunnel aerofoil (ExtrudeGeometry): ~800 tris
  * Streamline LineSegments (16 × 24 segments): 0 tris (lines)
  * Smoke particles: 0 tris (points)
  * Taifa-1 CubeSat: ~40 tris
- * Text panels (~50 × 2 tris): ~100 tris
- * Triangles total: ~4,164 / working target 150,000 / ceiling 250,000
- * Draw calls: ~55 / working target 108 / ceiling 180
+ * Text panels (~40 × 2 tris): ~80 tris
+ * Triangles total: ~62,000 / working target 150,000 / ceiling 250,000
+ * Draw calls: ~70 / working target 108 / ceiling 180
+ * NOT measured on device.
  */

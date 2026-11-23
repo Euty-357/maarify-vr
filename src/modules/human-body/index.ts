@@ -3,6 +3,7 @@ import type { ModuleDefinition } from '../../core/types.js';
 import { buildHumanBodyScene, type HumanBodySceneComponents } from './scene.js';
 import { getChallenges } from './challenges.js';
 import { getSpatialAnchors } from './anchors.js';
+import { getMissions } from './missions.js';
 import { MEDICINE_ATRIUM, MEDICINE_WINGS } from './sections.js';
 
 let activeScene: HumanBodySceneComponents | null = null;
@@ -42,6 +43,7 @@ const moduleDef: ModuleDefinition = {
 
   getChallenges,
   getSpatialAnchors,
+  missions: getMissions(),
 
   isWalkable(pos: THREE.Vector3): boolean {
     // Atrium footprint: circle of radius 4.7 m

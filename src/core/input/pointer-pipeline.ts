@@ -12,6 +12,21 @@
  * - No aim-assist cone, no nearest-target magnetism.
  * - Per-hand ownership: each hand is an independent state machine.
  *
+ * Relationship to `src/core/input/ray-hit.ts` (the shared hit rule):
+ * - `ray-hit.ts` is the SINGLE pure rule for "may this hit stop the beam?".
+ *   It knows about the visibility rule and about which userData primitives make
+ *   an object interactive.
+ * - This pipeline is the per-hand STATE MACHINE on top of that rule: hover
+ *   enter/exit with hysteresis, press/drag/release transitions, and which
+ *   primitive a press activates.
+ * - The two are deliberately not merged: `ray-hit.ts` must stay pure and
+ *   dependency-free so it can be unit-tested without a scene, while this class
+ *   owns mutable per-hand state.
+ * - This pipeline is currently not wired into main.ts (main.ts resolves hover
+ *   and press itself through the shared primitives). It is kept because it is
+ *   the intended home for per-hand hover state, and it now shares the same
+ *   visibility rule. See docs/DECISIONS.md D-018.
+ *
  * NOT verified on headset.
  */
 
@@ -20,6 +35,7 @@ import type { SpatialGrabPrimitive } from './primitives/grab.js';
 import type { SpatialLeverPrimitive } from './primitives/lever.js';
 import type { SpatialSliderPrimitive } from './primitives/slider.js';
 import type { SpatialRotatorPrimitive } from './primitives/rotator.js';
+import { isHiddenInHierarchy } from './ray-hit.js';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -144,8 +160,12 @@ export class PointerPipeline {
     this.raycaster.far = this.maxDistance;
     const hits = this.raycaster.intersectObjects(candidates, true);
 
-    // Map hits back from proxies to their logical interactables
-    const resolvedHit = hits.length > 0 ? hits[0] : null;
+    // Map hits back from proxies to their logical interactables.
+    // The same visibility rule as the rest of the app applies: an invisible
+    // object (or an object under an invisible ancestor) never stops the beam,
+    // because THREE.Raycaster reports intersections for hidden objects.
+    const visibleHits = hits.filter((h) => !isHiddenInHierarchy(h.object));
+    const resolvedHit = visibleHits.length > 0 ? visibleHits[0] : null;
     let hitObject: THREE.Object3D | null = null;
     if (resolvedHit) {
       // Walk up to find the registered object

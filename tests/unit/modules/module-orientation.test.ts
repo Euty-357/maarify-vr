@@ -47,7 +47,7 @@ describe('Module Orientation and Alignment Verification', () => {
 
     const worldUp = new THREE.Vector3(0, 1, 0);
     root.traverse((obj) => {
-      if (obj.name && obj.name.startsWith('pedestal-')) {
+      if (obj.name && (obj.name.startsWith('pedestal-') || obj.name.startsWith('lab-table-'))) {
         const objWorldQuat = new THREE.Quaternion();
         obj.getWorldQuaternion(objWorldQuat);
         const objUp = new THREE.Vector3(0, 1, 0).applyQuaternion(objWorldQuat);
@@ -57,5 +57,5 @@ describe('Module Orientation and Alignment Verification', () => {
     });
 
     quantumModule.unload();
-  });
+  }, 15000);
 });

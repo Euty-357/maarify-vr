@@ -5,7 +5,7 @@ export function getSpatialAnchors(): SpatialAnchorDefinition[] {
   return [
     {
       id: 'quantum-anchor-bloch-sphere',
-      anchorPosition: new THREE.Vector3(0, 1.3, -1.0),
+      anchorPosition: new THREE.Vector3(-2.0, 1.15, -1.8),
       label: 'The Bloch Sphere (Qubit Geometry)',
       level1Note:
         'A geometric representation of pure qubit states. North pole is |0>, south pole is |1>, and points along the equator represent equal superpositions.',
@@ -33,7 +33,7 @@ export function getSpatialAnchors(): SpatialAnchorDefinition[] {
     },
     {
       id: 'quantum-anchor-double-slit',
-      anchorPosition: new THREE.Vector3(1.0, 1.2, -1.2),
+      anchorPosition: new THREE.Vector3(2.0, 1.05, -3.4),
       label: 'Wave-Particle Duality & Observer Effect',
       level1Note:
         'Particles pass through both slits as a probability wave creating an interference fringe pattern, until measurement forces a single definite path.',
@@ -61,7 +61,7 @@ export function getSpatialAnchors(): SpatialAnchorDefinition[] {
     },
     {
       id: 'quantum-anchor-cryostat',
-      anchorPosition: new THREE.Vector3(-1.0, 1.4, -1.2),
+      anchorPosition: new THREE.Vector3(0, 1.4, -2.2),
       label: 'Dilution Refrigerator (15 mK)',
       level1Note:
         'Cooling transmon circuits to 15 millikelvin (-273.13°C) prevents thermal energy (k_B * T) from exciting qubits out of their ground state.',
@@ -89,7 +89,7 @@ export function getSpatialAnchors(): SpatialAnchorDefinition[] {
     },
     {
       id: 'quantum-anchor-entanglement',
-      anchorPosition: new THREE.Vector3(0, 1.1, 0.5),
+      anchorPosition: new THREE.Vector3(-2.0, 1.05, -3.4),
       label: 'Bell State Entanglement',
       level1Note:
         'Two entangled photons share a single composite wavefunction (|00> + |11>)/sqrt(2). Measuring one instantly defines the other across space.',

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { getSpatialAnchors } from './anchors.js';
 import {
   SpatialAnchorPrimitive,
-  SpatialLeverPrimitive,
+  SpatialSliderPrimitive,
   SpatialRotatorPrimitive,
   SpatialGrabPrimitive,
 } from '../../core/input/primitives/index.js';
@@ -15,7 +15,7 @@ export interface EnvironmentSceneComponents {
   naivashaRoot: THREE.Group;
   mangroveRoot: THREE.Group;
   anchorPrimitive: SpatialAnchorPrimitive;
-  timeScrubLever: SpatialLeverPrimitive;
+  timeScrubSlider: SpatialSliderPrimitive;
   naivashaValve: SpatialRotatorPrimitive;
   stakeholderSim: StakeholderSimulation;
   update: (deltaSeconds: number) => void;
@@ -119,19 +119,25 @@ export async function buildEnvironmentScene(): Promise<EnvironmentSceneComponent
   );
   timeStation.add(leverPedestal);
 
-  const leverBase = new THREE.Group();
-  leverBase.position.y = 0.45;
-  const leverArm = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.02, 0.02, 0.35, 8),
-    new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.8 })
+  const sliderTrack = new THREE.Mesh(
+    new THREE.BoxGeometry(0.04, 0.02, 0.35),
+    new THREE.MeshStandardMaterial({ color: 0x334155 }),
   );
-  leverArm.position.y = 0.175;
-  leverBase.add(leverArm);
-  timeStation.add(leverBase);
+  sliderTrack.position.y = 0.45;
+  timeStation.add(sliderTrack);
 
-  const timeScrubLever = new SpatialLeverPrimitive(leverBase, {
-    minAngleDeg: -40,
-    maxAngleDeg: 40,
+  const sliderHandle = new THREE.Mesh(
+    new THREE.BoxGeometry(0.06, 0.04, 0.04),
+    new THREE.MeshStandardMaterial({ color: 0xd97706, metalness: 0.8 }),
+  );
+  sliderHandle.name = 'environment-time-scrub-slider';
+  sliderHandle.position.set(0, 0.48, -0.15);
+  timeStation.add(sliderHandle);
+
+  const timeScrubSlider = new SpatialSliderPrimitive(sliderHandle, {
+    axis: 'z',
+    minDistance: -0.15,
+    maxDistance: 0.15,
   });
   root.add(timeStation);
 
@@ -398,8 +404,8 @@ export async function buildEnvironmentScene(): Promise<EnvironmentSceneComponent
   function update(deltaSeconds: number): void {
     animTime += deltaSeconds;
 
-    // Time scrub lever adjusts simulated year (1980 to 2024)
-    const angleRatio = timeScrubLever.normalizedValue; // 0 to 1
+    // Time scrub slider adjusts simulated year (1980 to 2024)
+    const angleRatio = timeScrubSlider.value; // 0 to 1
     simulatedYear = Math.round(1980 + angleRatio * 44);
 
     // Tree canopy scale reflects historical forest cover loss over time
@@ -435,7 +441,7 @@ export async function buildEnvironmentScene(): Promise<EnvironmentSceneComponent
     naivashaRoot,
     mangroveRoot,
     anchorPrimitive,
-    timeScrubLever,
+    timeScrubSlider,
     naivashaValve,
     stakeholderSim,
     update,

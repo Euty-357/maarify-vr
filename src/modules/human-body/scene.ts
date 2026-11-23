@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { createHeartAnatomyMesh, HIV_STRUCTURAL_COMPONENTS } from './anatomy.js';
 import { getSpatialAnchors } from './anchors.js';
 import { MEDICINE_WINGS } from './sections.js';
 import { BloodFlowSystem } from './blood-flow.js';
@@ -11,6 +10,10 @@ import {
   SpatialGrabPrimitive,
   SpatialRotatorPrimitive,
 } from '../../core/input/primitives/index.js';
+import { AssetCache } from '../../core/assets/asset-cache.js';
+import { parseAssetNodes } from '../../core/assets/asset-parser.js';
+import { createExplodableFromAsset } from '../../core/assets/explodable-adapter.js';
+import { FlowPathPlayer } from '../../core/assets/flow-path-player.js';
 
 export interface HumanBodySceneComponents {
   root: THREE.Group;
@@ -232,6 +235,103 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   }
   root.add(disclaimerGroup);
 
+  // GLB asset cache for heart_cutaway, hiv_virion_cutaway, hiv_art_bench
+  const assetCache = new AssetCache();
+  const glbDisposals: Array<() => void> = [];
+
+  async function placeHumanBodyAsset(url: string, container: THREE.Group, position: THREE.Vector3, options?: {
+    rotationY?: number;
+    fitToHeight?: number;
+    explodable?: boolean;
+    hasFlows?: boolean;
+    label?: string;
+    onLoaded?: (scene: THREE.Object3D, assembly?: any) => void;
+  }): Promise<void> {
+    try {
+      const loaded = await assetCache.load(url);
+      const assetScene = loaded.scene.clone();
+
+      // Parse the freshly cloned scene so parts bind directly to actual cloned meshes
+      const parsed = parseAssetNodes(assetScene);
+
+      // Scale to fit
+      const box = new THREE.Box3().setFromObject(assetScene);
+      const size = new THREE.Vector3();
+      box.getSize(size);
+      const maxDim = Math.max(size.x, size.y, size.z);
+      const targetHeight = options?.fitToHeight ?? 0.4;
+      const scaleFactor = maxDim > 0 ? targetHeight / maxDim : 1;
+      assetScene.scale.setScalar(scaleFactor);
+
+      // Centre X/Z, place with bottom at position.y
+      const scaledBox = new THREE.Box3().setFromObject(assetScene);
+      assetScene.position.set(
+        position.x - (scaledBox.min.x + scaledBox.max.x) / 2,
+        position.y - scaledBox.min.y,
+        position.z - (scaledBox.min.z + scaledBox.max.z) / 2,
+      );
+      if (options?.rotationY) assetScene.rotation.y = options.rotationY;
+      container.add(assetScene);
+
+      let assembly: any = null;
+      if (options?.explodable) {
+        assembly = createExplodableFromAsset(parsed, assetScene as unknown as THREE.Group, {
+          onEvent: (ev) => {
+            if (ev.type === 'tap') {
+              // Show label only (not description per content rules)
+              const tag = createTextPanel(ev.part.label, {
+                widthMeters: 0.22, heightMeters: 0.06, fontSizePx: 14, align: 'center',
+                background: '#0f172a', color: '#e2e8f0', accent: '#38bdf8',
+              });
+              const wp = new THREE.Vector3();
+              ev.part.object.getWorldPosition(wp);
+              tag.position.copy(wp).add(new THREE.Vector3(0, 0.1, 0));
+              container.add(tag);
+              setTimeout(() => { container.remove(tag); }, 4000);
+            }
+          },
+        });
+        const pinch = new SpatialScalePinchPrimitive(assetScene as unknown as THREE.Group, {
+          minScale: 0.8, maxScale: 2.0, preventObjectScale: true,
+          onExplodeFraction: (frac) => assembly.setExplodeAmount(frac),
+        });
+        assetScene.userData.explodableAssembly = assembly;
+        assetScene.userData.scalePinchPrimitive = pinch;
+      }
+
+      const flowPlayers: FlowPathPlayer[] = [];
+      if (options?.hasFlows) {
+        for (const flow of parsed.flows) {
+          const colorHex = flow.flowColor ?? 0x38bdf8;
+          const fp = new FlowPathPlayer({ flowPath: flow.flowPath, flowColor: colorHex, particleCount: 24, speed: 0.1 });
+          fp.mesh.position.copy(assetScene.position);
+          fp.mesh.scale.copy(assetScene.scale);
+          container.add(fp.mesh);
+          flowPlayers.push(fp);
+        }
+      }
+
+      options?.onLoaded?.(assetScene, assembly);
+
+      glbDisposals.push(() => {
+        assetCache.release(url);
+        for (const fp of flowPlayers) {
+          fp.mesh.parent?.remove(fp.mesh);
+          (fp.mesh.geometry as THREE.BufferGeometry).dispose();
+        }
+        if (assetScene.parent) assetScene.parent.remove(assetScene);
+      });
+    } catch (err) {
+      const errPlaque = createTextPanel(`⚠ Failed to load\n${options?.label ?? url.split('/').pop()}`, {
+        widthMeters: 0.4, heightMeters: 0.1, fontSizePx: 14, align: 'center',
+        background: '#7f1d1d', color: '#fecaca', accent: '#ef4444', lines: 2,
+      });
+      errPlaque.position.copy(position).add(new THREE.Vector3(0, 0.6, 0));
+      container.add(errPlaque);
+      console.warn('[HumanBody] GLB load failed:', err);
+    }
+  }
+
   // Build wing rooms
   const wingRooms = new Map<string, THREE.Group>();
   MEDICINE_WINGS.forEach(({ section, setting }, index) => {
@@ -242,26 +342,30 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   });
 
   // ─────────────────────────────────────────────────────────────
-  // HEART WING
+  // HEART WING — GLB heart_cutaway
   // ─────────────────────────────────────────────────────────────
   const heartRoom = wingRooms.get('heart')!;
+  // heartRoot is a stable reference for blood flow origin
   const heartRoot = new THREE.Group();
   heartRoot.name = 'beating-heart-assembly';
-  heartRoot.position.set(0, 1.25, 0);
-
-  const heartAnatomy = createHeartAnatomyMesh();
-  heartRoot.add(heartAnatomy);
-
-  // Valve leaflets
-  const valveFlapMat = new THREE.MeshStandardMaterial({ color: 0xfecdd3, roughness: 0.3, side: THREE.DoubleSide });
-  const leftLeaflet = new THREE.Mesh(new THREE.PlaneGeometry(0.06, 0.08), valveFlapMat);
-  leftLeaflet.position.set(0.06, 0.12, 0); leftLeaflet.rotation.y = Math.PI / 4; heartRoot.add(leftLeaflet);
-  const rightLeaflet = new THREE.Mesh(new THREE.PlaneGeometry(0.06, 0.08), valveFlapMat);
-  rightLeaflet.position.set(0.10, 0.12, 0); rightLeaflet.rotation.y = -Math.PI / 4; heartRoot.add(rightLeaflet);
+  heartRoot.position.set(0, 0, 0);
   heartRoom.add(heartRoot);
 
+  // Load heart_cutaway GLB — placed at y=0.9 (pedestal level), facing learner (+Z)
+  await placeHumanBodyAsset(
+    '/models/human-body/heart_cutaway.glb',
+    heartRoot,
+    new THREE.Vector3(0, 0.9, 0),
+    {
+      fitToHeight: 0.4, // heart authored at 0.32 m; fit to 0.4 m
+      explodable: true,
+      hasFlows: true,   // flow-deoxygenated (blue) + flow-oxygenated (red) from asset
+      label: 'Heart Cutaway',
+    },
+  );
+
   const bloodFlow = new BloodFlowSystem();
-  bloodFlow.group.position.copy(heartRoot.position);
+  bloodFlow.group.position.set(0, 0.9, 0);
   heartRoom.add(bloodFlow.group);
 
   // ECG readout label
@@ -281,8 +385,6 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   const heartPressureSlider = new SpatialSliderPrimitive(sliderHandle, {
     axis: 'y', minDistance: 0.75, maxDistance: 0.95,
     onValueChange: (val) => {
-      const closureAngle = (val * Math.PI) / 3;
-      leftLeaflet.rotation.z = closureAngle; rightLeaflet.rotation.z = -closureAngle;
       bloodFlow.setHeartRate(val);
     },
   });
@@ -637,67 +739,59 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   cancerRoom.add(cancerHint);
 
   // ─────────────────────────────────────────────────────────────
-  // HIV WING
+  // HIV WING — GLB assets
   // ─────────────────────────────────────────────────────────────
   const hivRoom = wingRooms.get('hiv')!;
   const hivVirionRoot = new THREE.Group();
   hivVirionRoot.name = 'hiv-virion-assembly';
   hivVirionRoot.position.set(0, 1.25, 0);
   hivVirionRoot.rotation.y = Math.PI;
-
-  const envMesh = new THREE.Mesh(
-    new THREE.SphereGeometry(0.28, 20, 20),
-    new THREE.MeshStandardMaterial({ color: 0x475569, transparent: true, opacity: 0.45, wireframe: true }),
-  );
-  hivVirionRoot.add(envMesh);
-
-  const spikeList: THREE.Mesh[] = [];
-  for (let s = 0; s < 12; s++) {
-    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.06, 8), new THREE.MeshStandardMaterial({ color: 0xef4444 }));
-    const phi = Math.acos(2 * Math.random() - 1);
-    const theta = Math.random() * Math.PI * 2;
-    spike.position.set(0.3 * Math.sin(phi) * Math.cos(theta), 0.3 * Math.sin(phi) * Math.sin(theta), 0.3 * Math.cos(phi));
-    spike.lookAt(0, 0, 0); spike.rotateX(Math.PI / 2);
-    spikeList.push(spike); hivVirionRoot.add(spike);
-  }
-
-  const capsidMesh = new THREE.Mesh(
-    new THREE.ConeGeometry(0.10, 0.22, 12),
-    new THREE.MeshStandardMaterial({ color: 0x3b82f6, metalness: 0.6, roughness: 0.3 }),
-  );
-  hivVirionRoot.add(capsidMesh);
-
-  HIV_STRUCTURAL_COMPONENTS.forEach((comp, idx) => {
-    if (idx >= 2) {
-      const glob = new THREE.Mesh(new THREE.DodecahedronGeometry(0.025, 0), new THREE.MeshStandardMaterial({ color: comp.color }));
-      glob.position.set((idx - 3) * 0.05, 0, 0);
-      hivVirionRoot.add(glob);
-    }
-  });
   hivRoom.add(hivVirionRoot);
 
   const hivScalePinch = new SpatialScalePinchPrimitive(hivVirionRoot, {
     minScale: 0.8, maxScale: 2.2,
-    onExplodeFraction: (frac) => {
-      spikeList.forEach((spike) => spike.position.setLength(0.3 + frac * 0.25));
-      capsidMesh.scale.setScalar(1.0 + frac * 0.5);
-    },
   });
 
-  // Drug class placement bench — 5 labelled pegs for ART drug classes
-  const artBench = new THREE.Group();
-  artBench.name = 'art-drug-bench';
-  artBench.position.set(-1.2, 0.0, 0.5);
-  const artBenchTop = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.06, 0.5), new THREE.MeshStandardMaterial({ color: 0x1e293b, metalness: 0.5 }));
-  artBenchTop.position.y = 0.78;
-  artBench.add(artBenchTop);
-  HIV_STRUCTURAL_COMPONENTS.forEach((comp, i) => {
-    const peg = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.09, 10), new THREE.MeshStandardMaterial({ color: comp.color, emissive: comp.color, emissiveIntensity: 0.3 }));
-    peg.position.set(-0.52 + i * 0.26, 0.835, 0);
-    peg.userData.activate = () => { peg.scale.setScalar(1.4); window.setTimeout(() => peg.scale.setScalar(1.0), 400); };
-    artBench.add(peg);
-  });
-  hivRoom.add(artBench);
+  // Load HIV GLB assets in parallel
+  await Promise.all([
+    placeHumanBodyAsset(
+      '/models/human-body/hiv_virion_cutaway.glb',
+      hivVirionRoot,
+      new THREE.Vector3(0, 0, 0),
+      {
+        fitToHeight: 0.5,
+        explodable: true,
+        label: 'HIV Virion Cutaway',
+        onLoaded: (sc) => {
+          hivVirionRoot.userData.explodableAssembly = sc.userData.explodableAssembly;
+        },
+      },
+    ),
+    placeHumanBodyAsset(
+      '/models/human-body/hiv_art_bench.glb',
+      hivRoom,
+      new THREE.Vector3(-1.2, 0.0, 0.5),
+      { fitToHeight: 0.8, label: 'ART Drug Bench' },
+    ),
+    placeHumanBodyAsset(
+      '/models/human-body/hiv_integrase_insti.glb',
+      hivRoom,
+      new THREE.Vector3(1.2, 0.85, 0.5),
+      { fitToHeight: 0.4, label: 'Integrase INSTI' },
+    ),
+    placeHumanBodyAsset(
+      '/models/human-body/hiv_cd4_cell.glb',
+      hivRoom,
+      new THREE.Vector3(-1.0, 1.1, -1.0),
+      { fitToHeight: 0.5, label: 'CD4 T-Cell' },
+    ),
+    placeHumanBodyAsset(
+      '/models/human-body/hiv_cd8_ctl.glb',
+      hivRoom,
+      new THREE.Vector3(1.0, 1.1, -1.0),
+      { fitToHeight: 0.5, label: 'CD8 CTL' },
+    ),
+  ]);
 
   // Viral load canvas graph (Requirements 30.1, 30.2)
   if (typeof document !== 'undefined') {
@@ -989,7 +1083,7 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
 
     heartbeatPhase += deltaSeconds * 1.2 * Math.PI * 2;
     const pulse = 1.0 + Math.sin(heartbeatPhase) * 0.04;
-    heartAnatomy.scale.set(pulse, pulse, pulse);
+    heartRoot.scale.set(pulse, pulse, pulse);
 
     hivVirionRoot.rotation.y += 0.3 * deltaSeconds;
     tumor.rotation.y += 0.1 * deltaSeconds;
@@ -999,6 +1093,7 @@ export async function buildHumanBodyScene(): Promise<HumanBodySceneComponents> {
   function dispose(): void {
     bloodFlow.dispose();
     anchorPrimitive.dispose();
+    for (const cleanup of glbDisposals) cleanup();
   }
 
   return {

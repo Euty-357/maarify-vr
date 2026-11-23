@@ -4,7 +4,7 @@ import { DiegeticSpatialAnchor } from '../../../src/core/spatial-anchors/diegeti
 import { SpatialAnchorPrimitive } from '../../../src/core/input/primitives/anchor.js';
 
 describe('Diegetic Spatial Anchor State Machine', () => {
-  it('initializes in collapsed/resting state with leader line and tag', () => {
+  it('initializes in collapsed/resting state with a hidden tag and micro-sim', () => {
     const anchor = new DiegeticSpatialAnchor(
       'test-anchor',
       new THREE.Vector3(0, 1.2, -1.0),
@@ -105,18 +105,23 @@ describe('Diegetic Spatial Anchor State Machine', () => {
     // Collapsed by default
     expect(anchor.isExpanded).toBe(false);
 
-    const indicator = anchor.getObjectByName('anchor-indicator-indicator-test') as THREE.Mesh;
-    expect(indicator).toBeDefined();
-    // Information System V3: no persistent floating glyphs (collapsed indicator hidden by default)
-    expect(indicator.visible).toBe(false);
-    expect(indicator.userData.isAnchorIndicator).toBe(true);
+    const indicator = anchor.getObjectByName('anchor-indicator-indicator-test') as THREE.Mesh | undefined;
+    // Information System V3: the floating "i" badge was replaced by engraved
+    // brass placards. The badge and the leader line are DELETED, not merely
+    // hidden, so they cannot leak a geometry, a material and a canvas texture
+    // per anchor and cannot draw a leftover ray.
+    expect(indicator).toBeUndefined();
+
+    const leaderLine = anchor.children.find(
+      (child) => child instanceof THREE.Line || child instanceof THREE.LineSegments,
+    );
+    expect(leaderLine).toBeUndefined();
 
     const tag = anchor.getObjectByName('anchor-tag-indicator-test') as THREE.Mesh;
     expect(tag).toBeDefined();
     expect(tag.visible).toBe(false);
 
-    // Both must use FrontSide material so text/glyph cannot be viewed mirrored from behind
-    expect((indicator.material as THREE.Material).side).toBe(THREE.FrontSide);
+    // The tag must use FrontSide material so text cannot be viewed mirrored from behind
     expect((tag.material as THREE.Material).side).toBe(THREE.FrontSide);
   });
 

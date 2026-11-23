@@ -32,6 +32,15 @@
 - [x] `AERO-01c` Wind-tunnel flow defaults on with batched streamlines, particles, on/off and density levers, and screenshot-pixel E2E coverage
 - [ ] `AERO-02` Claim-level source review, four reviewer passes, headset checks and draw-call reduction toward the 108 working target
 
+## Asset Pipeline & Course Choreography (WP1–WP7)
+- [x] `ASSET-01` WP1: GLB pipeline (`src/core/assets/`), `loadGlbAsset`, `parseAssetNodes`, `AssetCache`, `scripts/sync-assets.mjs` (`npm run sync:assets`), `registry.generated.ts`, test fixtures and unit tests
+- [x] `ASSET-02` WP2: Explodable adapter (`createExplodableFromAsset`), direction normalization, non-moving parts, `setExplodeAmount`, rest-pose restore, highlight, tap/hover events, tests
+- [x] `ASSET-03` WP3: Docking system (`DockingSystem`), grab-and-slot interactions, snapRadius, acceptsPegId/acceptsGateIds, docked/rejected/undocked events, tests
+- [x] `ASSET-04` WP4: Flow player (`FlowPathPlayer`), Catmull-Rom particle spline on fixed timestep, dynamic quality integration, `BloodFlowSystem` refactored with fallback, tests
+- [x] `ASSET-05` WP5: Budgets (`scripts/check-asset-budgets.mjs`), per-asset table, worst-case station check, draw-call risk analysis, static part merge proposal
+- [x] `ASSET-06` WP6: Asset Lab (`src/modules/asset-lab`), dev shelf, 1m placement, explode lever, scrub bar, diegetic part tags, flow toggle, dock socket, stats panel
+- [x] `ASSET-07` WP7: Course and choreography drafts (`ASSET_PLAN.md` & `asset-plan.ts` for aerospace, human-body, quantum), ordered steps, success conditions, source citations, safety scope compliance
+
 ## Phase 0: Environment & Portability
 - [x] `P0-01` Verify node, npm, git versions
 - [x] `P0-02` Create folder structure (src/, tests/, scripts/, docs/, assets/, .agents/)

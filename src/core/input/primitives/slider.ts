@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { ActiveTuning } from '../../../config/tuning.js';
 import { triggerHapticPulse } from '../../haptics/haptics.js';
+import { courseEventBus } from '../../course/event-bus.js';
 
 export interface SliderOptions {
   axis?: 'x' | 'y' | 'z';
@@ -8,6 +9,8 @@ export interface SliderOptions {
   maxDistance?: number;
   snapSteps?: number;
   onValueChange?: (normalizedValue: number) => void;
+  /** Stable id used by the course system to identify this control. */
+  courseId?: string;
 }
 
 export class SpatialSliderPrimitive {
@@ -34,11 +37,18 @@ export class SpatialSliderPrimitive {
     this.value = Math.max(0.0, Math.min(1.0, val));
     this.updatePositionFromValue();
     this.options.onValueChange?.(this.value);
+    this.publishChange();
   }
 
   private updatePositionFromValue(): void {
     const pos = this.minPos + this.value * (this.maxPos - this.minPos);
     this.handleMesh.position[this.axis] = pos;
+  }
+
+  /** Publish the change to the course bus so missions can observe it. */
+  private publishChange(): void {
+    const id = this.options.courseId ?? this.handleMesh.name;
+    courseEventBus.emit('sliderChanged', id, this.value);
   }
 
   public updateDrag(
@@ -68,6 +78,7 @@ export class SpatialSliderPrimitive {
         );
       }
       this.options.onValueChange?.(this.value);
+      this.publishChange();
     }
   }
 }

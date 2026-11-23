@@ -5,7 +5,7 @@
  */
 import * as THREE from 'three';
 import { createTextPanel } from '../../core/ui/text-panel.js';
-import { SpatialLeverPrimitive } from '../../core/input/primitives/index.js';
+import { SpatialSliderPrimitive } from '../../core/input/primitives/index.js';
 
 export interface HelicopterExhibit {
   group: THREE.Group;
@@ -81,29 +81,28 @@ export function buildHelicopterExhibit(): HelicopterExhibit {
     }
   }
 
-  // Collective lever (SpatialLeverPrimitive) — controls rotor speed (Req 45.2)
+  // Collective pitch slider (SpatialSliderPrimitive) — controls rotor speed (Req 45.2) — NO LEVERS
   let rotorAngularVelocity = 0;
-  const collectivePivot = new THREE.Group();
-  collectivePivot.name = 'helicopter-collective-lever';
-  collectivePivot.position.set(-0.35, 0.35, 0);
   const collectiveBase = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.04, 0.04, 0.04, 8),
+    new THREE.BoxGeometry(0.04, 0.22, 0.04),
     new THREE.MeshStandardMaterial({ color: 0x374151 }),
   );
-  collectivePivot.add(collectiveBase);
+  collectiveBase.position.set(-0.35, 0.35, 0);
+  group.add(collectiveBase);
+
   const collectiveHandle = new THREE.Mesh(
-    new THREE.BoxGeometry(0.02, 0.22, 0.02),
+    new THREE.BoxGeometry(0.06, 0.04, 0.04),
     new THREE.MeshStandardMaterial({ color: 0xf59e0b, metalness: 0.5 }),
   );
-  collectiveHandle.position.y = 0.11;
-  collectivePivot.add(collectiveHandle);
-  group.add(collectivePivot);
+  collectiveHandle.name = 'helicopter-collective-slider';
+  collectiveHandle.position.set(-0.35, 0.25, 0);
+  group.add(collectiveHandle);
 
-  new SpatialLeverPrimitive(collectivePivot, {
-    axis: 'z',
-    minAngleDeg: -40,
-    maxAngleDeg: 40,
-    onAngleChange: (_angleDeg, normalized) => {
+  new SpatialSliderPrimitive(collectiveHandle, {
+    axis: 'y',
+    minDistance: 0.25,
+    maxDistance: 0.45,
+    onValueChange: (normalized) => {
       rotorAngularVelocity = normalized * 6.0; // 0 to 6 rad/s
     },
   });
