@@ -3,6 +3,7 @@ import type { AnchorContent, ContentBlock, TierId } from '../content/schema.js';
 import { standardMaterial, PALETTE } from '../design/tokens.js';
 import { SpatialGrabPrimitive } from '../input/primitives/grab.js';
 import { createTextPanel, setTextPanelText } from './text-panel.js';
+import { courseEventBus } from '../course/event-bus.js';
 import {
   createFolioState,
   currentPage,
@@ -198,6 +199,7 @@ export class FolioPanel extends THREE.Group {
     this.state = createFolioState();
     this.visible = true;
     this.paint();
+    courseEventBus.emit('panelOpened', content.id ?? 'folio-panel');
   }
 
   public switchTier(tier: TierId): void {
@@ -237,6 +239,7 @@ export class FolioPanel extends THREE.Group {
   public close(): void {
     this.visible = false;
     this.onClose?.();
+    courseEventBus.emit('panelClosed', this.content?.id ?? 'folio-panel');
   }
 
   private activeTierTab(): void {

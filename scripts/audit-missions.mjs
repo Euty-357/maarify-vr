@@ -152,6 +152,11 @@ function auditSource(source, file) {
     if (!/completed:\s*\(/.test(chunk.text)) {
       problems.push(`${where}: step has no completion predicate`);
     }
+
+    // Fail if any step has a constant true predicate without narrative: true
+    if (/completed:\s*\([^)]*\)\s*=>\s*true/.test(chunk.text) && !/narrative:\s*true/.test(chunk.text)) {
+      problems.push(`${where}: step has placeholder '() => true' predicate without narrative: true`);
+    }
   }
 
   return {

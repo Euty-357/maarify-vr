@@ -312,7 +312,7 @@ export const AEROSPACE_MISSIONS: MissionDefinition[] = [
         id: 'aero-m5-hook',
         caption: 'You predict whether one stage alone can reach orbit.',
         highlights: ['aero-stack-builder'],
-        completed: (events) => events.some((e) => (e.type === 'sliderChanged' || e.type === 'rotated' || e.type === 'leverChanged') && e.target === 'aero-stack-stage-count'),
+        completed: (events) => events.some((e) => (e.type === 'sliderChanged' || e.type === 'rotated') && e.target === 'aero-stack-stage-count'),
       },
       {
         id: 'aero-m5-explore',

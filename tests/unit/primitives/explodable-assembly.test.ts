@@ -54,7 +54,7 @@ describe('ExplodableAssembly', () => {
     expect(nozzle.position.distanceTo(slot)).toBeLessThan(1e-6);
   });
 
-  it('snaps a released part back when it is near its slot, and leaves it out when far', () => {
+  it('snaps a released part back to its current slot position', () => {
     const { assembly, nozzle, nozzlePart } = makeAssembly();
     assembly.setExplodeAmount(0);
     expect(nozzlePart.grab.tryGrab(nozzle.position.clone(), new THREE.Quaternion())).toBe(true);
@@ -64,7 +64,9 @@ describe('ExplodableAssembly', () => {
     nozzle.position.set(3, 0, 0);
     expect(nozzlePart.grab.tryGrab(nozzle.position.clone(), new THREE.Quaternion())).toBe(true);
     nozzlePart.grab.release();
-    expect(nozzlePart.detached).toBe(true);
+    // On release, part eases back to its slot (never trapped as permanently detached)
+    expect(nozzlePart.detached).toBe(false);
+    expect(nozzle.position.x).toBeCloseTo(0.2, 5);
   });
 
   it('resets the assembly to the home pose', () => {

@@ -6,16 +6,16 @@
   "m1-hub": {
     "states": {
       "baseline": {
-        "triangles": 4416,
-        "drawCalls": 32
+        "triangles": 6670,
+        "drawCalls": 88
       }
     }
   },
   "m2-cosmos": {
     "states": {
       "all-destinations-preloaded": {
-        "triangles": 9648,
-        "drawCalls": 72
+        "triangles": 16012,
+        "drawCalls": 159
       }
     }
   },
@@ -30,24 +30,24 @@
   "m4-human-body": {
     "states": {
       "hiv-exploded-geometry-preloaded": {
-        "triangles": 4068,
-        "drawCalls": 65
+        "triangles": 6800,
+        "drawCalls": 114
       }
     }
   },
   "m5-aerospace": {
     "states": {
       "engine-exploded-and-plume-preloaded": {
-        "triangles": 2136,
-        "drawCalls": 52
+        "triangles": 8240,
+        "drawCalls": 45
       }
     }
   },
   "m6-dna-genetics": {
     "states": {
       "all-beats-unlocked": {
-        "triangles": 20334,
-        "drawCalls": 62
+        "triangles": 20344,
+        "drawCalls": 58
       }
     }
   },

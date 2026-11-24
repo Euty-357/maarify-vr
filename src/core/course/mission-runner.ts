@@ -16,6 +16,7 @@ import type {
   CourseEvent,
   CourseTier,
   MissionDefinition,
+  MissionStep,
 } from '../types.js';
 import { CourseEventBus } from './event-bus.js';
 
@@ -75,6 +76,7 @@ export class MissionRunner {
   private activeMissionId: string | null = null;
   private stepIndex = 0;
   private idleSeconds = 0;
+  private stepSeconds = 0;
   private currentHintLevel: HintLevel = 0;
   private unsubscribe: (() => void) | null = null;
   private tier: CourseTier;
@@ -137,6 +139,19 @@ export class MissionRunner {
     return this.states.get(id) ?? 'locked';
   }
 
+  /** True if mission is unlocked (available, active, or done). */
+  public isUnlocked(id: string): boolean {
+    const s = this.getState(id);
+    return s === 'available' || s === 'active' || s === 'done';
+  }
+
+  /** The currently active step definition, or null if no mission is active. */
+  public getActiveStep(): MissionStep | null {
+    const mission = this.getActiveMission();
+    if (!mission) return null;
+    return mission.steps[this.stepIndex] ?? null;
+  }
+
   /** The mission currently in progress, if any. */
   public getActiveMission(): MissionDefinition | null {
     if (!this.activeMissionId) return null;
@@ -164,6 +179,7 @@ export class MissionRunner {
     this.activeMissionId = id;
     this.stepIndex = 0;
     this.idleSeconds = 0;
+    this.stepSeconds = 0;
     this.currentHintLevel = 0;
     this.hintLevels.set(id, 0);
     this.events.set(id, []);
@@ -199,6 +215,13 @@ export class MissionRunner {
     if (!mission) return;
 
     this.idleSeconds += dt;
+    this.stepSeconds += dt;
+
+    const step = mission.steps[this.stepIndex];
+    if (step?.narrative && this.stepSeconds >= 3.5) {
+      this.advanceStep(mission);
+      return;
+    }
 
     let target: HintLevel = 0;
     if (this.idleSeconds >= HINT_TIMINGS.showMe) target = 3;
@@ -270,6 +293,7 @@ export class MissionRunner {
   private advanceStep(mission: MissionDefinition): void {
     this.stepIndex += 1;
     this.idleSeconds = 0;
+    this.stepSeconds = 0;
     this.currentHintLevel = 0;
 
     if (this.stepIndex < mission.steps.length) {

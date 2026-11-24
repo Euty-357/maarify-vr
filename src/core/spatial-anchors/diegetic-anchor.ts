@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { ActiveTuning } from '../../config/tuning.js';
+import { courseEventBus } from '../course/event-bus.js';
 
 export interface SpatialAnchorState {
   id: string;
@@ -149,6 +150,11 @@ export class DiegeticSpatialAnchor extends THREE.Group {
     this.tagMesh.visible = this.isExpanded;
     this.microSimRoot.visible = this.isExpanded;
     this.renderTagCanvas(this.isExpanded);
+    if (this.isExpanded) {
+      courseEventBus.emit('panelOpened', this.anchorId);
+    } else {
+      courseEventBus.emit('panelClosed', this.anchorId);
+    }
     // Adapt tag position and face toward the opening camera position
     if (this.isExpanded && cameraWorldPos) {
       const worldPos = this.getWorldPosition(new THREE.Vector3());

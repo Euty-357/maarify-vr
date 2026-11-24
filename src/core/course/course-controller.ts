@@ -43,6 +43,7 @@ export interface CourseScoreSink {
 /** The diegetic mission board, told when a mission completes so its ticks update. */
 export interface CourseMissionBoard {
   complete(challengeId: string): void;
+  updateCourseState?(runner: MissionRunner): void;
 }
 
 export interface CourseControllerOptions {
@@ -60,11 +61,14 @@ export interface CourseControllerOptions {
 export class CourseController {
   public readonly runner: MissionRunner;
   public readonly captionPanel: THREE.Mesh;
+  public activeInputSource: XRInputSource | null = null;
   private readonly bus: CourseEventBus;
   private readonly options: CourseControllerOptions;
   private readonly highlighted: THREE.Object3D[] = [];
   private detachBus: (() => void) | null = null;
   private captionTimer = 0;
+  private welcomeTimer = 0;
+  private pendingAutoStartId: string | null = null;
 
   constructor(options: CourseControllerOptions) {
     this.options = options;
@@ -76,6 +80,9 @@ export class CourseController {
       scoreSink: {
         awardXp: (amount) => options.scoreSink?.awardXp(amount),
         unlockBadge: (badgeId) => options.scoreSink?.unlockBadge?.(badgeId),
+      },
+      onStateChange: (_id, _state) => {
+        this.options.missionBoard?.updateCourseState?.(this.runner);
       },
       onCaption: (caption) => this.showCaption(caption),
       onHighlight: (targets) => this.highlightTargets(targets),
@@ -95,9 +102,39 @@ export class CourseController {
     this.detachBus = this.runner.attach(this.bus);
   }
 
-  /** Start a mission by id. Returns false when the mission is locked. */
+  /**
+   * Initialize course on module entry: unlock the first non-deferred mission,
+   * show a 3-second welcome caption, then auto-start it.
+   */
+  public initCourse(): void {
+    const missions = this.options.missions;
+    if (!missions || missions.length === 0) return;
+    const first = missions[0];
+    this.runner.unlock(first.id);
+    this.options.missionBoard?.updateCourseState?.(this.runner);
+
+    this.showCaption(`Welcome! Mission 1: ${first.title}`);
+    this.welcomeTimer = 3.0;
+    this.pendingAutoStartId = first.id;
+  }
+
+  public setActiveInputSource(source: XRInputSource | null): void {
+    this.activeInputSource = source;
+  }
+
+  /** Start a mission by id. If another mission is active, abandons it first. Returns false when locked. */
   public startMission(id: string): boolean {
-    return this.runner.start(id);
+    this.welcomeTimer = 0;
+    this.pendingAutoStartId = null;
+    const currentActive = this.runner.getActiveMission();
+    if (currentActive && currentActive.id !== id) {
+      this.runner.abandon();
+    }
+    const ok = this.runner.start(id);
+    if (ok) {
+      this.options.missionBoard?.updateCourseState?.(this.runner);
+    }
+    return ok;
   }
 
   /** Switch depth tier. The runner re-renders the active step caption. */
@@ -110,9 +147,18 @@ export class CourseController {
     this.runner.unlockAll();
   }
 
-  /** Per-frame update: drives the hint ladder. */
+  /** Per-frame update: drives the hint ladder and auto-start welcome timer. */
   public update(dt: number): void {
     this.runner.update(dt);
+    if (this.welcomeTimer > 0) {
+      this.welcomeTimer -= dt;
+      if (this.welcomeTimer <= 0 && this.pendingAutoStartId) {
+        const id = this.pendingAutoStartId;
+        this.pendingAutoStartId = null;
+        this.runner.start(id);
+        this.options.missionBoard?.updateCourseState?.(this.runner);
+      }
+    }
     if (this.captionTimer > 0) {
       this.captionTimer -= dt;
       if (this.captionTimer <= 0) {
@@ -164,17 +210,19 @@ export class CourseController {
   }
 
   private pulseHaptics(preset: { intensity: number; durationMs: number }): void {
-    // A haptic pulse needs an input source; without one we still flash the
-    // caption, so the feedback is never silent.
-    triggerHapticPulse(
-      undefined as unknown as XRInputSource,
-      preset.intensity,
-      preset.durationMs,
-    );
+    if (this.activeInputSource) {
+      triggerHapticPulse(
+        this.activeInputSource,
+        preset.intensity,
+        preset.durationMs,
+      );
+    }
   }
 
   private onMissionComplete(mission: MissionDefinition, score: MissionScore): void {
     this.options.scoreSink?.completeMission?.(mission.id, score.xp);
     this.options.missionBoard?.complete(mission.id);
+    this.options.missionBoard?.updateCourseState?.(this.runner);
+    this.pulseHaptics(ActiveTuning.haptics.success);
   }
 }

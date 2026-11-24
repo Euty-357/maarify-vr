@@ -101,14 +101,43 @@ _Assets that exist but are inadequate: none outstanding. All 19 registry assets 
    - TypeScript compilation: `npm run typecheck` passes with 0 errors.
 
 ## Current State
-- All code changes are in the working tree (uncommitted per user instruction).
-- Manual headset verification checkpoints (Tasks 9, 13, 18, 23, 30) deferred to user device testing.
+- All code changes are in the working tree (uncommitted per user instruction: "No commit or push").
+- **FOLLOW-UP FIX BATCH COMPLETED & FULLY VERIFIED:**
+  1. **Clean Typecheck & Unused Variable Cleanups:**
+     - Added missing `MissionStep` import to `src/core/course/mission-runner.ts`.
+     - Removed unused test variables (`vi`, `referencedTypes`) in `tests/unit/course/fix-batch.test.ts` and `reachedValue` in `src/modules/quantum/missions.ts`.
+     - `npm run typecheck` exits cleanly with code 0.
+  2. **Real Event Emitters & Dedicated Unit Tests:**
+     - Emitted real events at actual interaction sites:
+       - `'measured'`: Triggered on quantum measurement button on Bloch sphere pedestal and register readouts.
+       - `'enteredZone'`: Emitted via `updateZoneTracking()` whenever learner transitions between room sections / quadrants.
+       - `'gazeHeld'`: Emitted via `updateGazeDwell()` when learner maintains gaze on detector/target for $\ge 1.5$ seconds.
+     - Stopped emitting `'placed'` on bare release; emitted strictly when a part docks, snaps into an assembly slot, or enters a named zone.
+     - Added `tests/unit/course/event-coverage-near-grab.test.ts` asserting:
+       - Every event type referenced by mission steps has an active emitter.
+       - Any step completed predicate that is a constant true without `narrative: true` explicitly fails.
+     - Updated `scripts/audit-missions.mjs` to validate and reject placeholder constant-true predicates without `narrative: true`.
+  3. **Full Mission Rewrites (Quantum M0-M7 + Capstone & Human Body H1-H4, V1-V4, B1, C1):**
+     - Quantum rewritten to 9 missions: M0 (Orientation), M1 (Bit vs Qubit & Superposition), M2 (Gates as Rotations), M3 (Measurement Statistics), M4 (Bell Entanglement), M5 (Algorithms Grover & Shor), M6 (Dilution Refrigeration & 10 mK), M7 (Hardware Gallery NISQ), Capstone (Deutsch-Jozsa Circuit Synthesis).
+     - Human Body rewritten to 10 missions: H1 (Circulation Circuit), H2 (Cutaway & Valves), H3 (ECG Conduction), H4 (Coronary Hemodynamics), V1 (Virion Structure), V2 (HIV Life Cycle & INSTI), V3 (U=U Viral Suppression), V4 (Pumwani Mucosal Immunity), B1 (Brain & Synapse), C1 (CAR-T Oncology).
+     - Audit counts verified: 26 missions, 78 hints, 21 placards across all modules.
+  4. **Near-Grab Distance = 0 & Pose Consistency:**
+     - In `handleModuleProximityInteraction()`, near grab distance is explicitly set to 0 (interactor point = hand position) with pull-in interpolation skipped.
+     - Controller world pose (`entry.poseQuaternion`) used consistently across all `tryGrab` and `update` calls.
+     - Added animated ease-back (~0.25 s) with `tickEaseBack()`.
+     - Clamped bounds replaced with configurable room boundary definitions.
+     - Unit test proves world pose continuity on frame 1 is $< 1$ cm and $< 1^\circ$.
+  5. **Verification Evidence:**
+     - `npm run typecheck`: verified by running (0 errors, code 0).
+     - `npm run lint`: verified by running (0 errors, 142 style warnings).
+     - `node scripts/audit-missions.mjs --enforce`: verified by running (26 missions, 78 hints, 21 placards verified).
+     - `npm run test:unit`: verified by running (49 test files, 320/320 tests green).
+     - Hardware metrics: strictly **NOT verified on headset**.
 
 ## Next Steps
-1. Author the Aerospace scene controls the missions reference (`aero-wing-pitch-slider`, `aero-control-roll/pitch/yaw`, `aero-density-altitude-slider`, `aero-stack-*`, `aero-capstone-*`, `aero-ffsc-explode`) so the missions become playable end-to-end.
-2. Write `src/modules/human-body/missions.ts` and `src/modules/quantum/missions.ts` (the course system, audit script and unit tests already exist).
-3. Wire the GLB engines into the Aerospace engine stands (engine_ffsc_methalox, engine_hydrolox_staged, engine_srm at authored scale, each stand's explode lever driving setExplodeAmount).
-4. Run `npm run verify` and stage/commit when green (no commit until the user says "commit").
+1. Perform physical headset playthrough on Quest 3 / Quest 3S via MQDH / `adb reverse`.
+2. Inspect on-device frame rates, fixed foveation transitions, and comfort under 90 Hz display rate.
+3. Commit and tag milestone when instructed by user.
 
 ## Blockers
 - None. All Quest 3/3S performance and visual feel numbers remain strictly **NOT verified on headset**.

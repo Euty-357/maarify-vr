@@ -18,11 +18,11 @@ function makeBoard(): MissionBoard {
 }
 
 describe('MissionBoard positioning', () => {
-  it('positions the board at y=1.2, z=-1.45 from module spawn', () => {
+  it('positions the board at x=0.65, y=1.25, z=-1.35 inside learner FOV', () => {
     const board = makeBoard();
-    expect(board.position.x).toBe(0);
-    expect(board.position.y).toBeCloseTo(1.2, 5);
-    expect(board.position.z).toBeCloseTo(-1.45, 5);
+    expect(board.position.x).toBeCloseTo(0.65, 2);
+    expect(board.position.y).toBeCloseTo(1.25, 2);
+    expect(board.position.z).toBeCloseTo(-1.35, 2);
   });
 });
 
@@ -101,12 +101,12 @@ describe('MissionBoard.update', () => {
 });
 
 describe('buildDrAmaniCaptionPanel', () => {
-  it('returns a blank panel positioned at y=1.65, z=1.5 in module-local space', () => {
+  it('returns a blank panel positioned in learner initial FOV at y=1.45, z=-1.35 in module-local space', () => {
     const panel = buildDrAmaniCaptionPanel();
     expect(panel.isMesh).toBe(true);
     expect(panel.userData.textPanel.text).toBe('');
     expect(panel.position.x).toBe(0);
-    expect(panel.position.y).toBeCloseTo(1.65, 5);
-    expect(panel.position.z).toBeCloseTo(1.5, 5);
+    expect(panel.position.y).toBeCloseTo(1.45, 2);
+    expect(panel.position.z).toBeCloseTo(-1.35, 2);
   });
 });

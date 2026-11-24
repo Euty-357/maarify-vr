@@ -12,6 +12,7 @@
 
 import * as THREE from 'three';
 import { createRoundPointMaterial } from '../design/point-sprite.js';
+import { courseEventBus } from '../course/event-bus.js';
 
 /** Options for FlowPathPlayer. */
 export interface FlowPathPlayerOptions {
@@ -82,6 +83,13 @@ export class FlowPathPlayer {
   /** Set the playback speed (turns per second, 0..1). */
   setSpeed(speed: number): void {
     this.speed = Math.max(0, Math.min(1, speed));
+    courseEventBus.emit('flowToggled', undefined, this.speed);
+  }
+
+  /** Toggle flow playback between stopped (0) and default speed. */
+  togglePlay(): void {
+    this.speed = this.speed === 0 ? 0.15 : 0;
+    courseEventBus.emit('flowToggled', undefined, this.speed);
   }
 
   /** Advance the flow by one fixed timestep (dt seconds). Call from the fixed-timestep accumulator. */

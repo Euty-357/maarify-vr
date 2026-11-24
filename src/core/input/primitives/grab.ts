@@ -10,6 +10,8 @@ export interface GrabbableOptions {
   constrainY?: boolean;
   /** Stable id used by the course system to identify this object. */
   courseId?: string;
+  /** Optional custom bounds [minX, maxX, minY, maxY, minZ, maxZ] for room clamping */
+  bounds?: [number, number, number, number, number, number];
 }
 
 export class SpatialGrabPrimitive {
@@ -19,6 +21,10 @@ export class SpatialGrabPrimitive {
   public homeQuaternion: THREE.Quaternion;
   private grabOffset = new THREE.Vector3();
   private grabQuaternionOffset = new THREE.Quaternion();
+  private easingBack = false;
+  private easeProgress = 0;
+  private easeStartPos = new THREE.Vector3();
+  private easeStartQuat = new THREE.Quaternion();
 
   constructor(
     public targetObject: THREE.Object3D,
@@ -50,16 +56,26 @@ export class SpatialGrabPrimitive {
 
     const targetPos = new THREE.Vector3();
     this.targetObject.getWorldPosition(targetPos);
-    const dist = interactorPos.distanceTo(targetPos);
+    
+    // Distance measured to bounding-sphere surface if available
+    let surfaceDistance = interactorPos.distanceTo(targetPos);
+    const geometry = (this.targetObject as THREE.Mesh).geometry;
+    if (geometry) {
+      if (!geometry.boundingSphere) geometry.computeBoundingSphere();
+      if (geometry.boundingSphere) {
+        const radius = geometry.boundingSphere.radius * this.targetObject.getWorldScale(new THREE.Vector3()).x;
+        surfaceDistance = Math.max(0, surfaceDistance - radius);
+      }
+    }
 
     const threshold = inputSource?.hand
       ? ActiveTuning.input.handGrabThresholdMeters
       : ActiveTuning.input.grabThresholdMeters;
-    if (dist <= threshold) {
+    if (surfaceDistance <= threshold) {
       this.isGrabbed = true;
       this.grabbingSource = inputSource || 'desktop';
 
-      // Compute relative offset in world coordinates
+      // Compute relative offset in world coordinates using current poses
       this.grabOffset.copy(targetPos).sub(interactorPos);
       const targetQuat = this.targetObject.getWorldQuaternion(new THREE.Quaternion());
       this.grabQuaternionOffset.copy(interactorQuat).invert().multiply(targetQuat);
@@ -89,6 +105,12 @@ export class SpatialGrabPrimitive {
       const currentWorldPos = this.targetObject.getWorldPosition(new THREE.Vector3());
       desiredWorldPos.y = currentWorldPos.y;
     }
+
+    // Clamp world height range and room bounds (using custom bounds or safe defaults)
+    const bounds = this.options.bounds ?? [-15, 15, 0.1, 8.0, -15, 15];
+    desiredWorldPos.x = THREE.MathUtils.clamp(desiredWorldPos.x, bounds[0], bounds[1]);
+    desiredWorldPos.y = THREE.MathUtils.clamp(desiredWorldPos.y, bounds[2], bounds[3]);
+    desiredWorldPos.z = THREE.MathUtils.clamp(desiredWorldPos.z, bounds[4], bounds[5]);
 
     const desiredWorldQuat = interactorQuat.clone().multiply(this.grabQuaternionOffset);
 
@@ -123,8 +145,37 @@ export class SpatialGrabPrimitive {
       );
     }
 
+    // Ease back to home pose if dropped more than 1.5m away from home (animated ~0.25s)
+    if (this.targetObject.position.distanceTo(this.homePosition) > 1.5) {
+      this.startEaseBack();
+    }
+
     this.options.onRelease?.(inputSource);
-    courseEventBus.emit('released', this.options.courseId ?? this.targetObject.name);
+    const targetId = this.options.courseId ?? this.targetObject.name;
+    courseEventBus.emit('released', targetId);
+    // Note: 'placed' is NOT emitted on every bare release; it is emitted when docked/snapped or released in target zone
+  }
+
+  public tickEaseBack(dt: number): void {
+    if (!this.easingBack) return;
+    this.easeProgress += dt / 0.25;
+    if (this.easeProgress >= 1) {
+      this.targetObject.position.copy(this.homePosition);
+      this.targetObject.quaternion.copy(this.homeQuaternion);
+      this.easingBack = false;
+      return;
+    }
+    const t = Math.min(1, this.easeProgress);
+    const smoothT = t * t * (3 - 2 * t);
+    this.targetObject.position.lerpVectors(this.easeStartPos, this.homePosition, smoothT);
+    this.targetObject.quaternion.slerpQuaternions(this.easeStartQuat, this.homeQuaternion, smoothT);
+  }
+
+  private startEaseBack(): void {
+    this.easingBack = true;
+    this.easeProgress = 0;
+    this.easeStartPos.copy(this.targetObject.position);
+    this.easeStartQuat.copy(this.targetObject.quaternion);
   }
 }
 

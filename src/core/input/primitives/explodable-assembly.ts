@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { SpatialGrabPrimitive } from './grab.js';
+import { courseEventBus } from '../../course/event-bus.js';
 
 export interface ExplodablePartOptions {
   label?: string;
@@ -63,7 +64,7 @@ export class ExplodableAssembly {
 
     part.grab = new SpatialGrabPrimitive(object, {
       onGrab: () => {
-        part.detached = true;
+        // Part is marked detached only while grabbable manipulation is active
       },
       onRelease: () => this.trySnap(part),
       onMove: (worldPosition, worldQuaternion) => {
@@ -92,18 +93,12 @@ export class ExplodableAssembly {
   /** Lerp every unheld part between its home pose (0) and exploded slot (1). */
   public setExplodeAmount(amount: number): void {
     this.explodeAmount = THREE.MathUtils.clamp(amount, 0, 1);
-    if (this.explodeAmount <= 0.05) {
-      for (const part of this.parts.values()) {
-        if (!part.grab.isGrabbed) {
-          part.detached = false;
-        }
-      }
-    }
     for (const part of this.parts.values()) {
-      if (part.detached || part.grab.isGrabbed) continue;
+      if (part.grab.isGrabbed) continue;
       const slot = this.slotPosition(part);
       part.object.position.copy(slot);
       part.object.quaternion.copy(part.homeQuaternion);
+      part.detached = false;
     }
   }
 
@@ -145,10 +140,10 @@ export class ExplodableAssembly {
 
   private trySnap(part: ExplodablePart): void {
     const slot = this.slotPosition(part);
-    if (part.object.position.distanceTo(slot) <= part.snapDistanceMeters) {
-      part.detached = false;
-      part.object.position.copy(slot);
-      part.object.quaternion.copy(part.homeQuaternion);
-    }
+    // Smoothly ease back to current slot position
+    part.detached = false;
+    part.object.position.copy(slot);
+    part.object.quaternion.copy(part.homeQuaternion);
+    courseEventBus.emit('placed', part.id);
   }
 }

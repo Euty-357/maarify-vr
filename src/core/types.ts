@@ -119,6 +119,8 @@ export interface MissionStep {
   highlights?: string[];
   /** Predicate over the events seen during this step. */
   completed: MissionPredicate;
+  /** If true, this step is narrative framing and may auto-advance without physical interaction. */
+  narrative?: boolean;
 }
 
 /** Feedback copy for the three learner-facing outcomes. Never a fail state. */

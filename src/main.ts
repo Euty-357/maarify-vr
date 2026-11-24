@@ -28,6 +28,7 @@ import { applyBrandDocument } from './core/brand/brand';
 import { FolioPanel } from './core/ui/folio-panel';
 import { placeFolioBesideExhibit } from './core/ui/folio-placement';
 import { MissionBoard, defaultMissionFor } from './core/mission/mission-board';
+import { TutorialController } from './core/mission/tutorial-controller';
 import { TravelSystem, type TravelDestination } from './core/travel/travel-system';
 import { VignetteFade } from './core/travel/vignette-fade';
 import { findAnchorContent } from './core/content/loader';
@@ -73,6 +74,7 @@ let activeModuleDef: ModuleDefinition | null = null;
 let activeModuleRoot: THREE.Object3D | null = null;
 /** Course runner for the active module's missions (Prompt 0 course system). */
 let activeCourse: CourseController | null = null;
+let tutorialController: TutorialController | null = null;
 let missionBoard: MissionBoard | null = null;
 const travelSystem = new TravelSystem();
 let travelWasActive = false;
@@ -133,7 +135,72 @@ let returnTimer = 0;
 let returnRayArmUntil = 0;
 let grabHighlightGroup: THREE.Group | null = null;
 
-// Desktop framing (restored when an immersive session ends).
+let gazeTarget: THREE.Object3D | null = null;
+let gazeDwellSeconds = 0;
+let lastGazeEmittedTarget: THREE.Object3D | null = null;
+let currentZone: string | null = null;
+
+function updateZoneTracking(): void {
+  if (!activeModuleRoot) {
+    currentZone = null;
+    return;
+  }
+  const pos = camera.getWorldPosition(new THREE.Vector3());
+  let foundZone: string | null = null;
+  // Check active module sections or named zones
+  if (activeModuleDef?.sections) {
+    for (const section of activeModuleDef.sections) {
+      const entry = section.entryPosition;
+      const dist = Math.hypot(pos.x - entry[0], pos.z - entry[2]);
+      if (dist <= 3.5) {
+        foundZone = section.id;
+        break;
+      }
+    }
+  }
+  if (!foundZone) {
+    // Default room zone checks by coordinate quadrants
+    if (pos.x < -2.0) foundZone = 'zone-west';
+    else if (pos.x > 2.0) foundZone = 'zone-east';
+    else if (pos.z < -2.0) foundZone = 'zone-north';
+    else foundZone = 'zone-center';
+  }
+
+  if (foundZone !== currentZone) {
+    currentZone = foundZone;
+    courseEventBus.emit('enteredZone', foundZone);
+  }
+}
+
+function updateGazeDwell(dt: number): void {
+  const headPos = camera.getWorldPosition(new THREE.Vector3());
+  const headDir = camera.getWorldDirection(new THREE.Vector3());
+  const gazeRay = new THREE.Raycaster(headPos, headDir, 0.1, 10.0);
+  const targets: THREE.Object3D[] = [];
+  if (activeModuleRoot) targets.push(activeModuleRoot);
+
+  const hits = gazeRay.intersectObjects(targets, true);
+  const interactiveHit = hits.find((h) => !isHiddenInHierarchy(h.object));
+
+  if (interactiveHit) {
+    if (gazeTarget === interactiveHit.object) {
+      gazeDwellSeconds += dt;
+      if (gazeDwellSeconds >= 1.5 && lastGazeEmittedTarget !== interactiveHit.object) {
+        lastGazeEmittedTarget = interactiveHit.object;
+        const targetId = interactiveHit.object.name || 'observer-detector';
+        courseEventBus.emit('gazeHeld', targetId, gazeDwellSeconds);
+      }
+    } else {
+      gazeTarget = interactiveHit.object;
+      gazeDwellSeconds = 0;
+      lastGazeEmittedTarget = null;
+    }
+  } else {
+    gazeTarget = null;
+    gazeDwellSeconds = 0;
+    lastGazeEmittedTarget = null;
+  }
+}
 const DESKTOP_CAMERA_POSITION = new THREE.Vector3(0, 1.4, 0.8);
 const DESKTOP_LOOK_AT = new THREE.Vector3(0, 1.1, -1.2);
 
@@ -511,6 +578,7 @@ function clearActiveModuleRuntime(): void {
   activeFolioAnchor = null;
   if (folioPanel) folioPanel.visible = false;
   missionBoard = null;
+  tutorialController = null;
   activeCourse?.dispose();
   activeCourse = null;
   if (activeModuleRoot?.parent) activeModuleRoot.parent.remove(activeModuleRoot);
@@ -554,9 +622,14 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
     activeModuleRoot = loadedRoot;
     hubWorld.visible = false;
     mod.setDepthTier?.(selectedTier);
-    missionBoard = new MissionBoard(mod.mission ?? defaultMissionFor(mod.displayName), mod.getChallenges());
-    missionBoard.position.set(-1.6, 1.2, -1.1);
-    missionBoard.lookAt(0, 1.2, 0);
+    missionBoard = new MissionBoard(
+      mod.mission ?? defaultMissionFor(mod.displayName),
+      mod.getChallenges(),
+      mod.missions ?? []
+    );
+    // Board placed in learner's initial FOV: ~26 deg to the right, 1.51m distance, 1.25m height
+    missionBoard.position.set(0.65, 1.25, -1.35);
+    missionBoard.lookAt(0, 1.25, 0);
     activeModuleRoot.add(missionBoard);
 
     // Course system: build the mission runner for this module's missions.
@@ -573,8 +646,25 @@ export async function loadModule(id: string): Promise<THREE.Object3D | null> {
         missionBoard: missionBoard ?? undefined,
         resolveHighlight: (targetId) => activeModuleRoot?.getObjectByName(targetId),
       });
-      activeCourse.captionPanel.position.set(0, 1.5, 1.2);
+
+      // Caption panel placed directly forward in initial FOV: 0 deg, 1.35m distance, 1.45m height
+      activeCourse.captionPanel.position.set(0, 1.45, -1.35);
+      activeCourse.captionPanel.lookAt(0, 1.45, 0);
       loadedRoot.add(activeCourse.captionPanel);
+
+      missionBoard.onSelectMission = (id: string) => {
+        activeCourse?.startMission(id);
+      };
+
+      if (mod.mission && mod.mission.tutorial && mod.mission.tutorial.length > 0) {
+        tutorialController = new TutorialController(mod.mission, activeCourse.captionPanel);
+        tutorialController.onComplete = () => {
+          activeCourse?.initCourse();
+        };
+        tutorialController.start();
+      } else {
+        activeCourse.initCourse();
+      }
     }
 
     highlightGrabbables(activeModuleRoot);
@@ -635,6 +725,7 @@ function applyDepthTier(tier: DepthTier): void {
   hubWorld.setTier(tier);
   progressStore.setDepthTier(tier);
   activeModuleDef?.setDepthTier?.(tier);
+  courseEventBus.emit('tierChanged', undefined, tier === 'foundation' ? 0 : tier === 'advanced' ? 1 : 2);
 }
 
 function resetRigToOrigin(): void {
@@ -1272,7 +1363,9 @@ function handleModuleRayInteraction(
   }
 
   const grab = findUserDataPrimitive(hit.object, 'grabPrimitive') as SpatialGrabPrimitive | null;
-  if (grab && !grab.isGrabbed && grab.tryGrab(hit.point, new THREE.Quaternion(), source)) {
+  const cEntry = xrControllers.find((candidate) => candidate.controller === controller) ?? null;
+  const cQuat = cEntry?.hasPose ? cEntry.poseQuaternion : controller.getWorldQuaternion(new THREE.Quaternion());
+  if (!isTwoHandedPinchActive && grab && !grab.isGrabbed && grab.tryGrab(hit.point, cQuat, source)) {
     activeGrabs.set(controller, grab);
     grabDistances.set(controller, Math.max(0.35, hit.distance));
     const hand = (source?.handedness as 'left' | 'right') || 'right';
@@ -1307,7 +1400,9 @@ function handleFolioRay(origin: THREE.Vector3, direction: THREE.Vector3, source?
     triggerHapticPulse(source, ActiveTuning.haptics.detent.intensity, ActiveTuning.haptics.detent.durationMs);
   } else {
     const grab = findUserDataPrimitive(hit.object, 'grabPrimitive') as SpatialGrabPrimitive | null;
-    if (grab && !grab.isGrabbed) grab.tryGrab(hit.point, new THREE.Quaternion(), source);
+    const fEntry = xrControllers.find((candidate) => candidate.source === source) ?? null;
+    const fQuat = fEntry?.hasPose ? fEntry.poseQuaternion : camera.quaternion;
+    if (grab && !grab.isGrabbed) grab.tryGrab(hit.point, fQuat, source);
   }
   return true;
 }
@@ -1357,8 +1452,11 @@ function handleModuleProximityInteraction(
   const grabObject = findClosestModuleObject((object) => object.userData.grabPrimitive instanceof SpatialGrabPrimitive, pos, 0.3);
   if (!grabObject) return;
   const grab = grabObject.userData.grabPrimitive as SpatialGrabPrimitive;
-  if (!grab.tryGrab(pos, controller.quaternion, source)) return;
+  const cEntry = xrControllers.find((candidate) => candidate.controller === controller) ?? null;
+  const cQuat = cEntry?.hasPose ? cEntry.poseQuaternion : controller.getWorldQuaternion(new THREE.Quaternion());
+  if (!grab.tryGrab(pos, cQuat, source)) return;
   activeGrabs.set(controller, grab);
+  grabDistances.set(controller, 0); // Near grab: distance is 0, interactor point is the hand (no pull-in)
 }
 
 function findClosestModuleObject(predicate: (object: THREE.Object3D) => boolean, pos: THREE.Vector3, maxDistance: number): THREE.Object3D | null {
@@ -1557,6 +1655,7 @@ function updateXRLocomotion(frame?: XRFrame, deltaSeconds = 0): void {
         : (Boolean(btn?.pressed) && val >= 0.5);
 
       if (triggerPressed && !entry.lastTriggerPress) {
+        if (entry.source) activeCourse?.setActiveInputSource(entry.source);
         onControllerTrigger(entry.controller, 'poll');
       } else if (!triggerPressed && entry.lastTriggerPress) {
         releaseControllerGrab(entry.controller);
@@ -1711,8 +1810,10 @@ function syncControllerPoses(frame?: XRFrame): void {
         const pinch = nextPinch(entry.pinchActive, thumbPosition.distanceTo(indexPosition));
         if (pinch.active !== entry.pinchActive) {
           entry.pinchActive = pinch.active;
-          if (pinch.active) onControllerTrigger(entry.controller, 'pinch');
-          else releaseControllerGrab(entry.controller);
+          if (pinch.active) {
+            if (entry.source) activeCourse?.setActiveInputSource(entry.source);
+            onControllerTrigger(entry.controller, 'pinch');
+          } else releaseControllerGrab(entry.controller);
         }
       } else {
         // Joints present but not yet valid — keep existing pinch state, do not fire.
@@ -1843,22 +1944,41 @@ function renderLoop(_time: DOMHighResTimeStamp, _frame?: XRFrame) {
   }
 }
 
-function findScalePinch(root: THREE.Object3D): SpatialScalePinchPrimitive | null {
-  let found: SpatialScalePinchPrimitive | null = null;
+let isTwoHandedPinchActive = false;
+let lastHoveredPinchPrimitive: SpatialScalePinchPrimitive | null = null;
+
+function findScalePinch(root: THREE.Object3D, handMidpoint?: THREE.Vector3): SpatialScalePinchPrimitive | null {
+  const candidates: { primitive: SpatialScalePinchPrimitive; dist: number }[] = [];
   root.traverse((obj) => {
-    if (!found && obj.userData?.scalePinchPrimitive instanceof SpatialScalePinchPrimitive) {
-      found = obj.userData.scalePinchPrimitive as SpatialScalePinchPrimitive;
+    if (obj.userData?.scalePinchPrimitive instanceof SpatialScalePinchPrimitive) {
+      const prim = obj.userData.scalePinchPrimitive as SpatialScalePinchPrimitive;
+      if (handMidpoint) {
+        const objWorldPos = obj.getWorldPosition(new THREE.Vector3());
+        candidates.push({ primitive: prim, dist: handMidpoint.distanceTo(objWorldPos) });
+      } else {
+        candidates.push({ primitive: prim, dist: 0 });
+      }
     }
   });
-  return found;
+
+  if (candidates.length === 0) return null;
+  if (!handMidpoint) return lastHoveredPinchPrimitive ?? candidates[0].primitive;
+  candidates.sort((a, b) => a.dist - b.dist);
+  return candidates[0].primitive;
 }
 
 function updateTwoHandedInteractions(): void {
-  if (!activeModuleRoot) return;
+  if (!activeModuleRoot) {
+    isTwoHandedPinchActive = false;
+    return;
+  }
 
   const left = xrControllers.find((c) => c.handedness === 'left');
   const right = xrControllers.find((c) => c.handedness === 'right');
-  if (!left || !right) return;
+  if (!left || !right) {
+    isTwoHandedPinchActive = false;
+    return;
+  }
 
   const leftGrip = Boolean(left.source?.gamepad?.buttons[1]?.pressed);
   const rightGrip = Boolean(right.source?.gamepad?.buttons[1]?.pressed);
@@ -1874,13 +1994,19 @@ function updateTwoHandedInteractions(): void {
   const leftActive = leftGrip || leftTrigger || leftPinch;
   const rightActive = rightGrip || rightTrigger || rightPinch;
 
-  const pinchPrimitive = findScalePinch(activeModuleRoot);
-  if (!pinchPrimitive) return;
+  const pos1 = left.hasPose ? left.poseOrigin.clone() : left.controller.getWorldPosition(new THREE.Vector3());
+  const pos2 = right.hasPose ? right.poseOrigin.clone() : right.controller.getWorldPosition(new THREE.Vector3());
+  const midpoint = pos1.clone().add(pos2).multiplyScalar(0.5);
+
+  const pinchPrimitive = findScalePinch(activeModuleRoot, midpoint);
+  if (!pinchPrimitive) {
+    isTwoHandedPinchActive = false;
+    return;
+  }
 
   if (leftActive && rightActive) {
-    const pos1 = left.hasPose ? left.poseOrigin.clone() : left.controller.getWorldPosition(new THREE.Vector3());
-    const pos2 = right.hasPose ? right.poseOrigin.clone() : right.controller.getWorldPosition(new THREE.Vector3());
-
+    isTwoHandedPinchActive = true;
+    lastHoveredPinchPrimitive = pinchPrimitive;
     if (!pinchPrimitive.isTwoHandedActive) {
       pinchPrimitive.startTwoHanded(pos1, pos2);
       logEvent('grab', 'info', { event: 'two-handed-explode-start' });
@@ -1889,7 +2015,10 @@ function updateTwoHandedInteractions(): void {
     }
   } else if (pinchPrimitive.isTwoHandedActive) {
     pinchPrimitive.endTwoHanded();
+    isTwoHandedPinchActive = false;
     logEvent('grab', 'info', { event: 'two-handed-explode-end' });
+  } else {
+    isTwoHandedPinchActive = false;
   }
 }
 
@@ -1926,6 +2055,8 @@ function renderFrame(frame?: XRFrame) {
   updateReturnGate(deltaSec);
   updateTwoHandedInteractions();
   updateFolioLifecycle();
+  updateGazeDwell(deltaSec);
+  updateZoneTracking();
   const arrival = travelSystem.update(deltaSec);
   if (arrival) {
     cameraRig.position.set(arrival.position.x, 0, arrival.position.z);
@@ -1948,6 +2079,7 @@ function renderFrame(frame?: XRFrame) {
 
   // Course tick: drives the hint ladder for the active mission.
   activeCourse?.update(deltaSec);
+  tutorialController?.update(deltaSec);
 
   activeLevers.forEach((lever, controller) => {
     const lEntry = xrControllers.find((candidate) => candidate.controller === controller) ?? null;
@@ -1960,8 +2092,21 @@ function renderFrame(frame?: XRFrame) {
     const origin = entry?.hasPose ? entry.poseOrigin.clone() : controller.getWorldPosition(new THREE.Vector3());
     const quaternion = entry?.hasPose ? entry.poseQuaternion.clone() : controller.getWorldQuaternion(new THREE.Quaternion());
     const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(quaternion);
-    const distance = grabDistances.get(controller) ?? 0.6;
-    grab.update(origin.addScaledVector(direction, distance), quaternion);
+    
+    const currentDist = grabDistances.get(controller) ?? 0.65;
+    // For near-grab (distance initially 0), stay at 0 (hand pose); for ray-grab, pull smoothly to ~0.65m
+    const targetDist = currentDist === 0 ? 0 : 0.65;
+    const smoothDist = currentDist === 0 ? 0 : THREE.MathUtils.lerp(currentDist, targetDist, Math.min(1, deltaSec * 8));
+    grabDistances.set(controller, smoothDist);
+
+    grab.update(origin.addScaledVector(direction, smoothDist), quaternion);
+  });
+
+  // Tick ease-back animations on displaced grabbable objects
+  activeModuleRoot?.traverse((obj) => {
+    if (obj.userData?.grabPrimitive instanceof SpatialGrabPrimitive) {
+      obj.userData.grabPrimitive.tickEaseBack(deltaSec);
+    }
   });
 
   // Per-frame billboard: compact anchor affordances face the camera. Folios do not.

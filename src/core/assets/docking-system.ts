@@ -246,6 +246,9 @@ export class DockingSystem {
     courseEventBus.emit('docked', peg.pegId ?? peg.partId, undefined, {
       anchorName: anchor.anchor.anchorName,
     });
+    courseEventBus.emit('placed', peg.pegId ?? peg.partId, undefined, {
+      anchorName: anchor.anchor.anchorName,
+    });
 
     triggerHapticPulse(
       undefined as unknown as XRInputSource,

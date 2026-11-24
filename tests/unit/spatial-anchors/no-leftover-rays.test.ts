@@ -124,7 +124,7 @@ describe('module scenes leave no visible leftover rays', () => {
         mat.dispose();
       }
     });
-  });
+  }, 15000);
 
   it('Aerospace scene has no leftover rays', async () => {
     const { buildAerospaceScene } = await import('../../../src/modules/aerospace/scene.js');

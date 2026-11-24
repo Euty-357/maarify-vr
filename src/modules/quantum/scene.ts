@@ -9,6 +9,7 @@ import { AssetCache } from '../../core/assets/asset-cache.js';
 import { parseAssetNodes } from '../../core/assets/asset-parser.js';
 import { createExplodableFromAsset } from '../../core/assets/explodable-adapter.js';
 import { FlowPathPlayer } from '../../core/assets/flow-path-player.js';
+import { courseEventBus } from '../../core/course/event-bus.js';
 
 export interface QuantumSceneComponents {
   root: THREE.Group;
@@ -293,6 +294,20 @@ export async function buildQuantumScene(): Promise<QuantumSceneComponents> {
     // Bloch sphere on lab bench at y=0.78 (no double-pedestal, flush on table)
     placeQuantumAsset('/models/quantum/bloch_sphere.glb', new THREE.Vector3(-2.0, 0.78, -1.8), {
       fitToHeight: 0.55, explodable: true, label: 'Bloch Sphere',
+      onLoaded: (scene) => {
+        // Measure button on Bloch pedestal
+        const measureBtn = createTextPanel('MEASURE', {
+          widthMeters: 0.2, heightMeters: 0.06, fontSizePx: 20, align: 'center',
+          background: '#047857', color: '#ecfdf5', accent: '#10b981',
+        });
+        measureBtn.name = 'bloch-measure-button';
+        measureBtn.position.set(0, 0.05, 0.25);
+        measureBtn.userData.activate = () => {
+          const outcome = Math.random() < 0.5 ? 0 : 1;
+          courseEventBus.emit('measured', 'bloch-qubit', outcome, { shots: 1 });
+        };
+        scene.add(measureBtn);
+      },
     }),
     // Quantum circuit kit on lab table at y=0.78
     placeQuantumAsset('/models/quantum/qc_circuit_kit.glb', new THREE.Vector3(2.0, 0.78, -1.8), {

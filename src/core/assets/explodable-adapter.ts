@@ -14,6 +14,7 @@ import { ExplodableAssembly, ExplodablePart } from '../input/primitives/explodab
 import { ActiveTuning } from '../../config/tuning.js';
 import { triggerHapticPulse } from '../../core/haptics/haptics.js';
 import { courseEventBus } from '../course/event-bus.js';
+import { createTextPanel, setTextPanelText } from '../ui/text-panel.js';
 import type { AssetPart, ParsedAsset } from './types.js';
 
 interface ExplodablePartWithMoving extends ExplodablePart {
@@ -134,6 +135,53 @@ export function createExplodableFromAsset(
       }
     }
   };
+
+  // Add diegetic brass plaque button on each assembly (EXPLODE ⤢ / ASSEMBLE ⤡)
+  // Activated by ray or touch, animated 0 to 1 smoothly
+  const plaque = createTextPanel('EXPLODE ⤢', {
+    widthMeters: 0.28,
+    heightMeters: 0.08,
+    fontSizePx: 26,
+    align: 'center',
+    background: '#3a2416',
+    color: '#e8dcc0',
+    accent: '#b08d57',
+    pixelWidth: 320,
+    pixelHeight: 96,
+    lines: 1,
+  });
+  plaque.name = `plaque-explode-${root.name || 'assembly'}`;
+  plaque.position.set(0, 0.1, 0.45);
+  plaque.userData.isExplodePlaque = true;
+
+  let animating = false;
+  let targetAmount = 0;
+  const animateStep = () => {
+    if (!animating) return;
+    const current = assembly.explodeAmount;
+    const diff = targetAmount - current;
+    if (Math.abs(diff) < 0.04) {
+      assembly.setExplodeAmount(targetAmount);
+      animating = false;
+      setTextPanelText(plaque, targetAmount > 0.5 ? 'ASSEMBLE ⤡' : 'EXPLODE ⤢');
+      return;
+    }
+    assembly.setExplodeAmount(current + Math.sign(diff) * 0.08);
+    if (typeof requestAnimationFrame !== 'undefined') {
+      requestAnimationFrame(animateStep);
+    } else {
+      assembly.setExplodeAmount(targetAmount);
+      animating = false;
+      setTextPanelText(plaque, targetAmount > 0.5 ? 'ASSEMBLE ⤡' : 'EXPLODE ⤢');
+    }
+  };
+
+  plaque.userData.activate = () => {
+    targetAmount = assembly.explodeAmount > 0.5 ? 0 : 1;
+    animating = true;
+    animateStep();
+  };
+  root.add(plaque);
 
   return assembly;
 }
